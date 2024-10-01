@@ -1,4 +1,4 @@
-package pl.example.bluetoothmodule
+package pl.example.bluetoothmodule.permission
 
 import androidx.lifecycle.ViewModel
 
