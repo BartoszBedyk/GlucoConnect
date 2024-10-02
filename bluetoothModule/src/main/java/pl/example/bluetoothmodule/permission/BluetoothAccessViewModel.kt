@@ -4,18 +4,13 @@ import androidx.lifecycle.ViewModel
 
 class BluetoothAccessViewModel: ViewModel() {
     //[BLUETOOTH]
-    val visiblePermissionDialogQueue = mutableListOf<String>()
+    val permissionList = mutableListOf<String>()
 
     fun dismissDialog(){
-        visiblePermissionDialogQueue.removeFirst()
+        permissionList.removeFirst()
     }
 
-    fun onPermissionResult(
-        permission: String,
-        isGranted: Boolean
-    ) {
-        if(isGranted && !visiblePermissionDialogQueue.contains(permission)){
-            visiblePermissionDialogQueue.add(permission)
-        }
-    }
+
+
+
 }

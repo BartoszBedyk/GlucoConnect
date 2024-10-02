@@ -29,19 +29,19 @@ class BluetoothActivator(private val context: Context) {
         const val REQUEST_ENABLE_BT = 1
     }
 
-    @SuppressLint("MissingPermission")
-    fun checkAndRequestBluetooth()  {
-
-
-        val bluetoothManager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
-        val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
-        permissionControl.isPermissionBluetoothConnect()
-        if (bluetoothAdapter?.isEnabled == false) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            enableBtLauncher.launch(enableBtIntent)
-            //return true
-        }
-        //return false
-    }
+//    @SuppressLint("MissingPermission")
+//    fun checkAndRequestBluetooth()  {
+//
+//
+//        val bluetoothManager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
+//        val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
+//        permissionControl.isPermissionBluetoothConnect()
+//        if (bluetoothAdapter?.isEnabled == false) {
+//            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+//            enableBtLauncher.launch(enableBtIntent)
+//            //return true
+//        }
+//        //return false
+//    }
 
 }

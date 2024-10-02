@@ -18,10 +18,6 @@ class BluetoothStart(private val context: Context) {
     val handle = handleEnablance(bluetoothAdapter, context)
 
 
-
-
-
-
 }
 
 fun isSupported(bluetoothAdapter : BluetoothAdapter?) : Boolean{
