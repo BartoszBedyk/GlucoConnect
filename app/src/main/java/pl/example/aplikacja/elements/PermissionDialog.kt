@@ -28,7 +28,7 @@ import pl.example.bluetoothmodule.permission.PermissionControl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionDialog(typ : String, permissionControl: PermissionControl) {
+fun PermissionDialog(typ : String, onOkClick: ()-> Unit) {
     var openDialog by remember { mutableStateOf(true) }
 
 
@@ -54,10 +54,7 @@ fun PermissionDialog(typ : String, permissionControl: PermissionControl) {
                     )
                     Spacer(Modifier.padding(6.dp))
                     TextButton(
-                        onClick = {
-                            //permissionBy(typ, permissionControl)
-                            openDialog = false
-                                  },
+                        onClick =onOkClick,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
                             Text(text = "Uzyskaj")
@@ -69,15 +66,6 @@ fun PermissionDialog(typ : String, permissionControl: PermissionControl) {
 
 }
 
-//fun permissionBy(permission: String, permissionControl: PermissionControl){
-//    return when(permission){
-//        "ADMIN" -> permissionControl.requestPermissionAdmin(false)
-//        "SCAN" -> permissionControl.requestPermissionScan(false)
-//        "CONNECT" -> permissionControl.requestPermissionConnect(false)
-//        "ADVERTISE" -> permissionControl.requestPermissionAdvertise(false)
-//        else -> return
-//    }
-//}
 
 
 

@@ -19,7 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import pl.example.aplikacja.elements.PermissionDialog
+import pl.example.bluetoothmodule.permission.BluetoothAccessViewModel
 import pl.example.bluetoothmodule.permission.PermissionControl
 
 @Composable
@@ -27,24 +30,26 @@ fun bluetoothPermissionsScreen(navController: NavHostController) {
     val context = LocalContext.current
     val permissionControl = PermissionControl(context)
 
-    val bluetoothPermission = PermissionControl.PermissionType(BLUETOOTH_CONNECT, false)
+    val bluetoothPermissionViewModel = viewModel<BluetoothAccessViewModel>()
+    val bluetoothPermission = PermissionControl.PermissionType(BLUETOOTH_CONNECT, permissionControl.isGranted(BLUETOOTH_CONNECT))
 
-    // Zmienna do śledzenia stanu zgody na uprawnienie
-    var permissionRequested by remember { mutableStateOf(false) }
+    var permissionRequested by remember { mutableStateOf(permissionControl.isGranted(bluetoothPermission)) }
 
-    // Launcher do zarządzania uprawnieniami
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
             Log.d("PERMISSION", "Bluetooth permission granted")
             bluetoothPermission.isAgreed = true
+            bluetoothPermissionViewModel.updatePermissionStatus(true)
         } else {
             Log.d("PERMISSION", "Bluetooth permission denied")
+            bluetoothPermissionViewModel.updatePermissionStatus(false)
         }
     }
 
-    // Uruchomienie zapytania o uprawnienia, jeśli nie zostały przyznane
+
+
     LaunchedEffect(Unit) {
         if (!permissionRequested && !bluetoothPermission.isAgreed) {
             permissionControl.isGranted(bluetoothPermission)
@@ -55,9 +60,14 @@ fun bluetoothPermissionsScreen(navController: NavHostController) {
             }
         }
     }
+    val isPermissionGranted = bluetoothPermissionViewModel.isPermissionGranted
 
     Column {
-        PermissionStatusChecker(bluetoothPermission.permission, permissionControl.isGranted(bluetoothPermission))
+        PermissionStatusChecker(bluetoothPermission.permission, isPermissionGranted)
+        if(!isPermissionGranted){
+            Log.d("działa", "działaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            PermissionDialog("Bluetooth", onOkClick = { openAppSettings(context) })
+        }
         Button(onClick = {
             openAppSettings(context)
         }) {

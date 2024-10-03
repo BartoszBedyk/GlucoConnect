@@ -46,6 +46,16 @@ class PermissionControl(private val context: Context) {
         }
     }
 
+    fun isGranted(permission: String) : Boolean {
+        if (ContextCompat.checkSelfPermission(context, permission) == PERMISSION_GRANTED) {
+            Log.d("PERMISSION", "Permission is granted")
+            return true
+        } else {
+            Log.d("PERMISSION", "Permission isn't granted")
+            return false
+        }
+    }
+
     fun askForPermission(permissionType: PermissionType, requestCode: Int) {
         val permission = arrayOf(permissionType.permission)
 
