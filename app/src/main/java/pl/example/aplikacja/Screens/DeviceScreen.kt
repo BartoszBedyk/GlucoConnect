@@ -1,5 +1,11 @@
 package pl.example.aplikacja.Screens
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,10 +31,30 @@ import pl.example.bluetoothmodule.presentation.BluetoothUiState
 fun DeviceScreen(
     state: BluetoothUiState,
     onStartScan: () -> Unit,
-    onStopScan: () -> Unit
+    onStopScan: () -> Unit,
+    context: Context,
+    onStartServer: () -> Unit,
+    onDeviceClick: (BluetoothDevice) -> Unit
 ) {
+
+    if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
+            Manifest.permission.BLUETOOTH_SCAN
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        Button(onClick = { openAppSettings(context) }) {
+            Text(text = "Go to settings")
+        }
+    }
+
+
     Column {
-        BluetoothDeviceList(state.pairedDevices, state.scannedDevices, onClick = {}, Modifier.fillMaxWidth() .weight(1f))
+        BluetoothDeviceList(
+            state.pairedDevices, state.scannedDevices,
+            onClick = onDeviceClick,
+            Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
@@ -39,10 +65,23 @@ fun DeviceScreen(
             Button(onClick = onStopScan) {
                 Text(text = "Stop scan")
             }
+            Button(onClick = onStartServer) {
+                Text(text = "Start server")
+            }
+
 
         }
     }
 
+}
+
+fun openAppSettings(context: Context) {
+    context.startActivity(
+        Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", context.packageName, null)
+        )
+    )
 }
 
 @Composable

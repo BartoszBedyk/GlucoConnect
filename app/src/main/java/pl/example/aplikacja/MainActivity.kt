@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,6 +49,7 @@ import pl.example.bluetoothmodule.PermissionControl
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 import dagger.hilt.android.ViewModelLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import pl.example.aplikacja.Screens.DeviceScreen
 
 @AndroidEntryPoint
@@ -89,6 +93,7 @@ class MainActivity : ComponentActivity() {
 
                 val bluetoothViewModel: BluetoothViewModel by viewModels()
                 val state by bluetoothViewModel.state.collectAsState()
+                val context = LocalContext.current
 
 
 
@@ -96,18 +101,64 @@ class MainActivity : ComponentActivity() {
                     permissionLauncher.launch(
                         arrayOf(
                             Manifest.permission.BLUETOOTH_SCAN,
-                            Manifest.permission.BLUETOOTH_CONNECT
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.BLUETOOTH_ADVERTISE
                         )
                     )
                 }
+
+                LaunchedEffect(key1 = state.errorMessage) {
+                    state.errorMessage?.let{ message -> {
+                        Toast.makeText(
+                            applicationContext,
+                            message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }}
+                }
+
+                LaunchedEffect(key1 = state.isConnected) {
+                    if(state.isConnected){
+                        Toast.makeText(
+                            applicationContext,
+                            "You're connected!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                }
+
+
+
+
+
                 Surface(
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DeviceScreen(
-                        state = state,
-                        onStartScan = bluetoothViewModel::startScan,
-                        onStopScan = bluetoothViewModel::stopScan
-                    )
+                    when{
+                        state.isConnecting ->{
+                            Column(modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center){
+                                CircularProgressIndicator()
+                                Text(text = "Connecting...")
+                            }
+                        }
+                        else -> {
+                            DeviceScreen(
+                                state = state,
+                                onStartScan = bluetoothViewModel::startScan,
+                                onStopScan = bluetoothViewModel::stopScan,
+                                context = applicationContext,
+                                onDeviceClick = { device ->
+                                    bluetoothViewModel.connectToGattDevice(device, context)
+                                },
+                                onStartServer = bluetoothViewModel::waitForIncomingConnections
+                            )
+                        }
+                    }
+
+
 
                 }
             }
