@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothServerSocket
@@ -13,6 +14,8 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +43,7 @@ import android.bluetooth.BluetoothDevice as AndroidBluetoothDevice
 
 @SuppressLint("MissingPermission")
 class AndroidBluetoothController(private val context: Context) : BluetoothController {
+
 
     private val bluetoothManager by lazy {
         context.getSystemService(BluetoothManager::class.java)
@@ -71,15 +75,15 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
             if (newDevice in devices) devices else devices + newDevice
         }
     }
-    private var bluetoothStateReceiver = BluetoothStateReceiver{isConnected, bluetoothDevice ->
-    if(bluetoothAdapter?.bondedDevices?.contains(bluetoothDevice) == true){
-        _isConnected.update { isConnected }
-    } else{
-        CoroutineScope(Dispatchers.IO).launch{
-            _errors.tryEmit("Can not connect to a non-paired device.")
-        }
+    private var bluetoothStateReceiver = BluetoothStateReceiver { isConnected, bluetoothDevice ->
+        if (bluetoothAdapter?.bondedDevices?.contains(bluetoothDevice) == true) {
+            _isConnected.update { isConnected }
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                _errors.tryEmit("Can not connect to a non-paired device.")
+            }
 
-    }
+        }
     }
 
     private var currentServerSocket: BluetoothServerSocket? = null
@@ -128,37 +132,37 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
     override fun startBluetoothServer(): Flow<ConnectionResult> {
-       return flow{
-           if(!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)){
-               throw SecurityException("No BLUETOOTH_CONNECT permission.")
-           }
-           currentServerSocket = bluetoothAdapter?.listenUsingRfcommWithServiceRecord(
-               "Alikacja Inżynierska",
-               UUID.fromString(SERVICE_UUID)
-           )
-           var shouldLoop = true
-           while(shouldLoop){
-               currentClientSocket = try{
+        return flow {
+            if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
+                throw SecurityException("No BLUETOOTH_CONNECT permission.")
+            }
+            currentServerSocket = bluetoothAdapter?.listenUsingRfcommWithServiceRecord(
+                "Alikacja Inżynierska",
+                UUID.fromString(SERVICE_UUID)
+            )
+            var shouldLoop = true
+            while (shouldLoop) {
+                currentClientSocket = try {
                     currentServerSocket?.accept()
-               }catch (e: IOException){
-                   shouldLoop = false
-                null
-               }
-               emit(ConnectionResult.ConnectionEstablished)
-               currentServerSocket?.let{
-                   currentServerSocket?.close()
-               }
+                } catch (e: IOException) {
+                    shouldLoop = false
+                    null
+                }
+                emit(ConnectionResult.ConnectionEstablished)
+                currentServerSocket?.let {
+                    currentServerSocket?.close()
+                }
 
-           }
-       }.onCompletion {
-           closeConnection()
-       }.flowOn(Dispatchers.IO)
+            }
+        }.onCompletion {
+            closeConnection()
+        }.flowOn(Dispatchers.IO)
     }
 
     override fun connectToDevice(device: BluetoothDevice): Flow<ConnectionResult> {
         Log.d("CONNECT", device.name ?: "noName")
-        return flow{
-            if(!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)){
+        return flow {
+            if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
                 throw SecurityException("No BLUETOOTH_CONNECT permission.")
             }
 
@@ -171,15 +175,15 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                     UUID.fromString(SERVICE_UUID)
                 )
             stopDiscovery()
-            if(bluetoothAdapter?.bondedDevices?.contains(bluetoothDevice) == false) {
+            if (bluetoothAdapter?.bondedDevices?.contains(bluetoothDevice) == false) {
 
             }
-            currentClientSocket?.let{socket ->
-                try{
+            currentClientSocket?.let { socket ->
+                try {
                     socket.connect()
                     emit(ConnectionResult.ConnectionEstablished)
 
-                }catch (e: IOException){
+                } catch (e: IOException) {
                     socket.close()
                     currentClientSocket = null
                     emit(ConnectionResult.Error("Connection was interrupted"))
@@ -215,41 +219,39 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
         return context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
     }
 
-    companion object{
+    companion object {
         const val SERVICE_UUID = "60085fad-5373-44ef-a3e6-138472e5becf"
+        const val CHARACTERISTIC_UUID = "00001524-1212-efde-1523-785feabcd123"
     }
 
-    override fun connectToGattDevice(device: BluetoothDeviceDomain, context: Context): Flow<ConnectionResult> {
+    override fun connectToGattDevice(
+        device: BluetoothDeviceDomain,
+        context: Context
+    ): Flow<ConnectionResult> {
         return callbackFlow {
             if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
                 throw SecurityException("No BLUETOOTH_CONNECT permission.")
             }
 
-            // Uzyskanie BluetoothAdapter z BluetoothManager
-            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            val bluetoothAdapter = bluetoothManager.adapter
-
-            if (bluetoothAdapter == null) {
-                trySend(ConnectionResult.Error("Bluetooth adapter is not available"))
-                return@callbackFlow
-            }
-
-            // Uzyskanie instancji Android BluetoothDevice z adresu
-            val androidBluetoothDevice: AndroidBluetoothDevice? = bluetoothAdapter.getRemoteDevice(device.address)
-
+            val androidBluetoothDevice: AndroidBluetoothDevice? =
+                bluetoothAdapter?.getRemoteDevice(device.address)
             if (androidBluetoothDevice == null) {
                 trySend(ConnectionResult.Error("Device not found"))
                 return@callbackFlow
             }
 
             val gattCallback = object : BluetoothGattCallback() {
-                override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+                override fun onConnectionStateChange(
+                    gatt: BluetoothGatt,
+                    status: Int,
+                    newState: Int
+                ) {
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
                         Log.d("GATT", "Connected to GATT server.")
                         gatt.discoverServices()
-                        trySend(ConnectionResult.ConnectionEstablished)
+                        trySend(ConnectionResult.GattConnected(gatt))
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                        Log.d("GATT", "Disconnected from GATT server.")
+                        Log.d("GATT", "Disconnected from GATT server with status=$status")
                         trySend(ConnectionResult.Error("Disconnected from GATT server"))
                         gatt.close()
                     }
@@ -257,43 +259,175 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
                 override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
-                        val service = gatt.getService(UUID.fromString("00001523-1212-efde-1523-785feabcd123"))
-                        if (service != null) {
-                            val characteristic = service.getCharacteristic(UUID.fromString("00001524-1212-efde-1523-785feabcd123"))
-                            if (characteristic != null) {
-                                characteristic.setValue("Your data".toByteArray())
-                                gatt.writeCharacteristic(characteristic)
+                        val service = gatt.getService(UUID.fromString(SERVICE_UUID))
+                        val characteristic =
+                            service?.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID))
+                        if (characteristic != null) {
+                            Log.d("GATT_DISCOVERED", "Characteristic is nullable.")
+                            enableNotifications(gatt, characteristic)
+                        }
+                        if (characteristic != null) {
+                            if (gatt.readCharacteristic(characteristic)) {
+                                Log.d("GATT_DISCOVERED", "Characteristic read request initiated.")
                             } else {
-                                trySend(ConnectionResult.Error("Characteristic not found"))
+                                Log.d("v", "Failed to initiate characteristic read request.")
+                                trySend(ConnectionResult.Error("Failed to initiate read request"))
+
                             }
                         } else {
-                            trySend(ConnectionResult.Error("Service not found"))
+                            trySend(ConnectionResult.Error("Characteristic not found"))
                         }
                     } else {
                         trySend(ConnectionResult.Error("Service discovery failed"))
                     }
+                    readMeasurementTime(gatt)
                 }
 
-                override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+                override fun onCharacteristicWrite(
+                    gatt: BluetoothGatt,
+                    characteristic: BluetoothGattCharacteristic,
+                    status: Int
+                ) {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
-                        Log.d("GATT", "Characteristic written successfully")
+                        Log.d("GATT_WRITE", "Characteristic write successful.")
                     } else {
-                        trySend(ConnectionResult.Error("Failed to write characteristic"))
+                        Log.d("GATT_WRITE", "Failed to write characteristic, status: $status")
+                    }
+                }
+
+
+                override fun onCharacteristicChanged(
+                    gatt: BluetoothGatt?,
+                    characteristic: BluetoothGattCharacteristic?
+                ) {
+                    Log.d("GATT_CHANGED", "Characteristic changed.")
+                    val receivedData = characteristic?.value
+                    if (receivedData != null) {
+                        if (receivedData.isNotEmpty() && receivedData[0] == 0x54.toByte()) {
+                            Log.d(
+                                "GATT_NOTIFICATION",
+                                "Received notification for entering communication mode."
+                            )
+                            handleCommunicationModeEntry()
+                        } else {
+                            Log.d("GATT_DATA", "Data received: ${receivedData.contentToString()}")
+                        }
+                    }
+
+
+                    Log.d("GATT_CHANGED", "EVEN WORKING")
+                    if (characteristic?.uuid == UUID.fromString("00001524-1212-efde-1523-785feabcd123")) {
+                        val receivedData = characteristic?.value
+                        Log.d("GATT_CHANGED", "Data received: ${receivedData?.contentToString()}")
+                    }
+                }
+
+                override fun onCharacteristicRead(
+                    gatt: BluetoothGatt?,
+                    characteristic: BluetoothGattCharacteristic?,
+                    status: Int
+                ) {
+                    Log.d("GATT_READ", "EVEN WORKING")
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        if (characteristic?.uuid == UUID.fromString("00001524-1212-efde-1523-785feabcd123")) {
+                            val receivedData = characteristic?.value
+                            Log.d("GATT_READ", "Data received: ${receivedData?.contentToString()}")
+                        }
                     }
                 }
             }
 
-            // Rozpocznij połączenie GATT z urządzeniem AndroidBluetoothDevice
             val bluetoothGatt = androidBluetoothDevice.connectGatt(context, false, gattCallback)
-
-            // Sprawdź, czy połączenie GATT zostało nawiązane
             if (bluetoothGatt == null) {
                 trySend(ConnectionResult.Error("Failed to connect to GATT"))
             }
 
-            awaitClose {
-                bluetoothGatt?.close()
-            }
+            awaitClose { bluetoothGatt?.close() }
         }.flowOn(Dispatchers.IO)
     }
+
+    private val CLIENT_CHARACTERISTIC_CONFIG_UUID = "00002a51-0000-1000-8000-00805f9b34fb"
+    override fun readMeasurementTime(gatt: BluetoothGatt) {
+
+
+        val commandGetDataPart1 = byteArrayOf(
+            0x51.toByte(),  // Start byte
+            0x23.toByte(),  // CMD
+            0x00, 0x00, 0x00, 0x00,  // Data
+            0xA3.toByte()   // Stop byte
+        )
+        val checksum = calculateChecksum(commandGetDataPart1.copyOfRange(0, 7))
+
+        val commandGetDataPart1WithChecksum = commandGetDataPart1 + checksum
+        println(commandGetDataPart1WithChecksum.joinToString(", ") { it.toString() })
+
+
+        Log.d("CHECKSUM", commandGetDataPart1WithChecksum.toString())
+        val service = gatt.getService(UUID.fromString("00001523-1212-efde-1523-785feabcd123"))
+        val characteristic =
+            service?.getCharacteristic(UUID.fromString("00001524-1212-efde-1523-785feabcd123"))
+
+        if (characteristic != null) {
+            // Check if characteristic supports writing
+            if ((characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
+                Log.d("BL_FUN", "Characteristic does not support writing.")
+                return
+            }
+
+            // Enable notifications
+            val descriptor =
+                characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG_UUID))
+            if (descriptor != null) {
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                if (gatt.writeDescriptor(descriptor)) {
+                    Log.d("BL_FUN", "Notification enabled successfully.")
+                } else {
+                    Log.d("BL_FUN", "Failed to enable notification.")
+                    return
+                }
+            }
+
+            characteristic.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            Handler(Looper.getMainLooper()).postDelayed({
+                characteristic.setValue(commandGetDataPart1WithChecksum)
+                val writeSuccess = gatt.writeCharacteristic(characteristic)
+                if (writeSuccess) {
+                    Log.d("BL_FUN", "Command to read measurement time written successfully.")
+                } else {
+                    Log.d("BL_FUN", "Failed to write command to characteristic.")
+                }
+            }, 2000)
+        } else {
+            Log.d("BL_FUN", "Characteristic not found.")
+        }
+        if (gatt.readCharacteristic(characteristic)) {
+            Log.d("BL_FUN_READ", "czyta coś")
+        } else {
+            Log.d("BL_FUN_READ", "nie czyta")
+        }
+    }
+
+    private fun enableNotifications(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic
+    ) {
+        gatt.setCharacteristicNotification(characteristic, true)
+        val descriptor =
+            characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG_UUID))
+        descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+        gatt.writeDescriptor(descriptor)
+    }
+
+    private fun calculateChecksum(data: ByteArray): Byte {
+        var sum = 0
+        for (byte in data) {
+            sum += byte.toInt()
+        }
+        return (sum and 0xFF).toByte()
+    }
+
+    private fun handleCommunicationModeEntry() {
+        Log.d("COMM_MODE", "Device is now ready for commands.")
+    }
+
 }

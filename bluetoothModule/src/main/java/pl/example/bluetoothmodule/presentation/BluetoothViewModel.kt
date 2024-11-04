@@ -1,5 +1,6 @@
 package pl.example.bluetoothmodule.presentation
 
+import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.job
 import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.ConnectionResult
@@ -40,6 +42,7 @@ class BluetoothViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _state.value)
 
     private var deviceConnectionJob: Job? = null
+    private var bluetoothGatt: BluetoothGatt? = null
 
     init {
         bluetoothController.isConnected.onEach { isConnected ->
@@ -70,6 +73,14 @@ class BluetoothViewModel @Inject constructor(
             .listen()
     }
 
+    fun readMeasurementTime(){
+        Log.d("BL_FUN", bluetoothGatt.toString())
+        bluetoothGatt?.let {
+            bluetoothController.readMeasurementTime(it)
+        } ?: Log.d("BL_FUN", "BluetoothGatt is not available.")
+
+    }
+
     fun disconnectFromDevice(){
         deviceConnectionJob?.cancel()
         _state.update { it.copy(
@@ -98,7 +109,7 @@ class BluetoothViewModel @Inject constructor(
     private fun Flow<ConnectionResult>.listen(): Job {
         return onEach { result ->
             when (result) {
-                ConnectionResult.ConnectionEstablished -> {
+                is ConnectionResult.ConnectionEstablished -> {
                     _state.update {
                         it.copy(
                             isConnected = true,
@@ -106,15 +117,23 @@ class BluetoothViewModel @Inject constructor(
                             errorMessage = null
                         )
                     }
-
                 }
-
                 is ConnectionResult.Error -> {
                     _state.update {
                         it.copy(
                             isConnected = false,
                             isConnecting = false,
                             errorMessage = result.message
+                        )
+                    }
+                }
+                is ConnectionResult.GattConnected -> {
+                    bluetoothGatt = result.gatt
+                    _state.update {
+                        it.copy(
+                            isConnected = true,
+                            isConnecting = false,
+                            errorMessage = null
                         )
                     }
                 }
@@ -127,7 +146,6 @@ class BluetoothViewModel @Inject constructor(
                     isConnecting = false
                 )
             }
-
         }.launchIn(viewModelScope)
     }
 

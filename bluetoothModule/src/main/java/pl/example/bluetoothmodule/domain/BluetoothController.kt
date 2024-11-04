@@ -1,5 +1,6 @@
 package pl.example.bluetoothmodule.domain
 
+import android.bluetooth.BluetoothGatt
 import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,5 +23,9 @@ interface BluetoothController {
     fun connectToDevice(device: BluetoothDevice): Flow<ConnectionResult>
     fun connectToGattDevice(device: BluetoothDevice,context: Context): Flow<ConnectionResult>
     fun closeConnection()
+
+
+    //Functionalities
+    fun readMeasurementTime(gatt: BluetoothGatt)
 
 }
