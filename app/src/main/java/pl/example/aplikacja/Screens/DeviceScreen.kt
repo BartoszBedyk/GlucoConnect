@@ -1,6 +1,7 @@
 package pl.example.aplikacja.Screens
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -31,8 +32,7 @@ fun DeviceScreen(
     onStartScan: () -> Unit,
     onStopScan: () -> Unit,
     context: Context,
-    onStartServer: () -> Unit,
-    onDeviceClick: (BluetoothDevice) -> Unit,
+    onDeviceClick: (android.bluetooth.BluetoothDevice) -> Unit,
     onDownloadTime: KFunction0<Unit>
 ) {
 
@@ -64,9 +64,6 @@ fun DeviceScreen(
             Button(onClick = onStopScan) {
                 Text(text = "Stop scan")
             }
-            Button(onClick = onStartServer) {
-                Text(text = "Start server")
-            }
 
 
         }
@@ -88,10 +85,11 @@ fun openAppSettings(context: Context) {
 }
 
 @Composable
+@SuppressLint("MissingPermission")
 fun BluetoothDeviceList(
-    pairedDevices: List<BluetoothDevice>,
-    scannedDevices: List<BluetoothDevice>,
-    onClick: (BluetoothDevice) -> Unit,
+    pairedDevices: List<android.bluetooth.BluetoothDevice>,
+    scannedDevices: List<android.bluetooth.BluetoothDevice>,
+    onClick: (android.bluetooth.BluetoothDevice) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {

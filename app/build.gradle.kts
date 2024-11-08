@@ -74,6 +74,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.ble)
     implementation(project(":bluetoothModule"))
+    implementation(project(":networkModule"))
 
     implementation(libs.hilt.android.v2511)
     kapt(libs.hilt.android.compiler.v2511)

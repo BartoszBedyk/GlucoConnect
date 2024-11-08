@@ -56,12 +56,12 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     override val isConnected: StateFlow<Boolean>
         get() = _isConnected.asStateFlow()
 
-    private val _scannedDevices = MutableStateFlow<List<BluetoothDeviceDomain>>(emptyList())
-    override val scannedDevices: StateFlow<List<BluetoothDevice>>
+    private val _scannedDevices = MutableStateFlow<List<android.bluetooth.BluetoothDevice>>(emptyList())
+    override val scannedDevices: StateFlow<List<android.bluetooth.BluetoothDevice>>
         get() = _scannedDevices.asStateFlow()
 
-    private val _pairedDevices = MutableStateFlow<List<BluetoothDeviceDomain>>(emptyList())
-    override val pairedDevices: StateFlow<List<BluetoothDevice>>
+    private val _pairedDevices = MutableStateFlow<List<android.bluetooth.BluetoothDevice>>(emptyList())
+    override val pairedDevices: StateFlow<List<android.bluetooth.BluetoothDevice>>
         get() = _pairedDevices.asStateFlow()
 
     private val _errors = MutableSharedFlow<String>()
@@ -71,8 +71,8 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
     private val foundDeviceReceiver = FoundDeviceReceiver { device ->
         _scannedDevices.update { devices ->
-            val newDevice = device.toBluetoothDeviceDomain()
-            if (newDevice in devices) devices else devices + newDevice
+            val newDevice = device
+            if (newDevice in devices) devices else (devices + newDevice) as List<android.bluetooth.BluetoothDevice>
         }
     }
     private var bluetoothStateReceiver = BluetoothStateReceiver { isConnected, bluetoothDevice ->
@@ -209,7 +209,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
         }
         bluetoothAdapter
             ?.bondedDevices
-            ?.map { it.toBluetoothDeviceDomain() }
+            ?.map { it }
             ?.also { devices ->
                 _pairedDevices.update { devices }
             }

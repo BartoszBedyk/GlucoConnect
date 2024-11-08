@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface BluetoothController {
     val isConnected: StateFlow<Boolean>
-    val scannedDevices: StateFlow<List<BluetoothDevice>>
-    val pairedDevices: StateFlow<List<BluetoothDevice>>
+    val scannedDevices: StateFlow<List<android.bluetooth.BluetoothDevice>>
+    val pairedDevices: StateFlow<List<android.bluetooth.BluetoothDevice>>
     val errors: SharedFlow<String>
 
 
@@ -25,7 +25,14 @@ interface BluetoothController {
     fun closeConnection()
 
 
+
+
     //Functionalities
     fun readMeasurementTime(gatt: BluetoothGatt)
+
+
+
+    // NOWE PODEJŚCIE
+
 
 }
