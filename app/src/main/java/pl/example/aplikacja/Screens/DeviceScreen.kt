@@ -22,7 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pl.example.bluetoothmodule.domain.BluetoothDevice
+import pl.example.aplikacja.UiElements.BottomNavigationBar
+import pl.example.aplikacja.UiElements.ColorSquare
 import pl.example.bluetoothmodule.presentation.BluetoothUiState
 import kotlin.reflect.KFunction0
 
@@ -43,6 +44,18 @@ fun DeviceScreen(
         Button(onClick = { openAppSettings(context) }) {
             Text(text = "Go to settings")
         }
+    }
+    Column {
+        Text("BLUETOOTH_CONNECT")
+        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED))
+        Text("SCAN")
+        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED))
+        Text("BLUETOOTH")
+        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED))
+        Text("BLUETOOTH_ADMIN")
+        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED))
+        Text("BLUETOOTH_PRIVILEGED")
+        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_PRIVILEGED) == PackageManager.PERMISSION_GRANTED))
     }
 
 
@@ -72,6 +85,7 @@ fun DeviceScreen(
             Text(text = "Pobierz czas pomiaru")
         }
     }
+    //BottomNavigationBar()
 
 }
 

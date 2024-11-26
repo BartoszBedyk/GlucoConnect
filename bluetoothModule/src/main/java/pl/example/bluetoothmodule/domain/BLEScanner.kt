@@ -19,8 +19,15 @@ class BLEScanner(private val context: Context) {
     private val scanResults = mutableListOf<android.bluetooth.BluetoothDevice>()
 
     private val scanCallback = object : ScanCallback() {
-        @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.e("BLEScanner", "Permission not granted")
+                return
+            }
             result?.device?.let { device ->
                 if (!scanResults.contains(device)) {
                     scanResults.add(device)
@@ -37,7 +44,15 @@ class BLEScanner(private val context: Context) {
         }
 
         override fun onBatchScanResults(results: List<ScanResult>) {
-            @SuppressLint("MissingPermission")
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.e("BLEScanner", "Permission not granted")
+                return
+            }
+
             for (result in results) {
                 result.device?.let { device ->
                     if (!scanResults.contains(device)) {
@@ -56,7 +71,7 @@ class BLEScanner(private val context: Context) {
 
     }
 
-    @SuppressLint("MissingPermission")
+
     fun startScan() {
         if (ActivityCompat.checkSelfPermission(
                 context,

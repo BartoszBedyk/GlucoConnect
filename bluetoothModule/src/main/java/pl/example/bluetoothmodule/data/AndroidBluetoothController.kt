@@ -220,8 +220,8 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
     companion object {
-        const val SERVICE_UUID = "60085fad-5373-44ef-a3e6-138472e5becf"
-        const val CHARACTERISTIC_UUID = "00001524-1212-efde-1523-785feabcd123"
+        const val SERVICE_UUID = "0x1523"
+        const val CHARACTERISTIC_UUID = "0x1524"
     }
 
     override fun connectToGattDevice(

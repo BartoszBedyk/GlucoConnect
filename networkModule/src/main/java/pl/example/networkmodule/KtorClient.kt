@@ -20,7 +20,7 @@ import java.util.UUID
 
 
 class KtorClient {
-    private val client = HttpClient(OkHttp) {
+     val client = HttpClient(OkHttp) {
         defaultRequest { url("http://10.0.2.2:8080/") }
 
         install(Logging) {
@@ -35,30 +35,6 @@ class KtorClient {
 
     }
 
-    suspend fun getResearchResultsById(id: String): ResearchResult? {
-        val response = client.get("http://10.0.2.2:8080/results/$id")
-        return if (response.status == HttpStatusCode.OK) {
-            if (response.contentType()?.match(ContentType.Application.Json) == true) {
-                response.body<ResearchResult>()
-            } else {
-                println("Unexpected content type: ${response.contentType()}")
-                null
-            }
-        } else {
-            println("Request failed with status ${response.status}")
-            null
-        }
-    }
+
 }
 
-@Serializable
-data class ResearchResult(
-    val id: String,
-    val sequenceNumber: Int,
-    val glucoseConcentration: Double,
-    val unit: String,
-    val timestamp: String,
-    val userId: String?,
-    val deletedOn: String?,
-    val lastUpdatedOn: String?
-)
