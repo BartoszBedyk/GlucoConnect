@@ -18,9 +18,10 @@ import pl.example.networkmodule.requestData.ResearchResultUpdate
 class ResultApi(private val ktorClient: KtorClient) {
 
     private val client = ktorClient.client
+    private val resultsEndpoint: String = "results"
 
     suspend fun getResearchResultsById(id: String): ResearchResult? {
-        val response = client.get("http://10.0.2.2:8080/results/$id")
+        val response = client.get("http://10.0.2.2:8080/$resultsEndpoint/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 response.body<ResearchResult>()
@@ -35,7 +36,7 @@ class ResultApi(private val ktorClient: KtorClient) {
     }
 
     suspend fun getAllResearchResults(): List<ResearchResult>? {
-        val response = client.get("http://10.0.2.2:8080/results")
+        val response = client.get("http://10.0.2.2:8080/$resultsEndpoint")
 
         return if (response.status == HttpStatusCode.OK) {
 
@@ -68,7 +69,7 @@ class ResultApi(private val ktorClient: KtorClient) {
 
     suspend fun updateResearchResult(updateForm: ResearchResultUpdate): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/results/update") {
+            val response = client.put("http://10.0.2.2:8080/$resultsEndpoint/update") {
                 contentType(ContentType.Application.Json)
                 setBody(updateForm)
             }
@@ -81,9 +82,10 @@ class ResultApi(private val ktorClient: KtorClient) {
 
     suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean {
         return try{
-            val response = client.post("http://10.0.2.2:8080/results/") {
+            val response = client.post("http://10.0.2.2:8080/$resultsEndpoint/") {
                 contentType(ContentType.Application.Json)
                 setBody(createForm)
+
             }
             response.status == HttpStatusCode.OK
 
@@ -95,7 +97,7 @@ class ResultApi(private val ktorClient: KtorClient) {
 
     suspend fun deleteResearchResult(id: String): Boolean {
         return try {
-            val response = client.delete("http://10.0.2.2:8080/results/delete/$id")
+            val response = client.delete("http://10.0.2.2:8080/$resultsEndpoint/delete/$id")
             response.status == HttpStatusCode.OK
         } catch (e: Exception){
             Log.e("ResultApi", "Request failed with status ${e.message}")
@@ -105,7 +107,7 @@ class ResultApi(private val ktorClient: KtorClient) {
 
     suspend fun safeDeleteResearchResult(id: String): Boolean {
         return try {
-            val response = client.delete("http://10.0.2.2:8080/results/safeDelete/$id")
+            val response = client.delete("http://10.0.2.2:8080/$resultsEndpoint/safeDelete/$id")
             response.status == HttpStatusCode.OK
         } catch (e: Exception){
             Log.e("ResultApi", "Request failed with status ${e.message}")

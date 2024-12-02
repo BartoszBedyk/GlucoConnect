@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import pl.example.aplikacja.Screens.DeviceScreen
@@ -121,9 +123,16 @@ fun BluetoothPermissionScreen(
     //BottomNavigationBar(navBarViewModel, navController)
 }
 
-@SuppressLint("MissingPermission")
+
 private fun enableBluetooth(context: Context) {
     val intent = Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE)
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.BLUETOOTH_CONNECT
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        return
+    }
     context.startActivity(intent)
 }
 
