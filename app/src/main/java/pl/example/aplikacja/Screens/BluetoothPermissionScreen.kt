@@ -21,10 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import pl.example.aplikacja.Screens.DeviceScreen
-import pl.example.aplikacja.UiElements.BottomNavigationBar
-import pl.example.aplikacja.UiElements.ColorSquare
 import pl.example.bluetoothmodule.domain.BLEScanner
 import pl.example.bluetoothmodule.domain.MyBleManager
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
@@ -35,13 +32,17 @@ fun BluetoothPermissionScreen(
     bluetoothViewModel: BluetoothViewModel,
     navBarViewModel: BottomNavBarViewModel,
     onDeviceConnected: (BluetoothDevice) -> Unit = {},
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     val context = LocalContext.current
     val bleScanner = remember { BLEScanner(context) }
+    val myBleManager = remember { MyBleManager(context) }
     var isScanning by remember { mutableStateOf(false) }
     val state by bluetoothViewModel.state.collectAsState()
 
+    // State for the fetched measurement
+    var measurement by remember { mutableStateOf<Pair<String?, Int?>>(null to null) }
+    var isLoadingMeasurement by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -104,9 +105,25 @@ fun BluetoothPermissionScreen(
                 onDeviceClick = { device ->
                     connectToDevice(context, device, onDeviceConnected)
                 },
-                onDownloadTime = bluetoothViewModel::readMeasurementTime
+                onDownloadTime = {
+                    isLoadingMeasurement = true
+                    myBleManager.fetchLastMeasurement { dateTime, result ->
+                        measurement = dateTime to result
+                        isLoadingMeasurement = false
+                    }
+                },
+                title = "Wersja z nordic Semiconductor"
             )
         }
+    }
+
+    // Display the measurement result
+    if (measurement.first != null && measurement.second != null) {
+        Toast.makeText(
+            context,
+            "Measurement: ${measurement.first} - ${measurement.second}",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     if (isScanning) {
@@ -118,10 +135,8 @@ fun BluetoothPermissionScreen(
             }
         }
     }
-    ColorSquare(isTrue = true)
-
-    //BottomNavigationBar(navBarViewModel, navController)
 }
+
 
 
 private fun enableBluetooth(context: Context) {

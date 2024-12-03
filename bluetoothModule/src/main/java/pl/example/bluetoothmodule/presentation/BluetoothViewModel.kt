@@ -59,6 +59,13 @@ class BluetoothViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun connectToGattDevice(device: BluetoothDevice){
+        Log.d("CONNECT", "button is clicked")
+        _state.update { it.copy(isConnecting = true) }
+        deviceConnectionJob = bluetoothController.connectToGattDevice(device)
+            .listen()
+    }
+
 
     fun readMeasurementTime(){
         Log.d("BL_FUN", bluetoothGatt.toString())

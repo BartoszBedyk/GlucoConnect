@@ -75,7 +75,12 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
     NavHost(navController = navController, startDestination = "home_screen") {
         composable("home_screen") {
             Log.d("Navigation", "Navigated to Home Screen")
-            LoginScreenV2(navBarViewModel, navController)
+            LoginScreenV2(
+                bluetoothViewModel,
+                navBarViewModel,
+                onDeviceConnected = {},
+                navController
+            )
         }
         composable("login_screen") {
             Log.d("Navigation", "Navigated to Login Screen")
@@ -108,7 +113,12 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("home_screen") {
-                LoginScreenV2(navBarViewModel, navController)
+                LoginScreenV2(
+                    bluetoothViewModel,
+                    navBarViewModel,
+                    onDeviceConnected = {},
+                    navController
+                )
             }
             composable("login_screen") {
                 LoginScreen(navBarViewModel, navController)
@@ -118,7 +128,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                     bluetoothViewModel,
                     navBarViewModel,
                     onDeviceConnected = {},
-                    navController
+                    navController,
                 )
             }
         }

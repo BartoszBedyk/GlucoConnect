@@ -18,7 +18,7 @@ import pl.example.networkmodule.requestData.UserCreateWIthType
 
 class UserApi(private val ktorClient: KtorClient) {
     private val client = ktorClient.client
-    private val usersEndpoint: String = "users"
+    private val usersEndpoint: String = "user"
 
     suspend fun createUser(form: CreateUserForm): Boolean {
         return try {

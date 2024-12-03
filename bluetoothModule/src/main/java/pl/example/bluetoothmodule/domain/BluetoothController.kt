@@ -21,7 +21,7 @@ interface BluetoothController {
     //CONNECTION
     fun startBluetoothServer(): Flow<ConnectionResult>
     fun connectToDevice(device: BluetoothDevice): Flow<ConnectionResult>
-    fun connectToGattDevice(device: BluetoothDevice,context: Context): Flow<ConnectionResult>
+    fun connectToGattDevice(device: BluetoothDevice): Flow<ConnectionResult>
     fun closeConnection()
 
 
@@ -29,6 +29,7 @@ interface BluetoothController {
 
     //Functionalities
     fun readMeasurementTime(gatt: BluetoothGatt)
+    fun readClockTime(gatt: BluetoothGatt)
 
 
 
