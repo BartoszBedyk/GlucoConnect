@@ -107,7 +107,7 @@ fun LoginScreenV2(
                 onDeviceClick = { device ->
                    bluetoothViewModel.connectToGattDevice(pl.example.bluetoothmodule.domain.BluetoothDevice(device.name, device.address))
                 },
-                onDownloadTime = bluetoothViewModel::readMeasurementTime,
+                onDownloadTime = bluetoothViewModel::readLastMeasurementTime,
                 title = "Implementacja standardowa"
             )
         }

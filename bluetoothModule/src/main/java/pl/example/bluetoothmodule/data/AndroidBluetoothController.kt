@@ -37,6 +37,8 @@ import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.BluetoothDeviceDomain
 import pl.example.bluetoothmodule.domain.ConnectionResult
+import pl.example.bluetoothmodule.domain.parseMeasurementTimeToDate
+import pl.example.bluetoothmodule.domain.responseManagement
 import java.io.IOException
 import java.util.UUID
 import android.bluetooth.BluetoothDevice as AndroidBluetoothDevice
@@ -73,8 +75,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
     private val foundDeviceReceiver = FoundDeviceReceiver { device ->
         _scannedDevices.update { devices ->
-            val newDevice = device
-            if (newDevice in devices) devices else (devices + newDevice) as List<android.bluetooth.BluetoothDevice>
+            if (device in devices) devices else (devices + device)
         }
     }
     private var bluetoothStateReceiver = BluetoothStateReceiver { isConnected, bluetoothDevice ->
@@ -139,7 +140,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                 throw SecurityException("No BLUETOOTH_CONNECT permission.")
             }
             currentServerSocket = bluetoothAdapter?.listenUsingRfcommWithServiceRecord(
-                "Alikacja Inżynierska",
+                "Aplikacja Inżynierska",
                 UUID.fromString(SERVICE_UUID)
             )
             var shouldLoop = true
@@ -162,7 +163,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
     override fun connectToDevice(device: BluetoothDevice): Flow<ConnectionResult> {
-        Log.d("CONNECT", device.name ?: "noName")
+        Log.d("CONNECT", device.name ?: "Bluetooth Device")
         return flow {
             if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
                 throw SecurityException("No BLUETOOTH_CONNECT permission.")
@@ -273,7 +274,10 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                             if (gatt.readCharacteristic(characteristic)) {
                                 Log.d("GATT_DISCOVERED", "Characteristic read request initiated.")
                             } else {
-                                Log.d("GATT_DISCOVERED", "Failed to initiate characteristic read request.")
+                                Log.d(
+                                    "GATT_DISCOVERED",
+                                    "Failed to initiate characteristic read request."
+                                )
                                 trySend(ConnectionResult.Error("Failed to initiate read request"))
 
                             }
@@ -283,7 +287,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                     } else {
                         trySend(ConnectionResult.Error("Service discovery failed"))
                     }
-                    readMeasurementTime(gatt)
+                    //sendCommand(gatt) tutaj będzie pobranie wyniku czy coś, ablo execute queue, lub stack
                 }
 
                 override fun onCharacteristicWrite(
@@ -331,11 +335,12 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                 }
 
 
+                @Deprecated("Deprecated in Java")
                 override fun onCharacteristicChanged(
                     gatt: BluetoothGatt?,
                     characteristic: BluetoothGattCharacteristic?
                 ) {
-                    Log.d("GATT_CHANGED", "Characteristic changed.")
+                    //Log.d("GATT_CHANGED", "Characteristic changed.")
                     val receivedData = characteristic?.value
                     if (receivedData != null) {
                         if (receivedData.isNotEmpty() && receivedData[0] == 0x54.toByte()) {
@@ -345,14 +350,18 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                             )
                             handleCommunicationModeEntry()
                         } else {
-                            Log.d("GATT_DATA", "Data received: ${receivedData.contentToString()}")
+                            //Log.d("GATT_DATA", "Data received: ${receivedData.contentToString()}")
                         }
                     }
-                    if (characteristic?.uuid == UUID.fromString("00001524-1212-efde-1523-785feabcd123")) {
+                    if (characteristic?.uuid == UUID.fromString(CHARACTERISTIC_UUID)) {
                         val receivedData = characteristic?.value
-                        Log.d("GATT_CHANGED", "Data received: ${receivedData?.contentToString()}")
+                        //Log.d("GATT_CHANGED", "Data received: ${receivedData?.contentToString()}")
                         if (receivedData != null) {
-                            //parseClockTimeResponse(receivedData)
+                            try {
+                                responseManagement(receivedData)
+                            } catch (e: Exception) {
+                                Log.d("GATT_CHANGED_PARSERS", "Exception: ${e.message}")
+                            }
                         }
                     }
                 }
@@ -368,22 +377,12 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
         }.flowOn(Dispatchers.IO)
     }
 
-    override fun readClockTime(gatt: BluetoothGatt) {
-        //
-    }
 
+    override fun sendCommand(gatt: BluetoothGatt, byteArray: ByteArray) {
+        val checksum = calculateChecksum(byteArray)
 
-    override fun readMeasurementTime(gatt: BluetoothGatt) {
-        val commandGetDataPart1 = byteArrayOf(
-            0x51.toByte(),
-            0x23.toByte(),
-            0x00, 0x00, 0x00, 0x00,
-            0xA3.toByte()
-        )
-        val checksum = calculateChecksum(commandGetDataPart1)
-
-        val commandGetDataPart1WithChecksum = commandGetDataPart1 + checksum
-        println(commandGetDataPart1WithChecksum.joinToString(", ") { it.toString() })
+        val commandWithCheckSum = byteArray + checksum
+        //println(commandWithCheckSum.joinToString(", ") { it.toString() })
 
 
         val service = gatt.getService(UUID.fromString(SERVICE_UUID))
@@ -411,10 +410,10 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
             characteristic.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
             Handler(Looper.getMainLooper()).postDelayed({
-                characteristic.setValue(commandGetDataPart1WithChecksum)
+                characteristic.setValue(commandWithCheckSum)
                 val writeSuccess = gatt.writeCharacteristic(characteristic)
                 if (writeSuccess) {
-                    Log.d("BL_FUN", "Command to read measurement time written successfully.")
+                    Log.d("BL_FUN", "Command written successfully.")
                 } else {
                     Log.d("BL_FUN", "Failed to write command to characteristic.")
                 }
@@ -424,57 +423,26 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
         }
     }
 
-    private fun enableNotifications(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+    private fun enableNotifications(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic
+    ) {
         gatt.setCharacteristicNotification(characteristic, true)
-        val descriptor = characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG_UUID))
+        val descriptor =
+            characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG_UUID))
         descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
         val success = gatt.writeDescriptor(descriptor)
         Log.d("GATT_NOTIFY", "Notification descriptor write: $success")
     }
 
 
-    fun calculateChecksum(data: ByteArray): Byte {
+    private fun calculateChecksum(data: ByteArray): Byte {
         val sum = data.sumOf { it.toUByte().toInt() }
         return (sum % 256).toByte()
     }
 
     private fun handleCommunicationModeEntry() {
         Log.d("COMM_MODE", "Device is now ready for commands.")
-    }
-
-    fun parseClockTimeResponse(response: ByteArray): String {
-        if (response.size != 8) {
-            throw IllegalArgumentException("Invalid response length: ${response.size}, expected 8 bytes.")
-        }
-        if (response[1] != 0x23.toByte()) {
-            throw IllegalArgumentException("Invalid response command: ${response[1]}, expected 0x23.")
-        }
-        val dayMonthYear = ((response[3].toInt() and 0xFF) shl 8) or (response[2].toInt() and 0xFF)
-        val year = 2000 + ((dayMonthYear shr 9) and 0x7F)
-        val month = (dayMonthYear shr 5) and 0x0F
-        val day = dayMonthYear and 0x1F
-
-        val minute = response[4].toInt() and 0x3F
-        val hour = response[5].toInt() and 0x1F
-
-        Log.d("działą", "%02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute))
-        return "%02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute)
-    }
-
-    fun parseDeviceModelResponse(response: ByteArray): String {
-        if (response.size != 8) {
-            throw IllegalArgumentException("Invalid response length: ${response.size}, expected 8 bytes.")
-        }
-
-
-        if (response[1] != 0x24.toByte()) {
-            throw IllegalArgumentException("Invalid response command: ${response[1]}, expected 0x24.")
-        }
-
-        val modelHigh = (response[3].toInt() and 0xFF).toString(16).padStart(2, '0').uppercase()
-        val modelLow = (response[2].toInt() and 0xFF).toString(16).padStart(2, '0').uppercase()
-
-        return "Device Model: $modelHigh$modelLow"
     }
 
 

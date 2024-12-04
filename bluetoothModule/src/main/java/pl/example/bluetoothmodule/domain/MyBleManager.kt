@@ -75,19 +75,17 @@ class MyBleManager(context: Context) : BleManager(context) {
     }
 
         fun fetchLastMeasurement(callback: (dateTime: String?, result: Int?) -> Unit) {
-            Log.e("MyBLE", "Odpala się fetch")
         initializeDevice {
-            Log.e("MyBLE", "Odpala się fetch2")
             val commandGetDataPart1 = byteArrayOf(
                     0x51.toByte(),
             0x24.toByte(),
             0x00, 0x00, 0x00, 0x00,
             0xA3.toByte()
             )
-            val checksum = calculateChecksum(commandGetDataPart1.copyOfRange(0, 7))
+            val checksum = calculateChecksum(commandGetDataPart1)
 
             val commandGetDataPart1WithChecksum = commandGetDataPart1 + checksum
-            println(commandGetDataPart1WithChecksum.joinToString(", ") { it.toString() })
+            //println(commandGetDataPart1WithChecksum.joinToString(", ") { it.toString() })
 
             writeCharacteristic(myCharacteristic, commandGetDataPart1WithChecksum)
                 .with { _, data ->
@@ -150,11 +148,8 @@ class MyBleManager(context: Context) : BleManager(context) {
 
 
     private fun calculateChecksum(data: ByteArray): Byte {
-        var sum = 0
-        for (byte in data) {
-            sum += byte.toInt()
-        }
-        return (sum and 0xFF).toByte()
+        val sum = data.sumOf { it.toUByte().toInt() }
+        return (sum % 256).toByte()
     }
 
     private fun parseDateTime(data: Data): String? {
@@ -174,13 +169,11 @@ class MyBleManager(context: Context) : BleManager(context) {
     }
 
     fun initializeDevice(callback: () -> Unit) {
-        Log.e("MBLE", "Initialize")
         val initCommand =
             byteArrayOf(0x51.toByte(), 0x54.toByte(), 0x00, 0x00, 0x00, 0x00, 0xA3.toByte())
-        val checksum = calculateChecksum(initCommand.copyOfRange(0, 7))
+        val checksum = calculateChecksum(initCommand)
 
         val initCommand2 = initCommand + checksum
-        Log.e("MBLE", "Initialize")
         writeCharacteristic(myCharacteristic, initCommand2)
             .with { device, data ->
                 Log.d("MyBleManager", "Device: $device, Data: $data")
@@ -189,8 +182,6 @@ class MyBleManager(context: Context) : BleManager(context) {
             .fail { device, status ->
                 Log.e("MyBleManager", "Failed on device: $device with status: $status")
             }
-
-        Log.e("MBLE", "Initialize3")
     }
 
 
