@@ -394,8 +394,6 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                 Log.d("BL_FUN", "Characteristic does not support writing.")
                 return
             }
-
-
             val descriptor =
                 characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG_UUID))
             if (descriptor != null) {
