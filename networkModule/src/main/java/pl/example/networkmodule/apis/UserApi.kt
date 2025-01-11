@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.UserResult
+import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.requestData.CreateUserForm
 import pl.example.networkmodule.requestData.UnitUpdate
 import pl.example.networkmodule.requestData.UpdateUserNullForm
@@ -105,6 +106,19 @@ class UserApi(private val ktorClient: KtorClient) {
             Log.e("UserApi", "Request failed with status ${e.message}")
             false
         }
+    }
+
+    suspend fun getUserUnitById(id: String): GlucoseUnitType? {
+        val response = client.get("http://10.0.2.2:8080/$usersEndpoint/unit/$id")
+        return if (response.status == HttpStatusCode.OK) {
+            if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                response.body<GlucoseUnitType>()
+            } else {
+                println("Unexpected content type: ${response.contentType()}")
+                null
+            }
+        } else
+            return GlucoseUnitType.MG_PER_DL
     }
 
 

@@ -49,6 +49,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
 
     val coroutineScope = rememberCoroutineScope()
 
+
     suspend fun loginUser(login: String, password: String): String? {
         val userCredentials = UserCredentials(login, password)
 
@@ -59,6 +60,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
             }
             Log.d("LoginScreen", "Login successful, token: $token")
             return token
+
 //
         } catch (e: Exception) {
             Log.d("LoginScreen", "Login failed: ${e.message}")

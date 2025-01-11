@@ -21,6 +21,7 @@ import pl.example.aplikacja.BluetoothPermissionScreen
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.Screens.LoginScreen
 import pl.example.aplikacja.Screens.LoginScreenV2
+import pl.example.aplikacja.Screens.MainScreen
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 
 
@@ -72,15 +73,10 @@ data class BottomNavigationItem(
 @Composable
 fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "home_screen") {
-        composable("home_screen") {
+    NavHost(navController = navController, startDestination = "login_screen") {
+        composable("main_screen") {
             Log.d("Navigation", "Navigated to Home Screen")
-            LoginScreenV2(
-                bluetoothViewModel,
-                navBarViewModel,
-                onDeviceConnected = {},
-                navController
-            )
+            MainScreen()
         }
         composable("login_screen") {
             Log.d("Navigation", "Navigated to Login Screen")
@@ -109,16 +105,11 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "home_screen",
+            startDestination = "main_screen",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("home_screen") {
-                LoginScreenV2(
-                    bluetoothViewModel,
-                    navBarViewModel,
-                    onDeviceConnected = {},
-                    navController
-                )
+            composable("main_screen") {
+              MainScreen()
             }
             composable("login_screen") {
                 LoginScreen(navBarViewModel, navController)

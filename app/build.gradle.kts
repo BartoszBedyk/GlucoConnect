@@ -73,6 +73,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("com.auth0:java-jwt:4.4.0")
     implementation(libs.ble)
     implementation(project(":bluetoothModule"))
     implementation(project(":networkModule"))

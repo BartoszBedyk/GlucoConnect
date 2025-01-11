@@ -1,0 +1,42 @@
+package pl.example.aplikacja.UiElements
+
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import pl.example.aplikacja.formatDateTimeSpecificLocale
+import pl.example.networkmodule.apiData.ResearchResult
+import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+
+@Composable
+fun ItemView(item: ResearchResult) {
+
+
+
+    Column(modifier = Modifier.fillMaxWidth()
+        .clickable {
+            Log.d("ItemView", "Item Id clicked: ${item.id}")
+        }
+    ) {
+        Text(
+            text = "Glukoza: ${item.glucoseConcentration} ${item.unit}",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = formatDateTimeSpecificLocale(item.timestamp),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}

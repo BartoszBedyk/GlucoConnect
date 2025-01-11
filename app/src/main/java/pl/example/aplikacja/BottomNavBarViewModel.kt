@@ -23,7 +23,7 @@ class BottomNavBarViewModel @Inject constructor() : ViewModel() {
 
     val items = listOf(
         BottomNavigationItem(
-            title = "home_screen",
+            title = "main_screen",
             selectedIcon = Icons.Filled.Home,
             unselectedIcon = Icons.Outlined.Home,
             hasNews = false

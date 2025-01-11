@@ -36,7 +36,7 @@ class ResultApi(private val ktorClient: KtorClient) {
     }
 
     suspend fun getAllResearchResults(): List<ResearchResult>? {
-        val response = client.get("http://10.0.2.2:8080/$resultsEndpoint")
+        val response = client.get("http://10.0.2.2:8080/$resultsEndpoint/all")
 
         return if (response.status == HttpStatusCode.OK) {
 
@@ -47,6 +47,23 @@ class ResultApi(private val ktorClient: KtorClient) {
                 null
             }
         } else {
+            Log.e("ResultApi", "Request failed with status ${response.status}")
+            null
+        }
+
+    }
+
+    suspend fun getThreeResultsById(id: String): List<ResearchResult>? {
+        val response = client.get("http://10.0.2.2:8080/$resultsEndpoint/three/$id")
+        return if (response.status == HttpStatusCode.OK) {
+            if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                response.body<List<ResearchResult>>()
+            } else {
+                println("Unexpected content type: ${response.contentType()}")
+                null
+            }
+        }
+        else {
             Log.e("ResultApi", "Request failed with status ${response.status}")
             null
         }
