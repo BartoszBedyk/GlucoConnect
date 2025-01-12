@@ -1,20 +1,17 @@
 package pl.example.aplikacja.UiElements
 
-import android.graphics.Color
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pl.example.aplikacja.formatDateTimeSpecificLocale
 import pl.example.aplikacja.formatUnit
 import pl.example.networkmodule.apiData.ResearchResult
@@ -22,12 +19,10 @@ import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 
 
 @Composable
-fun ItemView(item: ResearchResult) {
+fun ItemView(item: ResearchResult, onItemClick: (String) -> Unit) {
 
     Column(modifier = Modifier.fillMaxWidth()
-        .clickable {
-            Log.d("ItemView", "Item Id clicked: ${item.id}")
-        }
+        .clickable { onItemClick(item.id.toString()) }
         .background(chooseColorForGlucose(item.glucoseConcentration, item.unit))
     ) {
         Text(

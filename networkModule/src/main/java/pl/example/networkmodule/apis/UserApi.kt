@@ -22,16 +22,23 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     private val client = ktorClient.client
     private val usersEndpoint: String = "user"
 
-    override suspend fun createUser(form: CreateUserForm): Boolean {
-        return try {
+    override suspend fun createUser(form: CreateUserForm): String? {
+        try {
             val response = client.post("http://10.0.2.2:8080/$usersEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(form)
+
             }
-            response.status == HttpStatusCode.OK
+            return if (response.status == HttpStatusCode.OK) {
+                val responseBody = response.body<Map<String, String>>()
+                responseBody["id"]
+            } else {
+                Log.e("AuthenticationApi", "Request failed with status ${response.status}")
+                null
+            }
         } catch (e: Exception) {
-            Log.e("UserApi", "Request failed with status ${e.message}")
-            false
+            Log.e("AuthenticationApi", "Request failed with status ${e.message}")
+            return null
         }
     }
 

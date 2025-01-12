@@ -17,11 +17,7 @@ fun removeQuotes(id: String): String {
 fun formatUnit(unit: GlucoseUnitType): String {
     return when (unit) {
         GlucoseUnitType.MMOL_PER_L -> "mmol/l"
-        GlucoseUnitType.MG_PER_DL -> "mg/dl"
+        GlucoseUnitType.MG_PER_DL -> "mg/dL"
     }
 
-}
-
-fun isMockTest(): Boolean {
-    return true
 }

@@ -8,7 +8,7 @@ import pl.example.networkmodule.requestData.UpdateUserNullForm
 import pl.example.networkmodule.requestData.UserCreateWIthType
 
 interface UserApiInterface {
-    suspend fun createUser(form: CreateUserForm): Boolean
+    suspend fun createUser(form: CreateUserForm): String?
     suspend fun createUserWithType(form: UserCreateWIthType): Boolean
     suspend fun getUserById(id: String): UserResult?
     suspend fun blockUser(id: String): Boolean

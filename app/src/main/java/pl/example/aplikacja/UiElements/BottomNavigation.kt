@@ -16,12 +16,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pl.example.aplikacja.BluetoothPermissionScreen
 import pl.example.aplikacja.BottomNavBarViewModel
+import pl.example.aplikacja.Screens.GlucoseResultScreen
 import pl.example.aplikacja.Screens.LoginScreen
 import pl.example.aplikacja.Screens.LoginScreenV2
 import pl.example.aplikacja.Screens.MainScreen
+import pl.example.aplikacja.Screens.RegisterStepTwoScreen
+import pl.example.aplikacja.Screens.RegistrationScreen
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 
 
@@ -76,12 +80,12 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
     NavHost(navController = navController, startDestination = "login_screen") {
         composable("main_screen") {
             Log.d("Navigation", "Navigated to Home Screen")
-            MainScreen()
+            MainScreen(navController)
         }
-        composable("login_screen") {
-            Log.d("Navigation", "Navigated to Login Screen")
-            LoginScreen(navBarViewModel, navController)
-        }
+//        composable("login_screen") {
+//            Log.d("Navigation", "Navigated to Login Screen")
+//            LoginScreen(navBarViewModel, navController)
+//        }
         composable("bluetooth_permission_screen") {
             Log.d("Navigation", "Navigated to permission Screen")
             BluetoothPermissionScreen(
@@ -98,9 +102,20 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
 fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
     val navController = rememberNavController()
 
+    val currentBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStackEntry.value?.destination?.route
+
+
+    val showBottomBar = when (currentDestination) {
+        "login_screen", "registration_screen", "register_step_two_screen/{userId}" -> false
+        else -> true
+    }
+
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(navBarViewModel, navController)
+            if (showBottomBar) {
+                BottomNavigationBar(navBarViewModel, navController)
+            }
         }
     ) { paddingValues ->
         NavHost(
@@ -109,7 +124,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("main_screen") {
-              MainScreen()
+                MainScreen(navController)
             }
             composable("login_screen") {
                 LoginScreen(navBarViewModel, navController)
@@ -119,13 +134,22 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                     bluetoothViewModel,
                     navBarViewModel,
                     onDeviceConnected = {},
-                    navController,
+                    navController
                 )
+            }
+            composable("glucoseResult/{itemId}") { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
+                GlucoseResultScreen(itemId)
+            }
+            composable("registration_screen") {
+                RegistrationScreen(navController)
+            }
+            composable("registerStepTwoScreen/{userId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                RegisterStepTwoScreen( navController, userId)
             }
         }
     }
-
-
 }
 
 @Composable

@@ -1,31 +1,39 @@
 package pl.example.aplikacja.viewModels
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.requestData.UserCredentials
+import pl.example.networkmodule.saveToken
 
-@HiltViewModel
-class LoginScreenViewModel @Inject constructor() : ViewModel() {
-    var username by mutableStateOf("")
-        private set
 
-    var password by mutableStateOf("")
-        private set
+class LoginScreenViewModel(private val apiProvider: ApiProvider): ViewModel() {
+    private val authenticationApi = apiProvider.authenticationApi
 
-    fun updateUsername(newUsername: String) {
-        Log.d("LoginScreenViewModel", "Updating username to $newUsername")
-        username = newUsername
+    suspend fun login(login: String, password: String, context: Context): String? {
+        return try {
+            val userCredentials = UserCredentials(login, password)
+            val token = authenticationApi.login(userCredentials)
+            if (token != null) {
+                saveToken(context, token)
+                Log.d("LoginScreen", "Login successful, token: $token")
+                token
+            } else {
+                Log.e("LoginScreen", "Login failed: invalid credentials")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("LoginScreen", "Login failed: ${e.message}")
+            null
+        }
     }
-
-    fun updatePassword(newPassword: String) {
-        password = newPassword
-
-    }
-
-
 
 }

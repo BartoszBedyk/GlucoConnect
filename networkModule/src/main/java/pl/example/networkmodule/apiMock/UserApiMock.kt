@@ -3,6 +3,7 @@ package pl.example.networkmodule.apiMock
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.UserType
+import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.apiMethods.UserApiInterface
 import pl.example.networkmodule.requestData.CreateUserForm
 import pl.example.networkmodule.requestData.UnitUpdate
@@ -41,7 +42,7 @@ class UserApiMock : UserApiInterface {
         )
     }
 
-    override suspend fun createUser(form: CreateUserForm): Boolean {
+    override suspend fun createUser(form: CreateUserForm): String {
         val newUser = UserResult(
             id = UUID.randomUUID(),
             firstName = "Jan",
@@ -53,7 +54,7 @@ class UserApiMock : UserApiInterface {
             prefUint = null
         )
         mockUsers.add(newUser)
-        return true
+        return "746004a6-bcdf-4991-bb65-42d3f388d65c"
     }
 
     override suspend fun createUserWithType(form: UserCreateWIthType): Boolean {
