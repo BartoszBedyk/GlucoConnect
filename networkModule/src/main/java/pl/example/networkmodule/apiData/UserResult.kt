@@ -10,13 +10,13 @@ import java.util.UUID
 data class UserResult(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val firstName: String?,
-    val lastName: String?,
-    val email: String,
+    var firstName: String?,
+    var lastName: String?,
+    var email: String,
     val password: String,
     val type: UserType?,
-    val isBlocked: Boolean?,
-    val prefUint: GlucoseUnitType?
+    var isBlocked: Boolean?,
+    var prefUint: GlucoseUnitType?
 )
 
 

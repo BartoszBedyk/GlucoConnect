@@ -105,7 +105,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "main_screen",
+            startDestination = "login_screen",
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("main_screen") {

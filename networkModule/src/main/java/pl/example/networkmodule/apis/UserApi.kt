@@ -12,16 +12,17 @@ import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiMethods.UserApiInterface
 import pl.example.networkmodule.requestData.CreateUserForm
 import pl.example.networkmodule.requestData.UnitUpdate
 import pl.example.networkmodule.requestData.UpdateUserNullForm
 import pl.example.networkmodule.requestData.UserCreateWIthType
 
-class UserApi(private val ktorClient: KtorClient) {
+class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     private val client = ktorClient.client
     private val usersEndpoint: String = "user"
 
-    suspend fun createUser(form: CreateUserForm): Boolean {
+    override suspend fun createUser(form: CreateUserForm): Boolean {
         return try {
             val response = client.post("http://10.0.2.2:8080/$usersEndpoint") {
                 contentType(ContentType.Application.Json)
@@ -34,7 +35,7 @@ class UserApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun createUserWithType(form: UserCreateWIthType): Boolean {
+    override suspend fun createUserWithType(form: UserCreateWIthType): Boolean {
         return try {
             val response = client.post("http://10.0.2.2:8080/$usersEndpoint/withType") {
                 contentType(ContentType.Application.Json)
@@ -47,7 +48,7 @@ class UserApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun getUserById(id: String): UserResult? {
+    override suspend fun getUserById(id: String): UserResult? {
         val response = client.get("http://10.0.2.2:8080/$usersEndpoint/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
@@ -62,7 +63,7 @@ class UserApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun blockUser(id: String): Boolean {
+    override suspend fun blockUser(id: String): Boolean {
         return try {
             val response = client.put("http://10.0.2.2:8080/$usersEndpoint/block/$id")
             response.status == HttpStatusCode.OK
@@ -72,7 +73,7 @@ class UserApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun unblockUser(id: String): Boolean {
+    override suspend fun unblockUser(id: String): Boolean {
         return try {
             val response = client.put("http://10.0.2.2:8080/$usersEndpoint/unblock/$id")
             response.status == HttpStatusCode.OK
@@ -82,7 +83,7 @@ class UserApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun unitUpdate(form: UnitUpdate): Boolean {
+    override suspend fun unitUpdate(form: UnitUpdate): Boolean {
         return try {
             val response = client.put("http://10.0.2.2:8080/$usersEndpoint/unitUpdate") {
                 contentType(ContentType.Application.Json)
@@ -95,7 +96,7 @@ class UserApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun updateUserNulls(form: UpdateUserNullForm): Boolean {
+    override suspend fun updateUserNulls(form: UpdateUserNullForm): Boolean {
         return try {
             val response = client.put("http://10.0.2.2:8080/$usersEndpoint/updateNulls") {
                 contentType(ContentType.Application.Json)
@@ -108,7 +109,7 @@ class UserApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun getUserUnitById(id: String): GlucoseUnitType? {
+    override suspend fun getUserUnitById(id: String): GlucoseUnitType? {
         val response = client.get("http://10.0.2.2:8080/$usersEndpoint/unit/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {

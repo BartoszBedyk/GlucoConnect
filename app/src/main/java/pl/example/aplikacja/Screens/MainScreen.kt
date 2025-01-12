@@ -1,6 +1,7 @@
 package pl.example.aplikacja.Screens
 
 import MainScreenViewModel
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,27 +17,35 @@ import androidx.compose.ui.unit.dp
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.UiElements.ItemView
+import pl.example.aplikacja.isMockTest
 import pl.example.aplikacja.removeQuotes
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import java.math.RoundingMode
 
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
-    val ktorClient = KtorClient(context)
-    val decoded : DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = MainScreenViewModel(ktorClient, removeQuotes(decoded.getClaim("userId").toString()))
 
-    val items by viewModel.threeGlucoseItems.collectAsState()
+    val apiProvider = ApiProvider(context)
+
+        val decoded : DecodedJWT = JWT.decode(getToken(context))
+        val viewModel = MainScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
+        val items by viewModel.threeGlucoseItems.collectAsState()
+
+
+
+
 //    val prefUnit by viewModel.prefUnit.collectAsState()
 
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
+            .padding(bottom = 0.dp)
             .padding(16.dp)
+
             .border(1.dp, androidx.compose.ui.graphics.Color.Magenta),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

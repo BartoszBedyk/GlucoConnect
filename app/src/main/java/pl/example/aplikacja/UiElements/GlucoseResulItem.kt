@@ -1,6 +1,8 @@
 package pl.example.aplikacja.UiElements
 
+import android.graphics.Color
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,21 +16,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import pl.example.aplikacja.formatDateTimeSpecificLocale
+import pl.example.aplikacja.formatUnit
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 
+
 @Composable
 fun ItemView(item: ResearchResult) {
-
-
 
     Column(modifier = Modifier.fillMaxWidth()
         .clickable {
             Log.d("ItemView", "Item Id clicked: ${item.id}")
         }
+        .background(chooseColorForGlucose(item.glucoseConcentration, item.unit))
     ) {
         Text(
-            text = "Glukoza: ${item.glucoseConcentration} ${item.unit}",
+            text = "Glukoza: ${item.glucoseConcentration} ${formatUnit(item.unit)}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 4.dp)
@@ -40,3 +43,37 @@ fun ItemView(item: ResearchResult) {
         )
     }
 }
+
+private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): androidx.compose.ui.graphics.Color {
+    return when (unit) {
+        GlucoseUnitType.MMOL_PER_L -> {
+            if (glucose < 5.5 && glucose > 3.9) {
+                androidx.compose.ui.graphics.Color.Green
+            } else if (glucose > 5.5) {
+               androidx.compose.ui.graphics.Color.Yellow
+            } else if (glucose < 3.9) {
+                androidx.compose.ui.graphics.Color.Red
+            }
+            else {
+                androidx.compose.ui.graphics.Color.White
+            }
+        }
+
+        GlucoseUnitType.MG_PER_DL -> {
+            if (glucose < 99.0 && glucose > 70.0) {
+                 androidx.compose.ui.graphics.Color.Green
+            } else if (glucose > 99.0) {
+                androidx.compose.ui.graphics.Color.Yellow
+            } else if (glucose < 70.0) {
+                 androidx.compose.ui.graphics.Color.Red
+            }
+            else {
+                androidx.compose.ui.graphics.Color.White
+            }
+        }
+
+    }
+}
+
+
+

@@ -8,12 +8,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
 import pl.example.networkmodule.requestData.UserCredentials
 
-class AuthenticationApi(private val ktorClient: KtorClient) {
+class AuthenticationApi(private val ktorClient: KtorClient): AuthenticationApiInterface {
     private val client = ktorClient.client
 
-    suspend fun login(userCredentials: UserCredentials): String? {
+    override suspend fun login(userCredentials: UserCredentials): String? {
         try {
             val response = client.post("http://10.0.2.2:8080/login") {
                 contentType(ContentType.Application.Json)

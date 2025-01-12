@@ -1,3 +1,4 @@
+import androidx.collection.MutableObjectList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.auth0.jwt.JWT
@@ -10,14 +11,16 @@ import pl.example.networkmodule.apis.ResultApi
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.apis.UserApi
 import pl.example.networkmodule.getToken
 import java.math.RoundingMode
 
-class MainScreenViewModel(private val ktorClient: KtorClient, private val USER_ID: String) : ViewModel() {
+class MainScreenViewModel(private val apiProvider: ApiProvider, private val USER_ID: String) :
+    ViewModel() {
 
-    private val resultApi = ResultApi(ktorClient)
-    private val userApi = UserApi(ktorClient)
+    private val resultApi = apiProvider.resultApi
+    private val userApi = apiProvider.userApi
 
 
     private val _threeGlucoseItems = MutableStateFlow<List<ResearchResult>>(emptyList())
@@ -39,13 +42,16 @@ class MainScreenViewModel(private val ktorClient: KtorClient, private val USER_I
     }
 
 
-    private fun convertUnits(items: List<ResearchResult>, targetUnit: GlucoseUnitType): List<ResearchResult> {
+    private fun convertUnits(
+        items: List<ResearchResult>,
+        targetUnit: GlucoseUnitType
+    ): List<ResearchResult> {
         return items.map { item ->
             if (item.unit != targetUnit) {
                 val convertedConcentration = when (item.unit) {
                     GlucoseUnitType.MG_PER_DL -> item.glucoseConcentration / 18.0182
                     GlucoseUnitType.MMOL_PER_L -> item.glucoseConcentration * 18.0182
-                }.toBigDecimal().setScale(1, RoundingMode.UP).toDouble()
+                }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
                 item.copy(
                     glucoseConcentration = convertedConcentration,
                     unit = targetUnit

@@ -12,15 +12,16 @@ import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiData.UserResult
+import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 
-class UserMedicationApi(private val ktorClient: KtorClient) {
+class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiInterface {
     private val client = ktorClient.client
 
     private val usersMedicationEndpoint: String = "user-medications"
 
 
-    suspend fun createUserMedication(userMedication: CreateUserMedicationForm): Boolean {
+    override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): Boolean {
         return try {
             val response = client.post("http://10.0.2.2:8080/$usersMedicationEndpoint") {
                 contentType(ContentType.Application.Json)
@@ -34,7 +35,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun readUserMedication(id: String): UserMedicationResult? {
+    override suspend fun readUserMedication(id: String): UserMedicationResult? {
         val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
@@ -49,7 +50,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun deleteUserMedication(id: String): Boolean {
+    override suspend fun deleteUserMedication(id: String): Boolean {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$usersMedicationEndpoint/$id")
             response.status == HttpStatusCode.OK
@@ -59,7 +60,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun deleteUserMedicationForUser(userId: String): Boolean {
+    override suspend fun deleteUserMedicationForUser(userId: String): Boolean {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$usersMedicationEndpoint/user/$userId")
             response.status == HttpStatusCode.OK

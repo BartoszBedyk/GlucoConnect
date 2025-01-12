@@ -12,15 +12,16 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.KtorClient
+import pl.example.networkmodule.apiMethods.ResultApiInterface
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import pl.example.networkmodule.requestData.ResearchResultUpdate
 
-class ResultApi(private val ktorClient: KtorClient) {
+class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
 
     private val client = ktorClient.client
     private val resultsEndpoint: String = "results"
 
-    suspend fun getResearchResultsById(id: String): ResearchResult? {
+    override suspend fun getResearchResultsById(id: String): ResearchResult? {
         val response = client.get("http://10.0.2.2:8080/$resultsEndpoint/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
@@ -35,7 +36,7 @@ class ResultApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun getAllResearchResults(): List<ResearchResult>? {
+    override suspend fun getAllResearchResults(): List<ResearchResult>? {
         val response = client.get("http://10.0.2.2:8080/$resultsEndpoint/all")
 
         return if (response.status == HttpStatusCode.OK) {
@@ -53,7 +54,7 @@ class ResultApi(private val ktorClient: KtorClient) {
 
     }
 
-    suspend fun getThreeResultsById(id: String): List<ResearchResult>? {
+    override suspend fun getThreeResultsById(id: String): List<ResearchResult>? {
         val response = client.get("http://10.0.2.2:8080/$resultsEndpoint/three/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
@@ -84,7 +85,7 @@ class ResultApi(private val ktorClient: KtorClient) {
 //        }
 //    }
 
-    suspend fun updateResearchResult(updateForm: ResearchResultUpdate): Boolean {
+    override suspend fun updateResearchResult(updateForm: ResearchResultUpdate): Boolean {
         return try {
             val response = client.put("http://10.0.2.2:8080/$resultsEndpoint/update") {
                 contentType(ContentType.Application.Json)
@@ -97,7 +98,7 @@ class ResultApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean {
+    override suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean {
         return try{
             val response = client.post("http://10.0.2.2:8080/$resultsEndpoint/") {
                 contentType(ContentType.Application.Json)
@@ -112,7 +113,7 @@ class ResultApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun deleteResearchResult(id: String): Boolean {
+    override suspend fun deleteResearchResult(id: String): Boolean {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$resultsEndpoint/delete/$id")
             response.status == HttpStatusCode.OK
@@ -122,7 +123,7 @@ class ResultApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun safeDeleteResearchResult(id: String): Boolean {
+    override suspend fun safeDeleteResearchResult(id: String): Boolean {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$resultsEndpoint/safeDelete/$id")
             response.status == HttpStatusCode.OK

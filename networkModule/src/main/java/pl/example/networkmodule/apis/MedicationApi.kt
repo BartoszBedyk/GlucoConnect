@@ -12,13 +12,14 @@ import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiData.UserMedicationResult
+import pl.example.networkmodule.apiMethods.MedicationApiInterface
 import pl.example.networkmodule.requestData.CreateMedication
 
-class MedicationApi(private val ktorClient: KtorClient) {
+class MedicationApi(private val ktorClient: KtorClient) : MedicationApiInterface {
     private val client = ktorClient.client
     private val medicationEndpoint: String = "medications"
 
-    suspend fun createMedication(medication: CreateMedication): Boolean {
+    override suspend fun createMedication(medication: CreateMedication): Boolean {
         return try {
             val response = client.post("http://10.0.2.2:8080/$medicationEndpoint") {
                 contentType(ContentType.Application.Json)
@@ -32,7 +33,7 @@ class MedicationApi(private val ktorClient: KtorClient) {
 
     }
 
-    suspend fun readMedication(id: String): MedicationResult? {
+    override suspend fun readMedication(id: String): MedicationResult? {
         val response = client.get("http://10.0.2.2:8080/$medicationEndpoint/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
@@ -47,7 +48,7 @@ class MedicationApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun getAllMedications(): List<MedicationResult>? {
+    override suspend fun getAllMedications(): List<MedicationResult>? {
         val response = client.get("http://10.0.2.2:8080/$medicationEndpoint/all")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
@@ -62,7 +63,7 @@ class MedicationApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun deleteMedication(id: String): Boolean {
+    override suspend fun deleteMedication(id: String): Boolean {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$medicationEndpoint/$id")
             response.status == HttpStatusCode.OK

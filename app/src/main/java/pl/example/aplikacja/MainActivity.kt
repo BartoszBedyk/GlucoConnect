@@ -13,11 +13,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import pl.example.aplikacja.UiElements.MainApp
 import pl.example.aplikacja.ui.theme.AplikacjaTheme
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
+import pl.example.networkmodule.apiMethods.ApiProvider
 
 @AndroidEntryPoint
 //@HiltAndroidApp
 class MainActivity : ComponentActivity() {
-
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
