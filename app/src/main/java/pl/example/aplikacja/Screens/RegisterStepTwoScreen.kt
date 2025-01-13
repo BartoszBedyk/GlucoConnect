@@ -1,15 +1,12 @@
 package pl.example.aplikacja.Screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
@@ -35,7 +33,7 @@ import pl.example.networkmodule.apiMethods.ApiProvider
 fun RegisterStepTwoScreen(
     navController: NavHostController,
     userId: String
-){
+) {
     val context = LocalContext.current
     val apiProvider = ApiProvider(context)
     val viewModel = RegistrationStepTwoScreenViewModel(apiProvider)
@@ -47,7 +45,20 @@ fun RegisterStepTwoScreen(
     var expanded by remember { mutableStateOf(false) }
     var registerError by remember { mutableStateOf("") }
 
-    Log.i("RegisterStepTwoScreen", "userId: $userId")
+    Box(
+        Modifier
+            .fillMaxSize()
+    )
+    {
+        Text(
+            text = "Dokończ konfigurację", modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(bottom = 16.dp, top = 100.dp),
+            color = androidx.compose.ui.graphics.Color.White,
+            fontSize = 32.sp
+        )
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -78,11 +89,17 @@ fun RegisterStepTwoScreen(
             onUnitSelected = { prefUnit = it }
         )
 
-       Button(
+        Button(
             onClick = {
                 coroutineScope.launch {
                     try {
-                        if(viewModel.registerStepTwo(userId, name, lastName, prefUnit.toString())){
+                        if (viewModel.registerStepTwo(
+                                userId,
+                                name,
+                                lastName,
+                                prefUnit.toString()
+                            )
+                        ) {
                             registerError = ""
                             navController.navigate("main_screen")
                         } else {
@@ -95,10 +112,8 @@ fun RegisterStepTwoScreen(
                 }
             }
         ) {
-          Text(text = "Uzupełnij")
-       }
-
-
+            Text(text = "Zatwierdź")
+        }
 
         if (registerError.isNotEmpty()) {
             Text(
@@ -108,9 +123,4 @@ fun RegisterStepTwoScreen(
             )
         }
     }
-    Log.i("RegisterStepTwoScreen2", "userId: $userId")
-
-
-
-
 }

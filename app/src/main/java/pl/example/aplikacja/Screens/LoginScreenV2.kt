@@ -76,7 +76,7 @@ fun LoginScreenV2(
 
     LaunchedEffect(state.isConnected) {
         if (state.isConnected) {
-            Toast.makeText(context, "You're connected!", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Połączono!", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -88,7 +88,7 @@ fun LoginScreenV2(
                 verticalArrangement = Arrangement.Center
             ) {
                 CircularProgressIndicator()
-                Text(text = "Connecting...")
+                Text(text = "Nawiązywanie połączenia...")
             }
         }
 

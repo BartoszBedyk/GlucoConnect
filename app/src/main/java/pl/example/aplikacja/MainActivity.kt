@@ -13,7 +13,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import pl.example.aplikacja.UiElements.MainApp
 import pl.example.aplikacja.ui.theme.AplikacjaTheme
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
-import pl.example.networkmodule.apiMethods.ApiProvider
 
 @AndroidEntryPoint
 //@HiltAndroidApp
@@ -29,24 +28,6 @@ class MainActivity : ComponentActivity() {
                 MainApp(navBarViewModel, bluetoothViewModel)
             }
         }
-    }
-}
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AplikacjaTheme {
-        Greeting("Android")
     }
 }
 

@@ -44,19 +44,6 @@ fun DeviceScreen(
             Text(text = "Go to settings")
         }
     }
-//    Column {
-//        Text("BLUETOOTH_CONNECT")
-//        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED))
-//        Text("SCAN")
-//        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED))
-//        Text("BLUETOOTH")
-//        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED))
-//        Text("BLUETOOTH_ADMIN")
-//        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED))
-//        Text("BLUETOOTH_PRIVILEGED")
-//        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_PRIVILEGED) == PackageManager.PERMISSION_GRANTED))
-//    }
-
 
     Column {
         Text(
@@ -89,7 +76,6 @@ fun DeviceScreen(
             Text(text = "Pobierz czas pomiaru")
         }
     }
-    //BottomNavigationBar()
 
 }
 
@@ -113,14 +99,14 @@ fun BluetoothDeviceList(
     LazyColumn(modifier = modifier) {
         item {
             Text(
-                text = "Paired device",
+                text = "Sparowane urządzenia",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
                 modifier = Modifier.padding(16.dp)
             )
         }
         items(pairedDevices) { device ->
-            Text(text = device.name ?: "(NO NAME)",
+            Text(text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(device) }
@@ -131,14 +117,14 @@ fun BluetoothDeviceList(
     LazyColumn(modifier = modifier) {
         item {
             Text(
-                text = "Scanned device",
+                text = "Wykryte urządzenia",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
                 modifier = Modifier.padding(16.dp)
             )
         }
         items(scannedDevices) { device ->
-            Text(text = device.name ?: "(NO NAME)",
+            Text(text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(device) }

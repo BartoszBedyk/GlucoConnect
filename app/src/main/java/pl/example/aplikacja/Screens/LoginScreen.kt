@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
@@ -47,6 +49,16 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     var blocked by remember { mutableStateOf(false) }
 
 
+    Box(Modifier
+        .fillMaxSize())
+    {
+        Text(text = "Zaloguj się", modifier = Modifier
+            .align(Alignment.TopCenter)
+            .padding(bottom = 16.dp, top = 100.dp),
+            color = androidx.compose.ui.graphics.Color.White,
+            fontSize = 32.sp
+            )
+    }
 
 
     Column(
@@ -57,8 +69,8 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         OutlinedTextField(
             value = login,
             onValueChange = { login = it },
-            label = { Text(text = "Login") },
-            placeholder = { Text(text = "Wpisz login") },
+            label = { Text(text = "Adres email") },
+            placeholder = { Text(text = "Wpisz email") },
             maxLines = 1,
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -98,8 +110,11 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         if (loginError.isNotEmpty()) {
             Text(
                 text = loginError,
-                modifier = Modifier.padding(top = 16.dp),
-                color = androidx.compose.ui.graphics.Color.Red
+                color = androidx.compose.ui.graphics.Color.Red,
+                fontSize = 16.sp,
+                overflow = TextOverflow.Clip,
+                maxLines = 2,
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
             )
         }
     }

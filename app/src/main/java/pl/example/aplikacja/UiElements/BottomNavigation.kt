@@ -130,7 +130,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                 LoginScreen(navBarViewModel, navController)
             }
             composable("bluetooth_permission_screen") {
-                BluetoothPermissionScreen(
+                LoginScreenV2(
                     bluetoothViewModel,
                     navBarViewModel,
                     onDeviceConnected = {},
