@@ -11,13 +11,14 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.HeartbeatResult
+import pl.example.networkmodule.apiMethods.HeartbeatApiInterface
 import pl.example.networkmodule.requestData.CreateHeartbeatForm
 
-class HeartbeatApi(private val ktorClient: KtorClient) {
+class HeartbeatApi(private val ktorClient: KtorClient) : HeartbeatApiInterface {
     private val client = ktorClient.client
     private val heartbeatEndpoint: String = "heartbeat"
 
-    suspend fun createHeartbeat(heartbeat: CreateHeartbeatForm): Boolean {
+    override suspend fun createHeartbeat(heartbeat: CreateHeartbeatForm): Boolean {
         return try {
             val response = client.post("http://10.0.2.2:8080/$heartbeatEndpoint") {
                 contentType(ContentType.Application.Json)
@@ -30,7 +31,7 @@ class HeartbeatApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun getHeartBeat(id: String): HeartbeatResult? {
+    override suspend fun getHeartBeat(id: String): HeartbeatResult? {
         return try {
             val response = client.get("http://10.0.2.2:8080/$heartbeatEndpoint/$id")
             if (response.status == HttpStatusCode.OK) {
@@ -50,7 +51,7 @@ class HeartbeatApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun readHeartbeatForUser(userId: String): List<HeartbeatResult>? {
+    override suspend fun readHeartbeatForUser(userId: String): List<HeartbeatResult>? {
         return try {
             val response = client.get("http://10.0.2.2:8080/$heartbeatEndpoint/user/$userId")
             if (response.status == HttpStatusCode.OK)
@@ -72,7 +73,7 @@ class HeartbeatApi(private val ktorClient: KtorClient) {
 
     }
 
-    suspend fun deleteHeartbeat(id: String): Boolean {
+    override suspend fun deleteHeartbeat(id: String): Boolean {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$heartbeatEndpoint/$id")
             response.status == HttpStatusCode.OK
@@ -82,7 +83,7 @@ class HeartbeatApi(private val ktorClient: KtorClient) {
         }
     }
 
-    suspend fun deleteHeartbeatsForUser(userId: String): Boolean {
+    override suspend fun deleteHeartbeatsForUser(userId: String): Boolean {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$heartbeatEndpoint/user/$userId")
             response.status == HttpStatusCode.OK

@@ -1,11 +1,9 @@
 package pl.example.bluetoothmodule.presentation
 
 import android.bluetooth.BluetoothGatt
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.job
 import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.ConnectionResult
@@ -59,13 +56,48 @@ class BluetoothViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun connectToGattDevice(device: BluetoothDevice){
+        Log.d("CONNECT", "button is clicked")
+        _state.update { it.copy(isConnecting = true) }
+        deviceConnectionJob = bluetoothController.connectToGattDevice(device)
+            .listen()
+    }
 
-    fun readMeasurementTime(){
-        Log.d("BL_FUN", bluetoothGatt.toString())
+
+    fun readLastMeasurementTime(){
+        val command = byteArrayOf(
+            0x51.toByte(),
+            0x25.toByte(),
+            0x00, 0x00, 0x00, 0x00,
+            0xA3.toByte()
+        )
         bluetoothGatt?.let {
-            bluetoothController.readMeasurementTime(it)
+            bluetoothController.sendCommand(it, command)
         } ?: Log.d("BL_FUN", "BluetoothGatt is not available.")
+    }
 
+    fun readLastMeasurementResult(){
+        val command = byteArrayOf(
+            0x51.toByte(),
+            0x26.toByte(),
+            0x00, 0x00, 0x00, 0x00,
+            0xA3.toByte()
+        )
+        bluetoothGatt?.let {
+            bluetoothController.sendCommand(it, command)
+        } ?: Log.d("BL_FUN", "BluetoothGatt is not available.")
+    }
+
+    fun readGlucometerTime(){
+        val command = byteArrayOf(
+            0x51.toByte(),
+            0x23.toByte(),
+            0x00, 0x00, 0x00, 0x00,
+            0xA3.toByte()
+        )
+        bluetoothGatt?.let {
+            bluetoothController.sendCommand(it, command)
+        } ?: Log.d("BL_FUN", "BluetoothGatt is not available.")
     }
 
     fun disconnectFromDevice(){

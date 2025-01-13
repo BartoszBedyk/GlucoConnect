@@ -2,6 +2,7 @@ package pl.example.aplikacja.Screens
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,10 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pl.example.aplikacja.UiElements.BottomNavigationBar
-import pl.example.aplikacja.UiElements.ColorSquare
 import pl.example.bluetoothmodule.presentation.BluetoothUiState
-import kotlin.reflect.KFunction0
 
 @Composable
 fun DeviceScreen(
@@ -33,8 +31,9 @@ fun DeviceScreen(
     onStartScan: () -> Unit,
     onStopScan: () -> Unit,
     context: Context,
-    onDeviceClick: (android.bluetooth.BluetoothDevice) -> Unit,
-    onDownloadTime: KFunction0<Unit>
+    onDeviceClick: (BluetoothDevice) -> Unit,
+    onDownloadTime: () -> Unit,
+    title: String
 ) {
 
     if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
@@ -45,21 +44,13 @@ fun DeviceScreen(
             Text(text = "Go to settings")
         }
     }
-    Column {
-        Text("BLUETOOTH_CONNECT")
-        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED))
-        Text("SCAN")
-        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED))
-        Text("BLUETOOTH")
-        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED))
-        Text("BLUETOOTH_ADMIN")
-        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED))
-        Text("BLUETOOTH_PRIVILEGED")
-        ColorSquare((context.checkSelfPermission(Manifest.permission.BLUETOOTH_PRIVILEGED) == PackageManager.PERMISSION_GRANTED))
-    }
-
 
     Column {
+        Text(
+            text = title, fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(16.dp)
+        )
         BluetoothDeviceList(
             state.pairedDevices, state.scannedDevices,
             onClick = onDeviceClick,
@@ -81,11 +72,10 @@ fun DeviceScreen(
 
         }
 
-        Button(onClick =  onDownloadTime) {
+        Button(onClick = onDownloadTime) {
             Text(text = "Pobierz czas pomiaru")
         }
     }
-    //BottomNavigationBar()
 
 }
 
@@ -109,14 +99,14 @@ fun BluetoothDeviceList(
     LazyColumn(modifier = modifier) {
         item {
             Text(
-                text = "Paired device",
+                text = "Sparowane urządzenia",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
                 modifier = Modifier.padding(16.dp)
             )
         }
         items(pairedDevices) { device ->
-            Text(text = device.name ?: "(NO NAME)",
+            Text(text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(device) }
@@ -127,14 +117,14 @@ fun BluetoothDeviceList(
     LazyColumn(modifier = modifier) {
         item {
             Text(
-                text = "Scanned device",
+                text = "Wykryte urządzenia",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
                 modifier = Modifier.padding(16.dp)
             )
         }
         items(scannedDevices) { device ->
-            Text(text = device.name ?: "(NO NAME)",
+            Text(text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(device) }

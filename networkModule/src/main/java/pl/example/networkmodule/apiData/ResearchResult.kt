@@ -12,8 +12,8 @@ data class ResearchResult(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val sequenceNumber: Int,
-    val glucoseConcentration: Double,
-    val unit: GlucoseUnitType,
+    var glucoseConcentration: Double,
+    var unit: GlucoseUnitType,
     @Serializable(with = DateSerializer::class)
     val timestamp: Date,
     @Serializable(with = UUIDSerializer::class)
