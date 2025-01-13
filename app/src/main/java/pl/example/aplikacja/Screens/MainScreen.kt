@@ -44,7 +44,7 @@ fun MainScreen(navController: NavController) {
     ) {
         items(items) { item ->
             ItemView(item) { itemId ->
-                navController.navigate("glucoseResult/$itemId")
+                navController.navigate("glucose_result/$itemId")
             }
         }
     }

@@ -95,7 +95,7 @@ fun RegistrationScreen(navController: NavHostController){
                         try {
                             val userId = viewModel.register(login, password)
                             if (!userId.isNullOrEmpty()) {
-                                navController.navigate("registerStepTwoScreen/$userId")
+                                navController.navigate("register_step_two_screen/$userId")
                             } else {
                                 registerError = "Rejestracja nie powiodła się."
                             }

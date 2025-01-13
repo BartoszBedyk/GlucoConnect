@@ -26,7 +26,7 @@ class BottomNavBarViewModel @Inject constructor() : ViewModel() {
             hasNews = false
         ),
         BottomNavigationItem(
-            title = "main_screen",
+            title = "user_profile_screen",
             selectedIcon = Icons.Filled.Lock,
             unselectedIcon = Icons.Outlined.Lock,
             hasNews = false

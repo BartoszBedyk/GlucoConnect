@@ -73,7 +73,18 @@ class UserApiMock : UserApiInterface {
     }
 
     override suspend fun getUserById(id: String): UserResult? {
-        return mockUsers.find { it.id.toString() == id }
+        val newUser = UserResult(
+            id = UUID.randomUUID(),
+            firstName = "Jan",
+            lastName = "Paweł",
+            email = "lala@wp.pl",
+            password = "5435654",
+            type = UserType.PATIENT,
+            isBlocked = false,
+            prefUint = GlucoseUnitType.MMOL_PER_L
+        )
+        mockUsers.find { it.id.toString() == id }
+        return newUser;
     }
 
     override suspend fun blockUser(id: String): Boolean {
@@ -101,7 +112,7 @@ class UserApiMock : UserApiInterface {
             lastName = form.lastName ?: lastName
             prefUint = (form.prefUint ?: GlucoseUnitType.MG_PER_DL) as GlucoseUnitType?
         }
-        return user != null
+        return true
     }
 
     override suspend fun getUserUnitById(id: String): GlucoseUnitType? {

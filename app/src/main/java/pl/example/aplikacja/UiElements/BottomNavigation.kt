@@ -20,12 +20,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pl.example.aplikacja.BluetoothPermissionScreen
 import pl.example.aplikacja.BottomNavBarViewModel
+import pl.example.aplikacja.Screens.EditUserDataScreen
 import pl.example.aplikacja.Screens.GlucoseResultScreen
 import pl.example.aplikacja.Screens.LoginScreen
 import pl.example.aplikacja.Screens.LoginScreenV2
 import pl.example.aplikacja.Screens.MainScreen
 import pl.example.aplikacja.Screens.RegisterStepTwoScreen
 import pl.example.aplikacja.Screens.RegistrationScreen
+import pl.example.aplikacja.Screens.UserProfileScreen
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 
 
@@ -107,7 +109,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
 
 
     val showBottomBar = when (currentDestination) {
-        "login_screen", "registration_screen", "register_step_two_screen/{userId}" -> false
+        "login_screen", "registration_screen", "register_step_two_screen/{userId}", "register_step_two_screen" -> false
         else -> true
     }
 
@@ -126,8 +128,8 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("main_screen") {
                 MainScreen(navController)
             }
-            composable("login_screen") {
-                LoginScreen(navBarViewModel, navController)
+            composable("user_profile_screen") {
+                UserProfileScreen(navController)
             }
             composable("bluetooth_permission_screen") {
                 LoginScreenV2(
@@ -137,16 +139,26 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                     navController
                 )
             }
-            composable("glucoseResult/{itemId}") { backStackEntry ->
+            composable("login_screen") {
+                LoginScreen(navBarViewModel, navController)
+            }
+            composable("glucose_result/{itemId}") { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
                 GlucoseResultScreen(itemId)
             }
             composable("registration_screen") {
                 RegistrationScreen(navController)
             }
-            composable("registerStepTwoScreen/{userId}") { backStackEntry ->
+            composable("register_step_two_screen/{userId}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
                 RegisterStepTwoScreen( navController, userId)
+            }
+
+            composable("user_profile_screen"){
+                UserProfileScreen(navController)
+            }
+            composable("edit_user_data_screen"){
+                EditUserDataScreen(navController)
             }
         }
     }

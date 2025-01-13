@@ -126,7 +126,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         .padding(top = 16.dp)
         .padding(bottom = 32.dp)
         .align(Alignment.BottomCenter)
-        .clickable { navController.navigate("registration_screen") }, color = androidx.compose.ui.graphics.Color.White)
+        .clickable { navController.navigate("registration_screen") })
     }
 
 }

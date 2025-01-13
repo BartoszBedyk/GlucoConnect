@@ -86,7 +86,8 @@ fun RegisterStepTwoScreen(
 
         GlucoseUnitDropdownMenu(
             selectedUnit = prefUnit,
-            onUnitSelected = { prefUnit = it }
+            onUnitSelected = { prefUnit = it },
+            label = "Jednostka stęzenia glukozy"
         )
 
         Button(

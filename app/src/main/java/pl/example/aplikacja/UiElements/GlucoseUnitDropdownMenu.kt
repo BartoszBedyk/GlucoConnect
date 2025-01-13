@@ -30,16 +30,20 @@ import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 @Composable
 fun GlucoseUnitDropdownMenu(
     selectedUnit: GlucoseUnitType,
-    onUnitSelected: (GlucoseUnitType) -> Unit
+    onUnitSelected: (GlucoseUnitType) -> Unit,
+    label: String
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var paddingValue = 8.dp
 
-    Row(Modifier.padding(vertical = 8.dp)) {
+    if(label.isBlank()) paddingValue = 0.dp
+
+    Row(Modifier.padding(vertical = paddingValue)) {
         OutlinedTextField(
             value = formatUnit(selectedUnit),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Jednostka glukozy") },
+            label = { Text(label) },
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
