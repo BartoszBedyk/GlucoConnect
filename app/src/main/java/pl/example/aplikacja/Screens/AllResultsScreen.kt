@@ -11,16 +11,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -88,8 +85,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                 LazyColumn(
                     modifier = Modifier
                         .padding(16.dp)
-                        .weight(1f)
-                        .border(1.dp, androidx.compose.ui.graphics.Color.Magenta),
+                        .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     userScrollEnabled = true,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -106,8 +102,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                 LazyColumn(
                     modifier = Modifier
                         .padding(16.dp)
-                        .weight(1f)
-                        .border(1.dp, androidx.compose.ui.graphics.Color.Magenta),
+                        .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(heartbeatResult) { item ->

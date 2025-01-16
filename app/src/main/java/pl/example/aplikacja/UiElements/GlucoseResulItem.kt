@@ -9,6 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Brush.Companion.linearGradient
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,31 +65,31 @@ fun ItemView(item: HeartbeatResult, onItemClick: (String) -> Unit) {
     }
 }
 
-private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): androidx.compose.ui.graphics.Color {
+private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush {
     return when (unit) {
         GlucoseUnitType.MMOL_PER_L -> {
             if (glucose < 5.5 && glucose > 3.9) {
-                androidx.compose.ui.graphics.Color.Green
+                Brush.linearGradient(listOf(Color.White, Color.Green), start = Offset(0.5f, 0.5f), end = Offset.Infinite)
             } else if (glucose > 5.5) {
-               androidx.compose.ui.graphics.Color.Yellow
+                Brush.linearGradient(listOf(Color.White,Color.Yellow))
             } else if (glucose < 3.9) {
-                androidx.compose.ui.graphics.Color.Red
+                Brush.linearGradient(listOf(Color.White,Color.Red))
             }
             else {
-                androidx.compose.ui.graphics.Color.White
+                Brush.linearGradient(listOf(Color.White,Color.White))
             }
         }
 
         GlucoseUnitType.MG_PER_DL -> {
             if (glucose < 99.0 && glucose > 70.0) {
-                 androidx.compose.ui.graphics.Color.Green
+                Brush.linearGradient(listOf(Color.White,Color.Green), start = Offset(1.1f, 1.1f), end = Offset(0.8f, 0.8f))
             } else if (glucose > 99.0) {
-                androidx.compose.ui.graphics.Color.Yellow
+                Brush.linearGradient(listOf(Color.White,Color.Yellow), start = Offset(0.5f, 0.5f), end = Offset(0.8f, 0.8f))
             } else if (glucose < 70.0) {
-                 androidx.compose.ui.graphics.Color.Red
+                Brush.linearGradient(listOf(Color.White,Color.Red))
             }
             else {
-                androidx.compose.ui.graphics.Color.White
+                Brush.linearGradient(listOf(Color.White,Color.White))
             }
         }
 

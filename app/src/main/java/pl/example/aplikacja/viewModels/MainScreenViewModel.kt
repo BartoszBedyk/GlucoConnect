@@ -1,21 +1,12 @@
-import androidx.collection.MutableObjectList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.convertUnits
-import pl.example.aplikacja.formatDateTimeSpecificLocale
-import pl.example.networkmodule.apis.ResultApi
-import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
-import pl.example.networkmodule.apis.UserApi
-import pl.example.networkmodule.getToken
-import java.math.RoundingMode
 
 class MainScreenViewModel(private val apiProvider: ApiProvider, private val USER_ID: String) :
     ViewModel() {
