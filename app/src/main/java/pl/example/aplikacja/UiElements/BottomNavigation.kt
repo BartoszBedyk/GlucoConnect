@@ -173,6 +173,14 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("add_heartbeat_result") {
                 AddHeartbeatResultScreen(navController)
             }
+            composable("add_glucose_result/{main}") { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("main") ?: ""
+                AddGlucoseResultScreen(navController, type.isNotBlank())
+            }
+            composable("add_heartbeat_result/{main}") { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("main") ?: ""
+                AddHeartbeatResultScreen(navController, type.isNotBlank())
+            }
             composable("all_results_screen/{type}") { backStackEntry ->
                 val type = backStackEntry.arguments?.getString("type") ?: ""
                 AllResultsScreen(navController, type.toBoolean())

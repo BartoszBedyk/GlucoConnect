@@ -50,7 +50,7 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddGlucoseResultScreen(navController: NavHostController) {
+fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
     //val sequenceNumber by remember { mutableIntStateOf(1) }
     val glucoseConcentration by remember { mutableDoubleStateOf(0.0) }
 
@@ -180,7 +180,11 @@ fun AddGlucoseResultScreen(navController: NavHostController) {
                             timestamp = timestampFull ?: Date()
                         )
                     )){
-                    navController.navigate("all_results_screen/false")
+                    if(fromMain == true){
+                        navController.navigate("main_screen")
+                    }else{
+                        navController.navigate("all_results_screen/false")
+                    }
                 }else{
                     snackState.showSnackbar("Nie udało się dodać pomiaru")
                 }

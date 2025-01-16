@@ -5,10 +5,12 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,9 +36,9 @@ class BottomNavBarViewModel @Inject constructor() : ViewModel() {
             hasNews = false
         ),
         BottomNavigationItem(
-            title = "bluetooth_permission_screen",
-            selectedIcon = Icons.Filled.Menu,
-            unselectedIcon = Icons.Outlined.Menu,
+            title = "user_medication_screen",
+            selectedIcon = Icons.Filled.ShoppingCart,
+            unselectedIcon = Icons.Outlined.ShoppingCart,
             hasNews = false
         ),
         BottomNavigationItem(

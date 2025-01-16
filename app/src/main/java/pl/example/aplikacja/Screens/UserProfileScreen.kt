@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
@@ -83,10 +84,16 @@ fun UserProfileScreen(navController: NavController) {
 
         Box(Modifier.fillMaxSize().padding(bottom = 32.dp)) {
             ExtendedFloatingActionButton(
+                onClick = {navController.navigate("bluetooth_permission_screen")},
+                icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
+                text = { Text(text = "Bluetooth") },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+            )
+            ExtendedFloatingActionButton(
                 onClick = {navController.navigate("edit_user_data_screen")},
                 icon = { Icon(Icons.Filled.Edit, "Przycisk do edycji danych.") },
                 text = { Text(text = "Edytuj dane") },
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
             )
         }
     }

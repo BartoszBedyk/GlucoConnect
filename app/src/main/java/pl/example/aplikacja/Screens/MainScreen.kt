@@ -76,13 +76,13 @@ fun MainScreen(navController: NavController) {
                 }
             }
         }
-        ExpandableFloatingActionButton();
+        ExpandableFloatingActionButton(navController);
 
     }
 }
 
 @Composable
-fun ExpandableFloatingActionButton() {
+fun ExpandableFloatingActionButton(navController: NavController) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Box(
@@ -97,7 +97,7 @@ fun ExpandableFloatingActionButton() {
             horizontalArrangement = Arrangement.End,
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(FloatingActionButtonDefaults.containerColor)
                 .shadow(elevation = 8.dp)
         ) {
 
@@ -108,23 +108,32 @@ fun ExpandableFloatingActionButton() {
                 Row(
                 ) {
                     FloatingActionButton(
-                        onClick = { /* Akcja dla pierwszej opcji */ },
+                        onClick = {
+                            navController.navigate("add_glucose_result/main")
+                            isExpanded = !isExpanded
+                        },
                         modifier = Modifier.padding(end = 0.dp),
                         elevation = FloatingActionButtonDefaults.elevation(0.dp)
                     ) {
-                        Icon(imageVector = ImageVector.vectorResource(id = R.drawable.drop_icon),
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.drop_icon),
                             contentDescription = "Icon",
-                            modifier = Modifier.size(24.dp))
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
 
 
                     FloatingActionButton(
-                        onClick = { /* Akcja dla drugiej opcji */ },
+                        onClick = {
+                            navController.navigate("add_heartbeat_result/main")
+                            isExpanded = !isExpanded
+                        },
                         elevation = FloatingActionButtonDefaults.elevation(0.dp)
                     ) {
-                        Icon(imageVector = ImageVector.vectorResource(id = R.drawable.monitor_heart),
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.monitor_heart),
                             contentDescription = "Icon",
-                                modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 }
@@ -132,9 +141,9 @@ fun ExpandableFloatingActionButton() {
 
 
             FloatingActionButton(
-                onClick = { isExpanded = !isExpanded }, // Przełączanie widoczności
+                onClick = { isExpanded = !isExpanded },
                 shape = Shapes().medium,
-                elevation = FloatingActionButtonDefaults.elevation(8.dp)
+                elevation = FloatingActionButtonDefaults.elevation(0.dp)
             ) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Filled.Close else Icons.Filled.Add,

@@ -45,7 +45,7 @@ import java.util.UUID
 @Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHeartbeatResultScreen(navController: NavHostController) {
+fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
 
     val systolicPressure by remember { mutableIntStateOf(0) }
     val diastolicPressure by remember { mutableIntStateOf(0) }
@@ -208,7 +208,11 @@ fun AddHeartbeatResultScreen(navController: NavHostController) {
                         )
                     )
                 ) {
-                    navController.navigate("all_results_screen/true")
+                    if(fromMain == true){
+                        navController.navigate("main_screen")
+                    }else{
+                        navController.navigate("all_results_screen/true")
+                    }
                 } else {
                     snackState.showSnackbar("Nie udało się dodać pomiaru")
                 }
