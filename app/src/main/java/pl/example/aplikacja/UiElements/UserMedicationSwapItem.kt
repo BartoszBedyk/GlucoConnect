@@ -10,7 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import pl.example.aplikacja.Screens.MedicationItem
+import pl.example.aplikacja.feature.usermedication.MedicationItem
 import pl.example.networkmodule.apiData.UserMedicationResult
 
 
@@ -21,7 +21,7 @@ fun UserMedicationSwapItem(
     modifier: Modifier = Modifier,
     onRemove: (UserMedicationResult) -> Unit,
     onEdit: (UserMedicationResult) -> Unit,
-    onClick: (String) -> Unit,
+    onClick: (String, String) -> Unit,
 ) {
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(userMedication)

@@ -86,9 +86,5 @@ class KtorClient(context: Context) {
         return Pair(sslContext.socketFactory, trustManager)
     }
 
-
-
-
-
 }
 

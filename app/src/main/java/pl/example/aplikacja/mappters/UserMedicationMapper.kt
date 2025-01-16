@@ -5,10 +5,12 @@ import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
+import java.util.UUID
 
 fun UserMedicationResult.toUserMedicationDB(): UserMedicationDB {
     return this.let { form ->
         UserMedicationDB(
+            id = form.id,
             medicationId = form.medicationId,
             userId = form.userId,
             dosage = form.dosage,
@@ -24,6 +26,7 @@ fun UserMedicationResult.toUserMedicationDB(): UserMedicationDB {
 fun CreateUserMedicationForm.toUserMedicationDB(): UserMedicationDB {
     return this.let { form ->
         UserMedicationDB(
+            id = UUID.randomUUID(),
             medicationId = form.medicationId,
             userId = form.userId,
             dosage = form.dosage,
@@ -60,6 +63,7 @@ fun parseUserMedicationDBtoUserMedicationResult(
     if (userMedication != null) {
         if (medication != null) {
             return UserMedicationResult(
+                id = userMedication.id,
                 medicationId = userMedication.medicationId,
                 userId = userMedication.userId,
                 dosage = userMedication.dosage,
@@ -81,6 +85,7 @@ fun parseUserMedicationDBtoUserMedicationResult(
 fun UserMedicationDB?.toUserMedicationResult(): UserMedicationResult? {
     if (this == null) return null
     return UserMedicationResult(
+        id = this.id,
         medicationId = this.medicationId,
         userId = this.userId,
         dosage = this.dosage,

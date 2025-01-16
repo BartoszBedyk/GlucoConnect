@@ -3,7 +3,6 @@ package pl.example.databasemodule.database.security
 import android.content.Context
 import android.os.Build
 import android.util.Base64
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
@@ -28,11 +27,9 @@ object EncryptedKeyProvider {
         )
 
         val existingKey = prefs.getString(ENCRYPTED_KEY, null)
-        Log.d("EncryptedKeyProvider", "Existing key: $existingKey")
 
         if (existingKey != null) {
             val decoded = Base64.decode(existingKey, Base64.DEFAULT)
-            Log.d("EncryptedKeyProvider", "Decoded key size: ${decoded.size}")
             return decoded
         } else {
             val newKey = ByteArray(32)
@@ -40,7 +37,6 @@ object EncryptedKeyProvider {
             prefs.edit {
                 putString(ENCRYPTED_KEY, Base64.encodeToString(newKey, Base64.DEFAULT))
             }
-            Log.d("EncryptedKeyProvider", "Generated new key: ${Base64.encodeToString(newKey, Base64.DEFAULT)}")
             return newKey
         }
     }

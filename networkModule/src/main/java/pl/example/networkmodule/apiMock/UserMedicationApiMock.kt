@@ -15,6 +15,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
         mockUserMedications.addAll(
             listOf(
                 UserMedicationResult(
+                    id= UUID.randomUUID(),
                     userId = userId,
                     medicationId = medicationId,
                     dosage = "1 tablet",
@@ -29,6 +30,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
                     strength = "200mg"
                 ),
                 UserMedicationResult(
+                    id= UUID.randomUUID(),
                     userId = userId,
                     medicationId = UUID.randomUUID(),
                     dosage = "2 tablets",
@@ -48,6 +50,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
 
     override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): String? {
         val newUserMedication = UserMedicationResult(
+            id= UUID.randomUUID(),
             userId = userMedication.userId,
             medicationId = userMedication.medicationId,
             dosage = userMedication.dosage,
@@ -88,6 +91,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
     override suspend fun readTodayUserMedication(id: String): List<UserMedicationResult>? {
         return listOf(
             UserMedicationResult(
+                id= UUID.randomUUID(),
                 userId = UUID.randomUUID(),
                 medicationId = UUID.randomUUID(),
                 dosage = "500mg",
@@ -102,6 +106,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
                 strength = "500mg"
             ),
             UserMedicationResult(
+                id= UUID.randomUUID(),
                 userId = UUID.randomUUID(),
                 medicationId = UUID.randomUUID(),
                 dosage = "250mg",
@@ -120,6 +125,25 @@ class UserMedicationApiMock : UserMedicationApiInterface {
 
     override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
         return UserMedicationResult(
+            id= UUID.randomUUID(),
+            userId = UUID.randomUUID(),
+            medicationId = UUID.randomUUID(),
+            dosage = "500mg",
+            frequency = "Twice a day",
+            startDate = Date(),
+            endDate = null,
+            notes = "Take after meals",
+            medicationName = "Aspirin",
+            description = "Pain reliever",
+            manufacturer = "Pharma Inc.",
+            form = "Tablet",
+            strength = "500mg"
+        )
+    }
+
+    override suspend fun getUserMedication(userMedicationId: String): UserMedicationResult? {
+        return UserMedicationResult(
+            id= UUID.randomUUID(),
             userId = UUID.randomUUID(),
             medicationId = UUID.randomUUID(),
             dosage = "500mg",

@@ -9,12 +9,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -22,28 +24,28 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pl.example.aplikacja.BottomNavBarViewModel
-import pl.example.aplikacja.Screens.AddGlucoseResultScreen
-import pl.example.aplikacja.Screens.AddHeartbeatResultScreen
-import pl.example.aplikacja.Screens.AddUserMedicationScreen
-import pl.example.aplikacja.Screens.AdminUserDirectScreen
-import pl.example.aplikacja.Screens.AdministrationMainScreen
-import pl.example.aplikacja.Screens.AllResultsDownload
-import pl.example.aplikacja.Screens.AllResultsScreen
-import pl.example.aplikacja.Screens.BluetoothPermission
-import pl.example.aplikacja.Screens.EditUserDataScreen
-import pl.example.aplikacja.Screens.GlucometerAdminScreen
-import pl.example.aplikacja.Screens.GlucoseResultScreen
-import pl.example.aplikacja.Screens.HeartbeatResultScreen
-import pl.example.aplikacja.Screens.LicenceScreen
-import pl.example.aplikacja.Screens.LoginScreen
-import pl.example.aplikacja.Screens.MainScreen
-import pl.example.aplikacja.Screens.MedicationHistoryScreen
-import pl.example.aplikacja.Screens.MedicationResultScreen
-import pl.example.aplikacja.Screens.ObserverMainScreen
-import pl.example.aplikacja.Screens.RegisterStepTwoScreen
-import pl.example.aplikacja.Screens.RegistrationScreen
-import pl.example.aplikacja.Screens.UserMedicationScreen
-import pl.example.aplikacja.Screens.UserProfileScreen
+import pl.example.aplikacja.feature.addglucose.AddGlucoseResultScreen
+import pl.example.aplikacja.feature.addheartbeat.AddHeartbeatResultScreen
+import pl.example.aplikacja.feature.addmedication.AddUserMedicationScreen
+import pl.example.aplikacja.feature.admindirect.AdminUserDirectScreen
+import pl.example.aplikacja.feature.mainadmin.AdministrationMainScreen
+import pl.example.aplikacja.feature.resultsdownload.AllResultsDownload
+import pl.example.aplikacja.feature.allresults.AllResultsScreen
+import pl.example.aplikacja.feature.bluetooth.BluetoothPermission
+import pl.example.aplikacja.feature.edituser.EditUserDataScreen
+import pl.example.aplikacja.feature.bluetooth.GlucometerAdminScreen
+import pl.example.aplikacja.feature.glucoseresult.GlucoseResultScreen
+import pl.example.aplikacja.feature.heartbeatresult.HeartbeatResultScreen
+import pl.example.aplikacja.feature.login.LicenceScreen
+import pl.example.aplikacja.feature.login.LoginScreen
+import pl.example.aplikacja.feature.mainuser.MainScreen
+import pl.example.aplikacja.feature.medicationhistory.MedicationHistoryScreen
+import pl.example.aplikacja.feature.medication.MedicationResultScreen
+import pl.example.aplikacja.feature.mainobserver.ObserverMainScreen
+import pl.example.aplikacja.feature.registertwo.RegisterStepTwoScreen
+import pl.example.aplikacja.feature.registerone.RegistrationScreen
+import pl.example.aplikacja.feature.usermedication.UserMedicationScreen
+import pl.example.aplikacja.feature.user.UserProfileScreen
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 
 
@@ -80,7 +82,16 @@ fun BottomNavigationBar(navBarViewModel: BottomNavBarViewModel, navController: N
                             }
                         )
                     }
-                }
+                },
+                colors = NavigationBarItemColors(
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedIndicatorColor = Color(0xFF006D8F),
+                    disabledIconColor = MaterialTheme.colorScheme.outlineVariant,
+                    disabledTextColor = MaterialTheme.colorScheme.outlineVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.outlineVariant,
+                    unselectedIconColor = MaterialTheme.colorScheme.outlineVariant
+                )
             )
         }
     }
@@ -94,31 +105,6 @@ data class BottomNavigationItem(
     val badgeCount: Int? = null
 )
 
-
-//@Composable
-//fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
-//    val navController = rememberNavController()
-//    NavHost(navController = navController, startDestination = "login_screen") {
-//        composable("main_screen") {
-//            Log.d("Navigation", "Navigated to Home Screen")
-//            MainScreen(navController, null)
-//        }
-////        composable("login_screen") {
-////            Log.d("Navigation", "Navigated to Login Screen")
-////            LoginScreen(navBarViewModel, navController)
-////        }
-//        composable("bluetooth_permission_screen") {
-//            Log.d("Navigation", "Navigated to permission Screen")
-//            BluetoothPermission(
-//                bluetoothViewModel,
-//                navBarViewModel,
-//                onDeviceConnected = {},
-//                navController,
-//                destination = "bluetooth"
-//            )
-//        }
-//    }
-//}
 
 @Composable
 fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
@@ -224,9 +210,10 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("user_medication_screen") {
                 UserMedicationScreen(navController)
             }
-            composable("medication_result/{itemId}") { backStackEntry ->
-                val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
-                MedicationResultScreen(itemId, navController)
+            composable("medication_result/{umId}/{medicationId}") { backStackEntry ->
+                val umId = backStackEntry.arguments?.getString("umId") ?: ""
+                val medicationId = backStackEntry.arguments?.getString("medicationId") ?: ""
+                MedicationResultScreen(umId, medicationId, navController)
             }
             composable("add_user_medication_screen") {
                 AddUserMedicationScreen(navController)

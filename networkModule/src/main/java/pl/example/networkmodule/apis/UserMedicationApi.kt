@@ -12,7 +12,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.UserMedicationResult
-import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 
@@ -121,6 +120,22 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
     override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
         return try {
             val response = client.get("$adress/$usersMedicationEndpoint/user/$userId/$medicationId")
+
+            if (response.status == HttpStatusCode.OK) {
+                response.body()
+            } else {
+                Log.e("UserMedicationApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserMedicationApi", "Request failed with exception: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun getUserMedication(userMedicationId: String): UserMedicationResult? {
+        return try {
+            val response = client.get("$adress/$usersMedicationEndpoint/ID/$userMedicationId")
 
             if (response.status == HttpStatusCode.OK) {
                 response.body()

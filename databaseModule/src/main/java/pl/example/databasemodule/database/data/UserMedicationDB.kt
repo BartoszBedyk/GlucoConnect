@@ -6,8 +6,12 @@ import androidx.room.PrimaryKey
 import java.util.Date
 import java.util.UUID
 
-@Entity(tableName = "user_medication", primaryKeys = ["user_id", "medication_id"])
+@Entity(tableName = "user_medication")
 data class UserMedicationDB(
+    @PrimaryKey
+    @ColumnInfo(name = "id")
+    val id: UUID,
+
     @ColumnInfo(name = "medication_id")
     val medicationId: UUID,
 

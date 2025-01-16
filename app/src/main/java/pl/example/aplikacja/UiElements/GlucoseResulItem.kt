@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pl.example.aplikacja.Screens.TextRow
+import pl.example.aplikacja.feature.glucoseresult.TextRow
 import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
 import pl.example.aplikacja.mappters.formatUnit
 import pl.example.networkmodule.apiData.HeartbeatResult
