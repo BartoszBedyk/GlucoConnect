@@ -54,7 +54,79 @@ class HeartbeatApiMock : HeartbeatApiInterface {
     }
 
     override suspend fun readHeartbeatForUser(userId: String): List<HeartbeatResult>? {
-        return mockHeartbeats.filter { it.userId.toString() == userId }
+        return listOf(
+            HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 120,
+                diastolicPressure = 80,
+                pulse = 70,
+                note = "Regular checkup"
+            ),
+            HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 130,
+                diastolicPressure = 85,
+                pulse = 75,
+                note = "Post-exercise"
+            ), HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 120,
+                diastolicPressure = 80,
+                pulse = 70,
+                note = "Regular checkup"
+            ),
+            HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 130,
+                diastolicPressure = 85,
+                pulse = 75,
+                note = "Post-exercise"
+            ),
+            HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 120,
+                diastolicPressure = 80,
+                pulse = 70,
+                note = "Regular checkup"
+            ),
+            HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 130,
+                diastolicPressure = 85,
+                pulse = 75,
+                note = "Post-exercise"
+            ),
+            HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 120,
+                diastolicPressure = 80,
+                pulse = 70,
+                note = "Regular checkup"
+            ),
+            HeartbeatResult(
+                id = UUID.randomUUID(),
+                userId = UUID.randomUUID(),
+                timestamp = Date(),
+                systolicPressure = 130,
+                diastolicPressure = 85,
+                pulse = 75,
+                note = "Post-exercise"
+            )
+        )
     }
 
     override suspend fun deleteHeartbeat(id: String): Boolean {

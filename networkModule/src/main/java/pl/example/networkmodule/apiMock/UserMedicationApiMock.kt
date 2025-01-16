@@ -84,4 +84,37 @@ class UserMedicationApiMock : UserMedicationApiInterface {
         mockUserMedications.removeAll { it.userId.toString() == userId }
         return mockUserMedications.size < initialSize
     }
+
+    override suspend fun readTodayUserMedication(id: String): List<UserMedicationResult>? {
+        return listOf(
+            UserMedicationResult(
+                userId = UUID.randomUUID(),
+                medicationId = UUID.randomUUID(),
+                dosage = "500mg",
+                frequency = "Twice a day",
+                startDate = Date(),
+                endDate = null,
+                notes = "Take after meals",
+                medicationName = "Aspirin",
+                description = "Pain reliever",
+                manufacturer = "Pharma Inc.",
+                form = "Tablet",
+                strength = "500mg"
+            ),
+            UserMedicationResult(
+                userId = UUID.randomUUID(),
+                medicationId = UUID.randomUUID(),
+                dosage = "250mg",
+                frequency = "Once a day",
+                startDate = Date(),
+                endDate = null,
+                notes = "Take in the morning",
+                medicationName = "Ibuprofen",
+                description = "Anti-inflammatory",
+                manufacturer = "Health Corp.",
+                form = "Capsule",
+                strength = "250mg"
+            )
+        )
+    }
 }

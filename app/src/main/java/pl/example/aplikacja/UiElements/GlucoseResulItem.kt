@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.example.aplikacja.formatDateTimeSpecificLocale
 import pl.example.aplikacja.formatUnit
+import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 
@@ -27,6 +28,27 @@ fun ItemView(item: ResearchResult, onItemClick: (String) -> Unit) {
     ) {
         Text(
             text = "Glukoza: ${item.glucoseConcentration} ${formatUnit(item.unit)}",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = formatDateTimeSpecificLocale(item.timestamp),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun ItemView(item: HeartbeatResult, onItemClick: (String) -> Unit) {
+
+    Column(modifier = Modifier.fillMaxWidth()
+        .clickable { onItemClick(item.id.toString()) }
+        //.background(chooseColorForGlucose(item.glucoseConcentration, item.unit))
+    ) {
+        Text(
+            text = "Ciśnienie: ${item.systolicPressure}" + "/" + "${item.diastolicPressure}" +"  " + "${item.pulse}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 4.dp)

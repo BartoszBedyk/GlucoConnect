@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.UiElements.ItemView
+import pl.example.aplikacja.UiElements.LineChartCompose
 import pl.example.aplikacja.removeQuotes
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
@@ -33,7 +34,7 @@ fun MainScreen(navController: NavController) {
 
 
 //    val prefUnit by viewModel.prefUnit.collectAsState()
-
+    //LineChartCompose()
 
     LazyColumn(
         modifier = Modifier

@@ -12,4 +12,5 @@ interface ResultApiInterface {
     suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean
     suspend fun deleteResearchResult(id: String): Boolean
     suspend fun safeDeleteResearchResult(id: String): Boolean
+    suspend fun getResultsByUserId(id: String): List<ResearchResult>?
 }

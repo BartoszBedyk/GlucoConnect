@@ -1,12 +1,14 @@
 package pl.example.aplikacja
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,15 +28,21 @@ class BottomNavBarViewModel @Inject constructor() : ViewModel() {
             hasNews = false
         ),
         BottomNavigationItem(
-            title = "user_profile_screen",
-            selectedIcon = Icons.Filled.Lock,
-            unselectedIcon = Icons.Outlined.Lock,
+            title = "all_results_screen",
+            selectedIcon = Icons.Filled.Favorite,
+            unselectedIcon = Icons.Outlined.Favorite,
             hasNews = false
         ),
         BottomNavigationItem(
             title = "bluetooth_permission_screen",
-            selectedIcon = Icons.Filled.ThumbUp,
-            unselectedIcon = Icons.Outlined.ThumbUp,
+            selectedIcon = Icons.Filled.Menu,
+            unselectedIcon = Icons.Outlined.Menu,
+            hasNews = false
+        ),
+        BottomNavigationItem(
+            title = "user_profile_screen",
+            selectedIcon = Icons.Filled.AccountCircle,
+            unselectedIcon = Icons.Outlined.AccountCircle,
             hasNews = false
         )
     )
