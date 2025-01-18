@@ -56,16 +56,21 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     }
 
     override suspend fun getUserById(id: String): UserResult? {
-        val response = client.get("http://10.0.2.2:8080/$usersEndpoint/$id")
-        return if (response.status == HttpStatusCode.OK) {
-            if (response.contentType()?.match(ContentType.Application.Json) == true) {
-                response.body<UserResult>()
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$usersEndpoint/$id")
+            if (response.status == HttpStatusCode.OK) {
+                if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                    response.body<UserResult>()
+                } else {
+                    Log.e("UserApi", "Unexpected content type: ${response.contentType()}")
+                    null
+                }
             } else {
-                println("Unexpected content type: ${response.contentType()}")
+                Log.e("UserApi", "Request failed with status ${response.status}")
                 null
             }
-        } else {
-            Log.e("UserApi", "Request failed with status ${response.status}")
+        } catch (e: Exception) {
+            Log.e("UserApi", "Error during request: ${e.message}", e)
             null
         }
     }

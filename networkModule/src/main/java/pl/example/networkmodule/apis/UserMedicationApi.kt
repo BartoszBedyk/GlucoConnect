@@ -14,6 +14,7 @@ import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
+import pl.example.networkmodule.requestData.GetMedicationForm
 
 class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiInterface {
     private val client = ktorClient.client
@@ -27,8 +28,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
                 contentType(ContentType.Application.Json)
                 setBody(userMedication)
             }
-            response.status == HttpStatusCode.OK
-
+            response.status == HttpStatusCode.Created
         } catch (e: Exception) {
             Log.e("UserMedicationApi", "Request failed with status ${e.message}")
             false
@@ -83,6 +83,25 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
                     Log.e("UserMedicationApi", "Unexpected content type: ${response.contentType()}")
                     null
                 }
+            } else {
+                Log.e("UserMedicationApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserMedicationApi", "Request failed with exception: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun getUserMedication(getMedicationForm: GetMedicationForm): UserMedicationResult? {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/user"){
+                contentType(ContentType.Application.Json)
+                setBody(getMedicationForm)
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                response.body()
             } else {
                 Log.e("UserMedicationApi", "Request failed with status ${response.status}")
                 null

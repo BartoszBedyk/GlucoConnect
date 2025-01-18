@@ -116,7 +116,7 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
 
     override suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean {
         return try{
-            val response = client.post("http://10.0.2.2:8080/$resultsEndpoint/") {
+            val response = client.post("http://10.0.2.2:8080/$resultsEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(createForm)
 

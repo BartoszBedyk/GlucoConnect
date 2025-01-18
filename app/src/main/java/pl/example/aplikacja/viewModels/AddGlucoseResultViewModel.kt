@@ -1,5 +1,6 @@
 package pl.example.aplikacja.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ class AddGlucoseResultViewModel(private val apiProvider: ApiProvider, private va
     }
 
         suspend fun addGlucoseResult(form: ResearchResultCreate): Boolean {
+            Log.d("AddGlucoseResultViewModel", "Adding glucose result: $form")
             return try {
                 resultApi.createResearchResult(form)
                 true

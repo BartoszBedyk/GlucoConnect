@@ -11,6 +11,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -20,6 +21,7 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -32,15 +34,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.formatDateTimeWithoutLocale
 import pl.example.aplikacja.formatUnit
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
+import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
@@ -51,9 +56,8 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
-    //val sequenceNumber by remember { mutableIntStateOf(1) }
-    val glucoseConcentration by remember { mutableDoubleStateOf(0.0) }
-
+    val glucoseConcentrationState = remember { mutableStateOf("0.0") }
+    var unitState by remember { mutableStateOf<GlucoseUnitType?>(null) }
     var timestampDate by remember { mutableStateOf<Date?>(null) }
     var timestampTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var checked by remember { mutableStateOf(false) }
@@ -77,7 +81,13 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
         AddGlucoseResultViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
 
     val prefUnit by viewModel.prefUnit.collectAsState()
-    val unit by remember { mutableStateOf(prefUnit) }
+
+    // Synchronizacja początkowej jednostki z danymi ViewModelu
+    LaunchedEffect(prefUnit) {
+        if (unitState == null) {
+            unitState = prefUnit
+        }
+    }
 
     val timestampFull by remember {
         derivedStateOf {
@@ -93,11 +103,28 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
     SnackbarHost(hostState = snackState, Modifier)
 
     Column(Modifier.padding(16.dp)) {
-//        TextRowEdit(label = "Numer sekwencji", value = sequenceNumber.toString(), fontSize = 20)
         TextRowEdit(
-            label = "Poziom glukozy", value = glucoseConcentration.toString(), fontSize = 20
+            label = "Poziom glukozy",
+            value = glucoseConcentrationState.value,
+            onValueChange = { glucoseConcentrationState.value = it },
+            fontSize = 20
         )
-        TextRowEdit(label = "Jednostka pomiaru", value = formatUnit(unit), fontSize = 20)
+
+        Text(
+            text = "Jednostka stężenia glukozy",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 15.sp
+        )
+
+        // Poprawne przypisanie wartości do menu
+        unitState?.let {
+            GlucoseUnitDropdownMenu(
+                selectedUnit = it,
+                onUnitSelected = { unitState = it },
+                label = ""
+            )
+        }
 
         Checkbox(checked = checked, onCheckedChange = { state ->
             if (state) {
@@ -105,13 +132,13 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                 openDateTimePicker = true
             }
             checked = state
-        }
-        )
+        })
+
         if (checked) {
             TextRowEdit(
                 label = "Data pomiaru",
-                value = timestampFull?.let { formatDateTimeWithoutLocale(it) }
-                    ?: "",
+                value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
+                onValueChange = {}, // Pole tylko do odczytu
                 fontSize = 20
             )
 
@@ -120,31 +147,36 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                 val confirmEnabled = remember {
                     derivedStateOf { datePickerState.selectedDateMillis != null }
                 }
-                DatePickerDialog(onDismissRequest = {
-                    openDialogDate = false
-                    openDateTimePicker = false
-                }, confirmButton = {
-                    TextButton(
-                        onClick = {
-                            if (datePickerState.selectedDateMillis != null) {
-                                timestampDate = Date(datePickerState.selectedDateMillis!!)
-                            }
-                            openDialogDate = false
-                            openDateTimePicker = false
-                            openClockTimePicker = true
-                        }, enabled = confirmEnabled.value
-                    ) {
-                        Text("OK")
-                    }
-                }, dismissButton = {
-                    TextButton(onClick = {
+                DatePickerDialog(
+                    onDismissRequest = {
                         openDialogDate = false
                         openDateTimePicker = false
-                        openClockTimePicker = false
-                    }) {
-                        Text("Anuluj")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                if (datePickerState.selectedDateMillis != null) {
+                                    timestampDate = Date(datePickerState.selectedDateMillis!!)
+                                }
+                                openDialogDate = false
+                                openDateTimePicker = false
+                                openClockTimePicker = true
+                            },
+                            enabled = confirmEnabled.value
+                        ) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            openDialogDate = false
+                            openDateTimePicker = false
+                            openClockTimePicker = false
+                        }) {
+                            Text("Anuluj")
+                        }
                     }
-                }) {
+                ) {
                     DatePicker(
                         state = datePickerState,
                         modifier = Modifier
@@ -152,8 +184,6 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                             .verticalScroll(rememberScrollState())
                     )
                 }
-
-
             }
             if (openClockTimePicker) {
                 CustomTimePicker(
@@ -168,32 +198,33 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                 )
             }
         }
+
         TextButton(onClick = {
             coroutineScope.launch {
-                if(
-                    viewModel.addGlucoseResult(
+                if (viewModel.addGlucoseResult(
                         ResearchResultCreate(
                             userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
                             sequenceNumber = 1,
-                            glucoseConcentration = glucoseConcentration,
-                            unit = unit.toString(),
+                            glucoseConcentration = glucoseConcentrationState.value.toDoubleOrNull()
+                                ?: 0.0,
+                            unit = unitState.toString(),
                             timestamp = timestampFull ?: Date()
                         )
-                    )){
-                    if(fromMain == true){
+                    )
+                ) {
+                    if (fromMain == true) {
                         navController.navigate("main_screen")
-                    }else{
+                    } else {
                         navController.navigate("all_results_screen/false")
                     }
-                }else{
+                } else {
                     snackState.showSnackbar("Nie udało się dodać pomiaru")
                 }
-            }}){
+            }
+        }) {
             Text(text = "Dodaj pomiar")
         }
     }
-
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

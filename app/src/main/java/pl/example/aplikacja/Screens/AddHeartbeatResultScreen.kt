@@ -46,11 +46,10 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
-
-    val systolicPressure by remember { mutableIntStateOf(0) }
-    val diastolicPressure by remember { mutableIntStateOf(0) }
-    val pulse by remember { mutableIntStateOf(0) }
-    val note by remember { mutableStateOf("") }
+    var systolicPressure by remember { mutableStateOf("0") }
+    var diastolicPressure by remember { mutableStateOf("0") }
+    var pulse by remember { mutableStateOf("0") }
+    var note by remember { mutableStateOf("") }
 
     var timestampDate by remember { mutableStateOf<Date?>(null) }
     var timestampTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
@@ -88,33 +87,35 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
     SnackbarHost(hostState = snackState, Modifier)
 
     Column(Modifier.padding(16.dp)) {
-
-
-
         TextRowEdit(
-            label = "Systolicna ciśnienie",
-            value = systolicPressure.toString(),
+            label = "Systoliczne ciśnienie",
+            value = systolicPressure,
+            onValueChange = { systolicPressure = it },
             fontSize = 20
         )
 
         TextRowEdit(
-            label = "Diastoliczna ciśnienie",
-            value = diastolicPressure.toString(),
+            label = "Diastoliczne ciśnienie",
+            value = diastolicPressure,
+            onValueChange = { diastolicPressure = it },
             fontSize = 20
         )
 
         TextRowEdit(
             label = "Puls",
-            value = pulse.toString(),
+            value = pulse,
+            onValueChange = { pulse = it },
             fontSize = 20
         )
 
         TextRowEdit(
             label = "Notatka",
             value = note,
+            onValueChange = { note = it },
             fontSize = 20
         )
-        Row(){
+
+        Row(verticalAlignment = CenterVertically) {
             Text(text = "Data pomiaru")
             Checkbox(checked = checked, onCheckedChange = { state ->
                 if (state) {
@@ -122,18 +123,14 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     openDateTimePicker = true
                 }
                 checked = state
-            }
-            )
-
+            })
         }
-
-
 
         if (checked) {
             TextRowEdit(
                 label = "Data pomiaru",
-                value = timestampFull?.let { formatDateTimeWithoutLocale(it) }
-                    ?: "",
+                value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
+                onValueChange = {}, // Pole tylko do odczytu
                 fontSize = 20
             )
 
@@ -142,31 +139,36 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                 val confirmEnabled = remember {
                     derivedStateOf { datePickerState.selectedDateMillis != null }
                 }
-                DatePickerDialog(onDismissRequest = {
-                    openDialogDate = false
-                    openDateTimePicker = false
-                }, confirmButton = {
-                    TextButton(
-                        onClick = {
-                            if (datePickerState.selectedDateMillis != null) {
-                                timestampDate = Date(datePickerState.selectedDateMillis!!)
-                            }
-                            openDialogDate = false
-                            openDateTimePicker = false
-                            openClockTimePicker = true
-                        }, enabled = confirmEnabled.value
-                    ) {
-                        Text("OK")
-                    }
-                }, dismissButton = {
-                    TextButton(onClick = {
+                DatePickerDialog(
+                    onDismissRequest = {
                         openDialogDate = false
                         openDateTimePicker = false
-                        openClockTimePicker = false
-                    }) {
-                        Text("Anuluj")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                if (datePickerState.selectedDateMillis != null) {
+                                    timestampDate = Date(datePickerState.selectedDateMillis!!)
+                                }
+                                openDialogDate = false
+                                openDateTimePicker = false
+                                openClockTimePicker = true
+                            },
+                            enabled = confirmEnabled.value
+                        ) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            openDialogDate = false
+                            openDateTimePicker = false
+                            openClockTimePicker = false
+                        }) {
+                            Text("Anuluj")
+                        }
                     }
-                }) {
+                ) {
                     DatePicker(
                         state = datePickerState,
                         modifier = Modifier
@@ -174,8 +176,6 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                             .verticalScroll(rememberScrollState())
                     )
                 }
-
-
             }
             if (openClockTimePicker) {
                 CustomTimePicker(
@@ -190,6 +190,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                 )
             }
         }
+
         TextButton(onClick = {
             coroutineScope.launch {
                 if (
@@ -201,16 +202,16 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                                 )
                             ),
                             timestamp = timestampFull ?: Date(),
-                            pulse = pulse,
-                            systolicPressure = systolicPressure,
-                            diastolicPressure = diastolicPressure,
+                            pulse = pulse.toIntOrNull() ?: 0,
+                            systolicPressure = systolicPressure.toIntOrNull() ?: 0,
+                            diastolicPressure = diastolicPressure.toIntOrNull() ?: 0,
                             note = note
                         )
                     )
                 ) {
-                    if(fromMain == true){
+                    if (fromMain == true) {
                         navController.navigate("main_screen")
-                    }else{
+                    } else {
                         navController.navigate("all_results_screen/true")
                     }
                 } else {

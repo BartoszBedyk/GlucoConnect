@@ -11,7 +11,6 @@ data class CreateUserMedicationForm(
     @Serializable(with = UUIDSerializer::class)
     val userId: UUID,
     @Serializable(with = UUIDSerializer::class)
-
     val medicationId: UUID,
     val dosage: String,
     val frequency: String,

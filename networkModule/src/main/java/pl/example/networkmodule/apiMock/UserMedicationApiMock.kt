@@ -3,6 +3,7 @@ package pl.example.networkmodule.apiMock
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
+import pl.example.networkmodule.requestData.GetMedicationForm
 import java.util.Date
 import java.util.UUID
 
@@ -115,6 +116,23 @@ class UserMedicationApiMock : UserMedicationApiInterface {
                 form = "Capsule",
                 strength = "250mg"
             )
+        )
+    }
+
+    override suspend fun getUserMedication(getMedicationForm: GetMedicationForm): UserMedicationResult? {
+        return UserMedicationResult(
+            userId = UUID.randomUUID(),
+            medicationId = UUID.randomUUID(),
+            dosage = "500mg",
+            frequency = "Twice a day",
+            startDate = Date(),
+            endDate = null,
+            notes = "Take after meals",
+            medicationName = "Aspirin",
+            description = "Pain reliever",
+            manufacturer = "Pharma Inc.",
+            form = "Tablet",
+            strength = "500mg"
         )
     }
 }

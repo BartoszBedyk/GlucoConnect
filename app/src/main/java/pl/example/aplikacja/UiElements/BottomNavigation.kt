@@ -22,6 +22,7 @@ import pl.example.aplikacja.BluetoothPermissionScreen
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.Screens.AddGlucoseResultScreen
 import pl.example.aplikacja.Screens.AddHeartbeatResultScreen
+import pl.example.aplikacja.Screens.AddUserMedicationScreen
 import pl.example.aplikacja.Screens.AllResultsScreen
 import pl.example.aplikacja.Screens.EditUserDataScreen
 import pl.example.aplikacja.Screens.GlucoseResultScreen
@@ -191,6 +192,9 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("medication_result/{itemId}") { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
                 MedicationResultScreen(itemId)
+            }
+            composable("add_user_medication_screen") {
+                AddUserMedicationScreen(navController)
             }
 
         }

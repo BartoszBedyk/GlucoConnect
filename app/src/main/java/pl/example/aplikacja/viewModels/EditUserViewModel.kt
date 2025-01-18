@@ -1,6 +1,7 @@
 package pl.example.aplikacja.viewModels
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,6 +32,7 @@ class EditUserViewModel(apiProvider: ApiProvider, private val USER_ID: String) :
     }
 
     suspend fun editUserData(editData: UpdateUserNullForm): Boolean {
+        Log.d("EditUserViewModel", "editUserData: $editData")
         return userApi.updateUserNulls(editData)
     }
 

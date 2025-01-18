@@ -65,7 +65,7 @@ fun UserMedicationScreen(navController: NavController?) {
 
         FloatingActionButton(
             onClick = {
-                navController?.navigate("add_user_medication")
+                navController?.navigate("add_user_medication_screen")
             },
             shape = Shapes().medium,
             modifier = Modifier
@@ -103,7 +103,8 @@ fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Un
                 Modifier
                     .fillMaxWidth()
                     .clickable {
-                        onItemClick(medication.medicationId.toString())
+                        onItemClick(
+                            medication.medicationId.toString())
 
                     }) {
                 Icon(
