@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,10 +18,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.example.bluetoothmodule.presentation.BluetoothUiState
@@ -35,45 +39,61 @@ fun DeviceScreen(
     onDownloadTime: () -> Unit,
     title: String
 ) {
-
-    if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
-            Manifest.permission.BLUETOOTH_SCAN
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        Button(onClick = { openAppSettings(context) }) {
-            Text(text = "Go to settings")
-        }
-    }
-
     Column {
-        Text(
-            text = title, fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-        BluetoothDeviceList(
-            state.pairedDevices, state.scannedDevices,
-            onClick = onDeviceClick,
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+
+        if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
+                Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Button(onClick = onStartScan) {
-                Text(text = "Start scan")
+            Column {
+                Text(text = "Aplikacja nie posiada upranień do podłączenia urządzeń Bluetooth")
+                Button(onClick = { openAppSettings(context) }) {
+                    Text(text = "Nadaj uprawnienia")
+                }
             }
-            Button(onClick = onStopScan) {
-                Text(text = "Stop scan")
-            }
-
-
         }
 
-        Button(onClick = onDownloadTime) {
-            Text(text = "Pobierz czas pomiaru")
+
+        Column {
+            Text(
+                text = title, fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            BluetoothDeviceList(
+                state.pairedDevices, state.scannedDevices,
+                onClick = onDeviceClick,
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Button(onClick = onStartScan) {
+                    Text(text = "Start scan")
+                }
+                Button(onClick = onStopScan) {
+                    Text(text = "Stop scan")
+                }
+
+
+            }
+            Box {
+                ElevatedButton(
+                    onClick = onDownloadTime,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.BottomCenter)
+                ) {
+                    Text(text = "Pobierz czas pomiaru")
+                }
+            }
+
+
         }
     }
 

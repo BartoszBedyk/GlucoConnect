@@ -98,4 +98,100 @@ class ResultApiMock: ResultApiInterface {
     override suspend fun safeDeleteResearchResult(id: String): Boolean {
         return true
     }
+
+    override suspend fun getResultsByUserId(id: String): List<ResearchResult>? {
+        val userId = UUID.randomUUID()
+        return listOf(
+            ResearchResult(
+                id = UUID.fromString(id),
+                sequenceNumber = 1,
+                glucoseConcentration = 5.5,
+                unit = GlucoseUnitType.MMOL_PER_L,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.randomUUID(),
+                sequenceNumber = 2,
+                glucoseConcentration = 4.8,
+                unit = GlucoseUnitType.MMOL_PER_L,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.randomUUID(),
+                sequenceNumber = 3,
+                glucoseConcentration = 126.1,
+                unit = GlucoseUnitType.MG_PER_DL,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.fromString(id),
+                sequenceNumber = 1,
+                glucoseConcentration = 5.5,
+                unit = GlucoseUnitType.MMOL_PER_L,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.randomUUID(),
+                sequenceNumber = 2,
+                glucoseConcentration = 4.8,
+                unit = GlucoseUnitType.MMOL_PER_L,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.randomUUID(),
+                sequenceNumber = 3,
+                glucoseConcentration = 126.1,
+                unit = GlucoseUnitType.MG_PER_DL,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.fromString(id),
+                sequenceNumber = 1,
+                glucoseConcentration = 5.5,
+                unit = GlucoseUnitType.MMOL_PER_L,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.randomUUID(),
+                sequenceNumber = 2,
+                glucoseConcentration = 4.8,
+                unit = GlucoseUnitType.MMOL_PER_L,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            ),
+            ResearchResult(
+                id = UUID.randomUUID(),
+                sequenceNumber = 3,
+                glucoseConcentration = 126.1,
+                unit = GlucoseUnitType.MG_PER_DL,
+                timestamp = Date(),
+                userId = userId,
+                deletedOn = null,
+                lastUpdatedOn = Date()
+            )
+        )
+    }
 }

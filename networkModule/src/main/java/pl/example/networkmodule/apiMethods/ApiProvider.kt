@@ -19,7 +19,7 @@ import pl.example.networkmodule.apis.UserMedicationApi
 
 class ApiProvider(context: Context) {
     companion object{
-        val USE_MOCK_API: Boolean = true    //false = mock
+        val USE_MOCK_API: Boolean = false    //false = mock
         val fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczNjY4MzE3MH0.20HffuC0WtxdS8bsjFQKqm69YOIEMBGwLIUCvHTpVGE"
     }
 

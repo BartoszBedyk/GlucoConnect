@@ -49,7 +49,56 @@ class MedicationApiMock: MedicationApiInterface {
     }
 
     override suspend fun getAllMedications(): List<MedicationResult>? {
-        return mockMedications
+        return listOf(
+            MedicationResult(
+                id = UUID.randomUUID(),
+                name = "Śmiercionka Memcena",
+                description = "Pain reliever and fever reducer.",
+                manufacturer = "Pharma Inc.",
+                form = "Tablet",
+                strength = "500mg"
+            ),
+            MedicationResult(
+                id = UUID.randomUUID(),
+                name = "Ibuprofen",
+                description = "Anti-inflammatory drug.",
+                manufacturer = "Health Corp.",
+                form = "Capsule",
+                strength = "200mg"
+            ),
+            MedicationResult(
+                id = UUID.randomUUID(),
+                name = "Ibuprofen",
+                description = "Anti-inflammatory drug.",
+                manufacturer = "Health Corp.",
+                form = "Capsule",
+                strength = "500mg"
+            ),
+            MedicationResult(
+                id = UUID.randomUUID(),
+                name = "Ibuprofen max",
+                description = "Anti-inflammatory drug.",
+                manufacturer = "Health Corp.",
+                form = "Capsule",
+                strength = "200mg"
+            ),
+            MedicationResult(
+                id = UUID.randomUUID(),
+                name = "Apap",
+                description = "Anti-inflammatory drug.",
+                manufacturer = "Health Corp.",
+                form = "Capsule",
+                strength = "200mg"
+            ),
+            MedicationResult(
+                id = UUID.randomUUID(),
+                name = "Deksztusan",
+                description = "Anti-inflammatory drug.",
+                manufacturer = "Health Corp.",
+                form = "Capsule",
+                strength = "200mg"
+            )
+        )
     }
 
     override suspend fun deleteMedication(id: String): Boolean {

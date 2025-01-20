@@ -1,4 +1,4 @@
-package pl.example.aplikacja
+package pl.example.aplikacja.Screens
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -15,34 +15,36 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
-import pl.example.aplikacja.Screens.DeviceScreen
+import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.bluetoothmodule.domain.BLEScanner
 import pl.example.bluetoothmodule.domain.MyBleManager
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 
 @SuppressLint("MissingPermission")
 @Composable
-fun BluetoothPermissionScreen(
+fun BluetoothPermission(
     bluetoothViewModel: BluetoothViewModel,
     navBarViewModel: BottomNavBarViewModel,
     onDeviceConnected: (BluetoothDevice) -> Unit = {},
-    navController: NavHostController,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
     val bleScanner = remember { BLEScanner(context) }
-    val myBleManager = remember { MyBleManager(context) }
     var isScanning by remember { mutableStateOf(false) }
     val state by bluetoothViewModel.state.collectAsState()
 
-    // State for the fetched measurement
-    var measurement by remember { mutableStateOf<Pair<String?, Int?>>(null to null) }
-    var isLoadingMeasurement by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -74,7 +76,7 @@ fun BluetoothPermissionScreen(
 
     LaunchedEffect(state.isConnected) {
         if (state.isConnected) {
-            Toast.makeText(context, "You're connected!", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Połączono!", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -86,7 +88,7 @@ fun BluetoothPermissionScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 CircularProgressIndicator()
-                Text(text = "Connecting...")
+                Text(text = "Nawiązywanie połączenia...")
             }
         }
 
@@ -95,35 +97,20 @@ fun BluetoothPermissionScreen(
                 state = state,
                 onStartScan = {
                     isScanning = true
-                    bleScanner.startScan()
+                   bluetoothViewModel.startScan()
                 },
                 onStopScan = {
                     isScanning = false
-                    bleScanner.stopScan()
+                    bluetoothViewModel.stopScan()
                 },
                 context = context,
                 onDeviceClick = { device ->
-                    connectToDevice(context, device, onDeviceConnected)
+                   bluetoothViewModel.connectToGattDevice(pl.example.bluetoothmodule.domain.BluetoothDevice(device.name, device.address))
                 },
-                onDownloadTime = {
-                    isLoadingMeasurement = true
-                    myBleManager.fetchLastMeasurement { dateTime, result ->
-                        measurement = dateTime to result
-                        isLoadingMeasurement = false
-                    }
-                },
-                title = "Wersja z nordic Semiconductor"
+                onDownloadTime = bluetoothViewModel::readLastMeasurementTime,
+                title = "Podłącz się z glukometrem"
             )
         }
-    }
-
-    // Display the measurement result
-    if (measurement.first != null && measurement.second != null) {
-        Toast.makeText(
-            context,
-            "Measurement: ${measurement.first} - ${measurement.second}",
-            Toast.LENGTH_LONG
-        ).show()
     }
 
     if (isScanning) {
@@ -135,8 +122,10 @@ fun BluetoothPermissionScreen(
             }
         }
     }
-}
+    //ColorSquare(isTrue = true)
 
+    //BottomNavigationBar(navBarViewModel, navController)
+}
 
 
 private fun enableBluetooth(context: Context) {
@@ -170,3 +159,4 @@ private fun connectToDevice(
         }
         ?.enqueue()
 }
+

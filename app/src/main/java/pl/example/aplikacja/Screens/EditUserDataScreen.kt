@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +42,6 @@ import java.util.UUID
 
 @Composable
 fun EditUserDataScreen(navController: NavController) {
-
     val context = LocalContext.current
     val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
@@ -49,61 +49,73 @@ fun EditUserDataScreen(navController: NavController) {
         EditUserViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
     }
     val userData = viewModel.userData.collectAsState()
-    val fontSize = 20
+
     val coroutineScope = rememberCoroutineScope()
 
-    val name by remember { mutableStateOf(userData.value?.firstName.toString()) }
-    val lastName by remember { mutableStateOf(userData.value?.lastName.toString()) }
-    val email by remember { mutableStateOf(userData.value?.email.toString()) }
-    var prefUnit by remember { mutableStateOf(userData.value?.prefUint) }
+
+    var name by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var prefUnit by remember { mutableStateOf<GlucoseUnitType?>(null) }
 
 
+    LaunchedEffect(userData.value) {
+        userData.value?.let {
+            name = it.firstName ?: ""
+            lastName = it.lastName ?: ""
+            email = it.email ?: ""
+            prefUnit = it.prefUint?.let { pref -> GlucoseUnitType.valueOf(pref.toString()) }
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         Text(
             text = "Dane użytkownika",
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp, bottom = 16.dp ),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp, bottom = 16.dp),
             fontSize = 32.sp,
             fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
         )
     }
 
-
-
     Column(
         Modifier.padding(top = 64.dp, start = 16.dp, end = 16.dp)
     ) {
         TextRow(
-            label = "ID użytkownika", value = userData.value?.id.toString(), fontSize = fontSize
+            label = "ID użytkownika", value = userData.value?.id.toString(), fontSize = 20
         )
         TextRowEdit(
-            label = "Adres email", value = email, fontSize = fontSize
+            label = "Adres email",
+            value = email,
+            onValueChange = { email = it },
+            fontSize = 20
         )
         TextRowEdit(
-            label = "Imie",
+            label = "Imię",
             value = name,
-            fontSize = fontSize
+            onValueChange = { name = it },
+            fontSize = 20
         )
         TextRowEdit(
             label = "Nazwisko",
             value = lastName,
-            fontSize = fontSize
+            onValueChange = { lastName = it },
+            fontSize = 20
         )
 
-        userData.value?.prefUint?.let { GlucoseUnitType.valueOf(it.toString()) }?.let {
-            Text(
-                text = "Jednostka stęzenia glukozy", style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = (fontSize - 5).sp
+        Text(
+            text = "Jednostka stężenia glukozy",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 15.sp
+        )
+        prefUnit?.let {
+            GlucoseUnitDropdownMenu(
+                selectedUnit = it,
+                onUnitSelected = { prefUnit = it },
+                label = ""
             )
-            prefUnit?.let {
-                GlucoseUnitDropdownMenu(
-                    selectedUnit = it,
-                    onUnitSelected = { prefUnit = it },
-                    label = ""
-                )
-            }
         }
+    }
 
         Box(
             Modifier
@@ -138,11 +150,9 @@ fun EditUserDataScreen(navController: NavController) {
     }
 
 
-}
 
 @Composable
-fun TextRowEdit(label: String, value: String, fontSize: Int) {
-    var changeableValue by remember { mutableStateOf(value) }
+fun TextRowEdit(label: String, value: String, onValueChange: (String) -> Unit, fontSize: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,16 +163,14 @@ fun TextRowEdit(label: String, value: String, fontSize: Int) {
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
             fontSize = (fontSize - 5).sp
-
         )
         OutlinedTextField(
-            value = changeableValue,
-            onValueChange = { changeableValue = it },
+            value = value,
+            onValueChange = onValueChange,
             placeholder = { Text(text = value) },
             maxLines = 1,
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-
         )
     }
 }

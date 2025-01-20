@@ -27,8 +27,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
                 contentType(ContentType.Application.Json)
                 setBody(userMedication)
             }
-            response.status == HttpStatusCode.OK
-
+            response.status == HttpStatusCode.Created
         } catch (e: Exception) {
             Log.e("UserMedicationApi", "Request failed with status ${e.message}")
             false
@@ -69,4 +68,44 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
             false
         }
     }
+
+    override suspend fun readTodayUserMedication(id: String): List<UserMedicationResult>? {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/today/$id") {
+                contentType(ContentType.Application.Json)
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                    response.body()
+                } else {
+                    Log.e("UserMedicationApi", "Unexpected content type: ${response.contentType()}")
+                    null
+                }
+            } else {
+                Log.e("UserMedicationApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserMedicationApi", "Request failed with exception: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/user/$userId/$medicationId")
+
+            if (response.status == HttpStatusCode.OK) {
+                response.body()
+            } else {
+                Log.e("UserMedicationApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserMedicationApi", "Request failed with exception: ${e.message}")
+            null
+        }
+    }
+
 }

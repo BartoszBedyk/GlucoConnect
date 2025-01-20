@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.update
 import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.ConnectionResult
+import pl.example.bluetoothmodule.domain.parseMeasurementTimeToDate
+import pl.example.bluetoothmodule.domain.responseManagement
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,8 +65,19 @@ class BluetoothViewModel @Inject constructor(
             .listen()
     }
 
+    fun readLastMeasurement(){
+        val lastMesurementTime: ByteArray? = readLastMeasurementTime()
+        val lastMeasurementResult: ByteArray? = readLastMeasurementResult()
 
-    fun readLastMeasurementTime(){
+
+        if (lastMesurementTime != null && lastMeasurementResult != null){
+            responseManagement(lastMesurementTime)
+            responseManagement(lastMeasurementResult)
+        }
+    }
+
+
+    fun readLastMeasurementTime(): ByteArray?{
         val command = byteArrayOf(
             0x51.toByte(),
             0x25.toByte(),
@@ -72,11 +85,11 @@ class BluetoothViewModel @Inject constructor(
             0xA3.toByte()
         )
         bluetoothGatt?.let {
-            bluetoothController.sendCommand(it, command)
-        } ?: Log.d("BL_FUN", "BluetoothGatt is not available.")
+           return bluetoothController.sendCommand(it, command)
+        } ?: return null
     }
 
-    fun readLastMeasurementResult(){
+    fun readLastMeasurementResult(): ByteArray? {
         val command = byteArrayOf(
             0x51.toByte(),
             0x26.toByte(),
@@ -84,8 +97,8 @@ class BluetoothViewModel @Inject constructor(
             0xA3.toByte()
         )
         bluetoothGatt?.let {
-            bluetoothController.sendCommand(it, command)
-        } ?: Log.d("BL_FUN", "BluetoothGatt is not available.")
+            return bluetoothController.sendCommand(it, command)
+        } ?: return null
     }
 
     fun readGlucometerTime(){

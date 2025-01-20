@@ -70,6 +70,22 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
         }
     }
 
+    override suspend fun getResultsByUserId(id: String): List<ResearchResult>? {
+        val response = client.get("http://10.0.2.2:8080/$resultsEndpoint/all/$id")
+        return if (response.status == HttpStatusCode.OK) {
+            if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                response.body<List<ResearchResult>>()
+            } else {
+                println("Unexpected content type: ${response.contentType()}")
+                null
+            }
+        }
+        else {
+            Log.e("ResultApi", "Request failed with status ${response.status}")
+            null
+        }
+    }
+
 //    suspend fun getResearchResultsByUserId(userId: String): List<ResearchResult>? {
 //        val response = client.get("http://10.0.2.2:8080/results/user/$userId")
 //        return if (response.status == HttpStatusCode.OK) {
@@ -100,7 +116,7 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
 
     override suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean {
         return try{
-            val response = client.post("http://10.0.2.2:8080/$resultsEndpoint/") {
+            val response = client.post("http://10.0.2.2:8080/$resultsEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(createForm)
 

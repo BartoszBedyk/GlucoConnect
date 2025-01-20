@@ -18,15 +18,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import pl.example.aplikacja.BluetoothPermissionScreen
 import pl.example.aplikacja.BottomNavBarViewModel
+import pl.example.aplikacja.Screens.AddGlucoseResultScreen
+import pl.example.aplikacja.Screens.AddHeartbeatResultScreen
+import pl.example.aplikacja.Screens.AddUserMedicationScreen
+import pl.example.aplikacja.Screens.AllResultsScreen
 import pl.example.aplikacja.Screens.EditUserDataScreen
 import pl.example.aplikacja.Screens.GlucoseResultScreen
 import pl.example.aplikacja.Screens.LoginScreen
-import pl.example.aplikacja.Screens.LoginScreenV2
+import pl.example.aplikacja.Screens.BluetoothPermission
 import pl.example.aplikacja.Screens.MainScreen
+import pl.example.aplikacja.Screens.MedicationResultScreen
 import pl.example.aplikacja.Screens.RegisterStepTwoScreen
 import pl.example.aplikacja.Screens.RegistrationScreen
+import pl.example.aplikacja.Screens.UserMedicationScreen
 import pl.example.aplikacja.Screens.UserProfileScreen
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 
@@ -90,7 +95,7 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
 //        }
         composable("bluetooth_permission_screen") {
             Log.d("Navigation", "Navigated to permission Screen")
-            BluetoothPermissionScreen(
+            BluetoothPermission(
                 bluetoothViewModel,
                 navBarViewModel,
                 onDeviceConnected = {},
@@ -132,7 +137,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                 UserProfileScreen(navController)
             }
             composable("bluetooth_permission_screen") {
-                LoginScreenV2(
+                BluetoothPermission(
                     bluetoothViewModel,
                     navBarViewModel,
                     onDeviceConnected = {},
@@ -153,13 +158,44 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
                 RegisterStepTwoScreen( navController, userId)
             }
-
             composable("user_profile_screen"){
                 UserProfileScreen(navController)
             }
             composable("edit_user_data_screen"){
                 EditUserDataScreen(navController)
             }
+            composable("all_results_screen") {
+                AllResultsScreen(navController)
+            }
+            composable("add_glucose_result") {
+                AddGlucoseResultScreen(navController)
+            }
+            composable("add_heartbeat_result") {
+                AddHeartbeatResultScreen(navController)
+            }
+            composable("add_glucose_result/{main}") { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("main") ?: ""
+                AddGlucoseResultScreen(navController, type.isNotBlank())
+            }
+            composable("add_heartbeat_result/{main}") { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("main") ?: ""
+                AddHeartbeatResultScreen(navController, type.isNotBlank())
+            }
+            composable("all_results_screen/{type}") { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("type") ?: ""
+                AllResultsScreen(navController, type.toBoolean())
+            }
+            composable("user_medication_screen") {
+                UserMedicationScreen(navController)
+            }
+            composable("medication_result/{itemId}") { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
+                MedicationResultScreen(itemId)
+            }
+            composable("add_user_medication_screen") {
+                AddUserMedicationScreen(navController)
+            }
+
         }
     }
 }
