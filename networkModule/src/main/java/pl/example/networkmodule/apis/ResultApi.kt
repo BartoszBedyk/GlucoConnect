@@ -16,7 +16,7 @@ import pl.example.networkmodule.apiMethods.ResultApiInterface
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import pl.example.networkmodule.requestData.ResearchResultUpdate
 
-class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
+class ResultApi(private val ktorClient: KtorClient) : ResultApiInterface {
 
     private val client = ktorClient.client
     private val resultsEndpoint: String = "results"
@@ -63,8 +63,7 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
                 println("Unexpected content type: ${response.contentType()}")
                 null
             }
-        }
-        else {
+        } else {
             Log.e("ResultApi", "Request failed with status ${response.status}")
             null
         }
@@ -79,8 +78,7 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
                 println("Unexpected content type: ${response.contentType()}")
                 null
             }
-        }
-        else {
+        } else {
             Log.e("ResultApi", "Request failed with status ${response.status}")
             null
         }
@@ -114,16 +112,29 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
         }
     }
 
-    override suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean {
-        return try{
+    override suspend fun createResearchResult(createForm: ResearchResultCreate): String? {
+        return try {
             val response = client.post("http://10.0.2.2:8080/$resultsEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(createForm)
 
             }
-            response.status == HttpStatusCode.OK
+            return response.body<String>().toString()
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
+            Log.e("ResultApi", "Request failed with status ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun syncResult(researchResult: ResearchResult): Boolean {
+        return try {
+            val response = client.post("http://10.0.2.2:8080/$resultsEndpoint/sync") {
+                contentType(ContentType.Application.Json)
+                setBody(researchResult)
+            }
+            response.status == HttpStatusCode.OK
+        } catch (e: Exception) {
             Log.e("ResultApi", "Request failed with status ${e.message}")
             false
         }
@@ -133,7 +144,7 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$resultsEndpoint/delete/$id")
             response.status == HttpStatusCode.OK
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.e("ResultApi", "Request failed with status ${e.message}")
             false
         }
@@ -143,7 +154,7 @@ class ResultApi(private val ktorClient: KtorClient): ResultApiInterface {
         return try {
             val response = client.delete("http://10.0.2.2:8080/$resultsEndpoint/safeDelete/$id")
             response.status == HttpStatusCode.OK
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.e("ResultApi", "Request failed with status ${e.message}")
             false
         }

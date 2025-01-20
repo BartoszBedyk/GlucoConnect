@@ -87,7 +87,11 @@ class ResultApiMock: ResultApiInterface {
         return true
     }
 
-    override suspend fun createResearchResult(createForm: ResearchResultCreate): Boolean {
+    override suspend fun createResearchResult(createForm: ResearchResultCreate): String? {
+        return UUID.randomUUID().toString()
+    }
+
+    override suspend fun syncResult(researchResult: ResearchResult): Boolean {
         return true
     }
 

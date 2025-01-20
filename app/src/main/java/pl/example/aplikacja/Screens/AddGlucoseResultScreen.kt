@@ -76,14 +76,14 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = true,
     )
-    val apiProvider = remember { ApiProvider(context) }
+
     val decoded: DecodedJWT = JWT.decode(getToken(context))
     val viewModel =
-        AddGlucoseResultViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
+        AddGlucoseResultViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))
 
     val prefUnit by viewModel.prefUnit.collectAsState()
 
-    // Synchronizacja początkowej jednostki z danymi ViewModelu
+
     LaunchedEffect(prefUnit) {
         if (unitState == null) {
             unitState = prefUnit

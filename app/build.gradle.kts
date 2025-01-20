@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.ble)
     implementation(project(":bluetoothModule"))
     implementation(project(":networkModule"))
+    implementation(project(":databaseModule"))
 
     implementation(libs.material3)
     implementation (libs.ehsannarmani.compose.charts)

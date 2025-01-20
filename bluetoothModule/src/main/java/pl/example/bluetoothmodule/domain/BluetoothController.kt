@@ -24,6 +24,6 @@ interface BluetoothController {
     fun closeConnection()
 
     //Functionalities
-    fun sendCommand(gatt: BluetoothGatt, byteArray: ByteArray): ByteArray
+    fun sendCommand(gatt: BluetoothGatt, byteArray: ByteArray)
 
 }

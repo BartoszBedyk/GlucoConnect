@@ -65,19 +65,19 @@ class BluetoothViewModel @Inject constructor(
             .listen()
     }
 
-    fun readLastMeasurement(){
-        val lastMesurementTime: ByteArray? = readLastMeasurementTime()
-        val lastMeasurementResult: ByteArray? = readLastMeasurementResult()
+//    fun readLastMeasurement(){
+//        val lastMesurementTime: ByteArray? = readLastMeasurementTime()
+//        val lastMeasurementResult: ByteArray? = readLastMeasurementResult()
+//
+//
+//        if (lastMesurementTime != null && lastMeasurementResult != null){
+//            responseManagement(lastMesurementTime)
+//            responseManagement(lastMeasurementResult)
+//        }
+//    }
 
 
-        if (lastMesurementTime != null && lastMeasurementResult != null){
-            responseManagement(lastMesurementTime)
-            responseManagement(lastMeasurementResult)
-        }
-    }
-
-
-    fun readLastMeasurementTime(): ByteArray?{
+    fun readLastMeasurementTime(){
         val command = byteArrayOf(
             0x51.toByte(),
             0x25.toByte(),
@@ -85,11 +85,11 @@ class BluetoothViewModel @Inject constructor(
             0xA3.toByte()
         )
         bluetoothGatt?.let {
-           return bluetoothController.sendCommand(it, command)
-        } ?: return null
+            bluetoothController.sendCommand(it, command)
+        } ?: return
     }
 
-    fun readLastMeasurementResult(): ByteArray? {
+    fun readLastMeasurementResult() {
         val command = byteArrayOf(
             0x51.toByte(),
             0x26.toByte(),
@@ -97,8 +97,8 @@ class BluetoothViewModel @Inject constructor(
             0xA3.toByte()
         )
         bluetoothGatt?.let {
-            return bluetoothController.sendCommand(it, command)
-        } ?: return null
+             bluetoothController.sendCommand(it, command)
+        } ?: return
     }
 
     fun readGlucometerTime(){

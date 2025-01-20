@@ -1,5 +1,6 @@
 package pl.example.aplikacja.Screens
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,12 +53,15 @@ fun AllResultsScreenPreview() {
 fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
     val context = LocalContext.current
 
-    val apiProvider = ApiProvider(context)
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember { AllResultsScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))  }
+    val viewModel = remember { AllResultsScreenViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))  }
 
     val glucoseResults by viewModel.glucoseResults.collectAsState()
     val heartbeatResult by viewModel.heartbeatResult.collectAsState()
+
+    val glucoseResultsData by viewModel.glucoseResultsData.collectAsState()
+    Log.d("ALL", "glucoseResultsData: $glucoseResultsData")
+
     var checked by remember { mutableStateOf(type ?: true) }
 
     Box(Modifier.fillMaxSize()) {
