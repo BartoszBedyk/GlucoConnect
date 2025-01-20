@@ -1,5 +1,6 @@
 package pl.example.aplikacja.Screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -58,7 +60,10 @@ fun UserMedicationScreen(navController: NavController?) {
                     MedicationItem(medication) { itemId ->
                         navController?.navigate("medication_result/$itemId")
                     }
-                    HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
             }
         }
@@ -83,41 +88,54 @@ fun UserMedicationScreen(navController: NavController?) {
 
 @Composable
 fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Unit) {
-        Row(
-            modifier = Modifier.padding(16.dp)
-        ) {
+    Row(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        Log.d("MedicationItem", "medication: $medication")
 
-            Column {
-                Text(
-                    text = "Nazwa leku: ${medication.medicationName}",
-                    style = MaterialTheme.typography.labelLarge
-                )
-                Text(text = "Dawka: ${medication.dosage}")
-                Text(text = "Częstotliwość: ${medication.frequency}")
-                Text(text = "Przepisany od: ${formatDateTimeWithoutTime(medication.startDate)}")
-                medication.endDate?.let {
-                    Text(text = "Przepisany do: ${formatDateTimeWithoutTime(it)}")
-                }
-            }
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onItemClick(
-                            medication.medicationId.toString())
-
-                    }) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(8.dp)
-                )
-            }
+        Column(Modifier.clickable {
+            onItemClick(medication.medicationId.toString())
+        }) {
+            Text(
+                text = "Nazwa leku: ${medication.medicationName}",
+                style = MaterialTheme.typography.labelLarge
+            )
+            Text(text = "Dawka: ${medication.dosage}")
+            Text(text = "Częstotliwość: ${medication.frequency}")
+            Text(text = "Przepisany od: ${formatDateTimeWithoutTime(medication.startDate)}")
+            Text(text = "Przepisany do: ${formatDateTimeWithoutTime(medication.endDate)}")
         }
 
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.End
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {
+
+                    }
+            )
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {
+
+                    }
+            )
+        }
+    }
 }
+
 
 @Preview(showBackground = true)
 @Composable

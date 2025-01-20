@@ -49,8 +49,7 @@ fun MainScreen(navController: NavController) {
     val apiProvider = ApiProvider(context)
 
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel =
-        MainScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
+    val viewModel = remember { MainScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString())) }
     val items by viewModel.threeGlucoseItems.collectAsState()
 
 

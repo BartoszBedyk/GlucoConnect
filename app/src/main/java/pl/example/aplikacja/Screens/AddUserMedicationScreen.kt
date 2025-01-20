@@ -20,12 +20,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,17 +37,13 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeWithoutLocale
 import pl.example.aplikacja.formatDateTimeWithoutTime
 import pl.example.aplikacja.removeQuotes
-import pl.example.aplikacja.viewModels.AddHeartbeatViewModel
 import pl.example.aplikacja.viewModels.AddUserMedicationViewModel
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
-import pl.example.networkmodule.requestData.CreateHeartbeatForm
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
-import java.util.Calendar
 import java.util.Date
 import java.util.UUID
 
@@ -59,10 +54,8 @@ fun AddUserMedicationScreen(navController: NavController) {
     var dose by remember { mutableStateOf("") }
     var frequency by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf(Date()) }
+    var startDate by remember { mutableStateOf<Date?>(null) }
     var endDate by remember { mutableStateOf<Date?>(null) }
-    var checked by remember { mutableStateOf(false) }
-    var checked2 by remember { mutableStateOf(true) }
     var openStartDateDialog by remember { mutableStateOf(false) }
     var openEndDateDialog by remember { mutableStateOf(false) }
     val snackState = remember { SnackbarHostState() }
@@ -71,15 +64,18 @@ fun AddUserMedicationScreen(navController: NavController) {
 
     val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = AddUserMedicationViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
-
+    val viewModel = remember { AddUserMedicationViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString())) }
+    val medication = viewModel.medications.collectAsState()
     var selectedMedication by remember { mutableStateOf<MedicationResult?>(null) }
+
+    val startDatePickerState = rememberDatePickerState(initialSelectedDateMillis = startDate?.time)
+    val endDatePickerState = rememberDatePickerState(initialSelectedDateMillis = endDate?.time)
 
     SnackbarHost(hostState = snackState, Modifier)
 
     Column(Modifier.padding(16.dp)) {
         MedicationDropdownExample(
-            medications = viewModel.medications.collectAsState().value,
+            medications = medication.value,
             onMedicationSelected = { selectedMedication = it }
         )
 
@@ -107,119 +103,122 @@ fun AddUserMedicationScreen(navController: NavController) {
         Row {
             Text(text = "Data początku", modifier = Modifier.align(CenterVertically))
             Checkbox(
-                checked = checked2,
+                checked = startDate != null,
                 onCheckedChange = { state ->
-                    checked2 = state
-                    if (state) openStartDateDialog = true
+                    if (state) {
+                        openStartDateDialog = true
+                    } else {
+                        startDate = null
+                        Log.d("AddUserMedication", "startDate set to null")
+                    }
                 },
                 modifier = Modifier.align(CenterVertically)
             )
         }
 
-        if (checked2) {
+        startDate?.let {
             TextRowEdit(
                 label = "Data początku:",
-                value = formatDateTimeWithoutTime(startDate),
-                onValueChange = {}, // Pole tylko do odczytu
+                value = formatDateTimeWithoutTime(it),
+                onValueChange = {},
                 fontSize = 20
             )
+        }
 
-            if (openStartDateDialog) {
-                val datePickerState = rememberDatePickerState()
-                val confirmEnabled = remember { derivedStateOf { datePickerState.selectedDateMillis != null } }
-
-                DatePickerDialog(
-                    onDismissRequest = { openStartDateDialog = false },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                if (datePickerState.selectedDateMillis != null) {
-                                    startDate = Date(datePickerState.selectedDateMillis!!)
-                                }
-                                openStartDateDialog = false
-                            },
-                            enabled = confirmEnabled.value
-                        ) {
-                            Text("OK")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { openStartDateDialog = false }) {
-                            Text("Anuluj")
-                        }
+        if (openStartDateDialog) {
+            DatePickerDialog(
+                onDismissRequest = { openStartDateDialog = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            startDatePickerState.selectedDateMillis?.let {
+                                startDate = Date(it)
+                                Log.d("AddUserMedication", "startDate set to: $startDate")
+                            }
+                            openStartDateDialog = false
+                        },
+                        enabled = startDatePickerState.selectedDateMillis != null
+                    ) {
+                        Text("OK")
                     }
-                ) {
-                    DatePicker(
-                        state = datePickerState,
-                        modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())
-                    )
+                },
+                dismissButton = {
+                    TextButton(onClick = { openStartDateDialog = false }) {
+                        Text("Anuluj")
+                    }
                 }
+            ) {
+                DatePicker(state = startDatePickerState, modifier = Modifier.padding(16.dp))
             }
         }
 
         Row {
             Text(text = "Data końca", modifier = Modifier.align(CenterVertically))
             Checkbox(
-                checked = checked,
+                checked = endDate != null,
                 onCheckedChange = { state ->
-                    checked = state
-                    if (state) openEndDateDialog = true
+                    if (state) {
+                        openEndDateDialog = true
+                    } else {
+                        endDate = null
+                        Log.d("AddUserMedication", "endDate set to null")
+                    }
                 },
                 modifier = Modifier.align(CenterVertically)
             )
         }
 
-        if (checked) {
+        endDate?.let {
             TextRowEdit(
                 label = "Data zakończenia:",
-                value = endDate?.let { formatDateTimeWithoutTime(it) } ?: "",
-                onValueChange = {}, // Pole tylko do odczytu
+                value = formatDateTimeWithoutTime(it),
+                onValueChange = {},
                 fontSize = 20
             )
+        }
 
-            if (openEndDateDialog) {
-                val datePickerState = rememberDatePickerState()
-                val confirmEnabled = remember { derivedStateOf { datePickerState.selectedDateMillis != null } }
-
-                DatePickerDialog(
-                    onDismissRequest = { openEndDateDialog = false },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                if (datePickerState.selectedDateMillis != null) {
-                                    val selectedDate = Date(datePickerState.selectedDateMillis!!)
-                                    if (selectedDate.before(startDate)) {
-                                        coroutineScope.launch {
-                                            snackState.showSnackbar("Data końca nie może być wcześniejsza niż data rozpoczęcia!")
-                                        }
-                                    } else {
-                                        endDate = selectedDate
+        if (openEndDateDialog) {
+            DatePickerDialog(
+                onDismissRequest = { openEndDateDialog = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            endDatePickerState.selectedDateMillis?.let {
+                                val selectedDate = Date(it)
+                                if (startDate != null && selectedDate.before(startDate)) {
+                                    coroutineScope.launch {
+                                        snackState.showSnackbar("Data końca nie może być wcześniejsza niż data początku!")
                                     }
+                                } else {
+                                    endDate = selectedDate
+                                    Log.d("AddUserMedication", "endDate set to: $endDate")
                                 }
-                                openEndDateDialog = false
-                            },
-                            enabled = confirmEnabled.value
-                        ) {
-                            Text("OK")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { openEndDateDialog = false }) {
-                            Text("Anuluj")
-                        }
+                            }
+                            openEndDateDialog = false
+                        },
+                        enabled = endDatePickerState.selectedDateMillis != null
+                    ) {
+                        Text("OK")
                     }
-                ) {
-                    DatePicker(
-                        state = datePickerState,
-                        modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())
-                    )
+                },
+                dismissButton = {
+                    TextButton(onClick = { openEndDateDialog = false }) {
+                        Text("Anuluj")
+                    }
                 }
+            ) {
+                DatePicker(state = endDatePickerState, modifier = Modifier.padding(16.dp))
             }
         }
 
         TextButton(onClick = {
             coroutineScope.launch {
                 if (selectedMedication != null) {
+                    if (startDate != null && endDate != null && endDate!!.before(startDate)) {
+                        snackState.showSnackbar("Data końca nie może być wcześniejsza niż data początku!")
+                        return@launch
+                    }
+                    Log.d("AddUserMedication", "Submitting with startDate: $startDate, endDate: $endDate")
                     val success = viewModel.createUserMedication(
                         CreateUserMedicationForm(
                             userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
@@ -227,7 +226,7 @@ fun AddUserMedicationScreen(navController: NavController) {
                             dosage = dose,
                             frequency = frequency,
                             startDate = startDate,
-                            endDate = if (checked) endDate else null,
+                            endDate = endDate,
                             notes = note
                         )
                     )
@@ -246,9 +245,6 @@ fun AddUserMedicationScreen(navController: NavController) {
     }
 }
 
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicationDropdownExample(
@@ -257,6 +253,19 @@ fun MedicationDropdownExample(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
+    var filteredMedications by remember { mutableStateOf(medications) }
+
+    fun filterMedications(query: String) {
+        filteredMedications = medications.filter {
+            it.name.contains(query, ignoreCase = true) || query.isEmpty()
+        }
+    }
+
+    LaunchedEffect(searchText) {
+        kotlinx.coroutines.delay(300)
+        filterMedications(searchText)
+        expanded = searchText.isNotEmpty()
+    }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -264,10 +273,7 @@ fun MedicationDropdownExample(
     ) {
         OutlinedTextField(
             value = searchText,
-            onValueChange = {
-                searchText = it
-                expanded = true
-            },
+            onValueChange = { searchText = it },
             modifier = Modifier
                 .menuAnchor()
                 .fillMaxWidth(),
@@ -282,9 +288,13 @@ fun MedicationDropdownExample(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            medications
-                .filter { it.name.contains(searchText, ignoreCase = true) || searchText.isEmpty() }
-                .forEach { medication ->
+            if (filteredMedications.isEmpty()) {
+                DropdownMenuItem(
+                    text = { Text("Brak wyników") },
+                    onClick = { expanded = false }
+                )
+            } else {
+                filteredMedications.forEach { medication ->
                     DropdownMenuItem(
                         text = { Text("${medication.name} (${medication.strength})") },
                         onClick = {
@@ -294,12 +304,6 @@ fun MedicationDropdownExample(
                         }
                     )
                 }
-
-            if (medications.none { it.name.contains(searchText, ignoreCase = true) }) {
-                DropdownMenuItem(
-                    text = { Text("Brak wyników") },
-                    onClick = { expanded = false }
-                )
             }
         }
     }

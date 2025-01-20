@@ -23,3 +23,4 @@ rootProject.name = "aplikacja"
 include(":app")
 include(":bluetoothModule")
 include(":networkModule")
+include(":databaseModule")

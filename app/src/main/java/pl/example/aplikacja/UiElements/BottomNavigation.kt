@@ -18,7 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import pl.example.aplikacja.BluetoothPermissionScreen
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.Screens.AddGlucoseResultScreen
 import pl.example.aplikacja.Screens.AddHeartbeatResultScreen
@@ -27,7 +26,7 @@ import pl.example.aplikacja.Screens.AllResultsScreen
 import pl.example.aplikacja.Screens.EditUserDataScreen
 import pl.example.aplikacja.Screens.GlucoseResultScreen
 import pl.example.aplikacja.Screens.LoginScreen
-import pl.example.aplikacja.Screens.LoginScreenV2
+import pl.example.aplikacja.Screens.BluetoothPermission
 import pl.example.aplikacja.Screens.MainScreen
 import pl.example.aplikacja.Screens.MedicationResultScreen
 import pl.example.aplikacja.Screens.RegisterStepTwoScreen
@@ -96,7 +95,7 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
 //        }
         composable("bluetooth_permission_screen") {
             Log.d("Navigation", "Navigated to permission Screen")
-            BluetoothPermissionScreen(
+            BluetoothPermission(
                 bluetoothViewModel,
                 navBarViewModel,
                 onDeviceConnected = {},
@@ -138,7 +137,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                 UserProfileScreen(navController)
             }
             composable("bluetooth_permission_screen") {
-                LoginScreenV2(
+                BluetoothPermission(
                     bluetoothViewModel,
                     navBarViewModel,
                     onDeviceConnected = {},

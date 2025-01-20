@@ -54,8 +54,8 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
 
     val apiProvider = ApiProvider(context)
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel =
-        AllResultsScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
+    val viewModel = remember { AllResultsScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))  }
+
     val glucoseResults by viewModel.glucoseResults.collectAsState()
     val heartbeatResult by viewModel.heartbeatResult.collectAsState()
     var checked by remember { mutableStateOf(type ?: true) }

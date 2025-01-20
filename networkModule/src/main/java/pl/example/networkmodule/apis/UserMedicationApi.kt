@@ -14,7 +14,6 @@ import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
-import pl.example.networkmodule.requestData.GetMedicationForm
 
 class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiInterface {
     private val client = ktorClient.client
@@ -93,12 +92,9 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
         }
     }
 
-    override suspend fun getUserMedication(getMedicationForm: GetMedicationForm): UserMedicationResult? {
+    override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/user"){
-                contentType(ContentType.Application.Json)
-                setBody(getMedicationForm)
-            }
+            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/user/$userId/$medicationId")
 
             if (response.status == HttpStatusCode.OK) {
                 response.body()
@@ -111,4 +107,5 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
             null
         }
     }
+
 }

@@ -3,7 +3,6 @@ package pl.example.networkmodule.apiMock
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
-import pl.example.networkmodule.requestData.GetMedicationForm
 import java.util.Date
 import java.util.UUID
 
@@ -119,7 +118,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
         )
     }
 
-    override suspend fun getUserMedication(getMedicationForm: GetMedicationForm): UserMedicationResult? {
+    override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
         return UserMedicationResult(
             userId = UUID.randomUUID(),
             medicationId = UUID.randomUUID(),

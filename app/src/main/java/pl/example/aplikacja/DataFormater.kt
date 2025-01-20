@@ -17,7 +17,8 @@ fun formatDateTimeWithoutLocale(date: Date): String {
     return dateFormat.format(date)
 }
 
-fun formatDateTimeWithoutTime(date: Date): String {
+fun formatDateTimeWithoutTime(date: Date?): String {
+    if(date == null) return "Nie określono"
     val dateFormat = SimpleDateFormat("dd.MM.yyyy")
     return dateFormat.format(date)
 }

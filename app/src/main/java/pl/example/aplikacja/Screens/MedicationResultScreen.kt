@@ -26,6 +26,7 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.formatDateTimeWithoutTime
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.MedicationDetailsScreenViewModel
+import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
@@ -36,18 +37,21 @@ fun MedicationResultScreen(itemId: String) {
     val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = JWT.decode(getToken(context))
 
-    val viewModel = MedicationDetailsScreenViewModel(
-        apiProvider,
-        removeQuotes(decoded.getClaim("userId").toString()),
-        itemId
-    )
+    val viewModel = remember {
+        MedicationDetailsScreenViewModel(
+            apiProvider,
+            removeQuotes(decoded.getClaim("userId").toString()),
+            itemId
+        )
+    }
 
     val userMedication by viewModel.userMedication.collectAsState()
     val medication by viewModel.medication.collectAsState()
 
-
-    Column() {
-        userMedication?.let { MedicationItem(it) }
+    Column(Modifier.fillMaxWidth()) {
+        userMedication?.let {
+            MedicationItem(it)
+        }
         HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
         TextRow(label = "Nazwa leku:", value = medication?.name ?: "")
         TextRow(label = "Opis:", value = medication?.description ?: "")
@@ -55,9 +59,9 @@ fun MedicationResultScreen(itemId: String) {
         TextRow(label = "Forma:", value = medication?.form ?: "")
         TextRow(label = "Siła:", value = medication?.strength ?: "")
     }
-
-
 }
+
+
 
 @Composable
 fun MedicationItem(medication: UserMedicationResult) {

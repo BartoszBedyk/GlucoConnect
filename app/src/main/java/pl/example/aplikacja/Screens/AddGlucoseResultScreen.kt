@@ -11,6 +11,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -197,6 +198,12 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                     }
                 )
             }
+        }
+
+        FloatingActionButton(onClick = {
+            navController.navigate("bluetooth_permission_screen")
+        }) {
+            Text(text = "Użyj glukometru")
         }
 
         TextButton(onClick = {
