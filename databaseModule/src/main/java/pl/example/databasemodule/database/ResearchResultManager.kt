@@ -3,6 +3,8 @@ package pl.example.databasemodule.database
 import android.content.Context
 import androidx.room.Room
 import pl.example.databasemodule.database.migration.MIGRATION_1_2
+import pl.example.databasemodule.database.migration.MIGRATION_2_3
+import pl.example.databasemodule.database.migration.MIGRATION_3_4
 
 object ResearchResultManager {
     @Volatile
@@ -21,7 +23,7 @@ object ResearchResultManager {
             ResearchResultDatabase::class.java,
             "research_results_database"
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .fallbackToDestructiveMigration()
             .build()
     }

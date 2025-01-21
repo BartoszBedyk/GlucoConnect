@@ -7,7 +7,7 @@ import java.util.Date
 import java.util.UUID
 
 @Entity(tableName = "heartbeat_results")
-data class HeartbeatResultDB(
+data class HeartbeatDB(
     @PrimaryKey(autoGenerate = false)
     val id: UUID,
 
