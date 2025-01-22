@@ -21,16 +21,16 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
     private val usersMedicationEndpoint: String = "user-medications"
 
 
-    override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): Boolean {
+    override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): String? {
         return try {
             val response = client.post("http://10.0.2.2:8080/$usersMedicationEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(userMedication)
             }
-            response.status == HttpStatusCode.Created
+            return response.body()
         } catch (e: Exception) {
             Log.e("UserMedicationApi", "Request failed with status ${e.message}")
-            false
+            return null
         }
     }
 
@@ -95,6 +95,22 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
     override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
         return try {
             val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/user/$userId/$medicationId")
+
+            if (response.status == HttpStatusCode.OK) {
+                response.body()
+            } else {
+                Log.e("UserMedicationApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserMedicationApi", "Request failed with exception: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun readUserMedicationByID(umId: String): UserMedicationResult? {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/um/$umId")
 
             if (response.status == HttpStatusCode.OK) {
                 response.body()

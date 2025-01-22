@@ -4,6 +4,7 @@ import android.content.Context
 import pl.example.databasemodule.database.Dao.UserMedicationDao
 import pl.example.databasemodule.database.ResearchResultManager
 import pl.example.databasemodule.database.data.UserMedicationDB
+import pl.example.networkmodule.apiData.UserMedicationResult
 
 class UserMedicationRepository(context: Context){
     private val database = ResearchResultManager.getDatabase(context)
@@ -30,5 +31,9 @@ class UserMedicationRepository(context: Context){
         medicationId: String
     ): UserMedicationDB? {
         return dao.getMedicationById(userId, medicationId)
+    }
+
+    suspend fun getTodayUserMedication(userId: String): List<UserMedicationResult>{
+        return dao.getCurrentMedicationsForUser(userId)
     }
 }

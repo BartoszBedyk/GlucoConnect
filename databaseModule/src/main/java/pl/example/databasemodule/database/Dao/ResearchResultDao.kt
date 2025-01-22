@@ -22,8 +22,8 @@ interface ResearchResultDao {
     @Query("DELETE FROM research_results WHERE id = :id")
     suspend fun deleteResearchResult(id: String)
 
-    @Query("SELECT * FROM research_results ORDER BY timestamp DESC LIMIT 3")
-    suspend fun getLatestResearchResult(): List<ResearchResultDB?>
+    @Query("SELECT * FROM research_results WHERE user_id = :userId ORDER BY timestamp DESC LIMIT 3")
+    suspend fun getLatestThreeResearchResult(userId: String): List<ResearchResultDB>
 
     @Query("UPDATE research_results SET is_synced = 1 WHERE id = :id")
     suspend fun markAsSynced(id: String)

@@ -62,9 +62,9 @@ fun AddUserMedicationScreen(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val apiProvider = remember { ApiProvider(context) }
+
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember { AddUserMedicationViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString())) }
+    val viewModel = remember { AddUserMedicationViewModel(context, removeQuotes(decoded.getClaim("userId").toString())) }
     val medication = viewModel.medications.collectAsState()
     var selectedMedication by remember { mutableStateOf<MedicationResult?>(null) }
 
@@ -219,7 +219,7 @@ fun AddUserMedicationScreen(navController: NavController) {
                         return@launch
                     }
                     Log.d("AddUserMedication", "Submitting with startDate: $startDate, endDate: $endDate")
-                    val success = viewModel.createUserMedication(
+                    val success = viewModel.addUserMedication(
                         CreateUserMedicationForm(
                             userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
                             medicationId = selectedMedication!!.id,

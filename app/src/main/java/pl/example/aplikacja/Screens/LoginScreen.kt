@@ -1,5 +1,9 @@
 package pl.example.aplikacja.Screens
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +40,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     val context = LocalContext.current
 
     if (getToken(context) != null) {
-        //navController.navigate("main_screen")
+        navController.navigate("main_screen")
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -92,11 +96,15 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
                     blocked = true
                     loginError = ""
                     coroutineScope.launch {
-                        val token = viewModel.login(login, password, context)
-                        if (token != null) {
-                            navController.navigate("main_screen")
+                        if (isNetworkAvailable(context)) {
+                            val token = viewModel.login(login, password, context)
+                            if (token != null) {
+                                navController.navigate("main_screen")
+                            } else {
+                                loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
+                            }
                         } else {
-                            loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
+                            loginError = "Brak połączenia z Internetem. Sprawdź połączenie i spróbuj ponownie."
                         }
                         blocked = false
                     }
@@ -129,6 +137,14 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         .clickable { navController.navigate("registration_screen") })
     }
 
+}
+
+@SuppressLint("ServiceCast")
+fun isNetworkAvailable(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val activeNetwork = connectivityManager.activeNetwork ?: return false
+    val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
 
 

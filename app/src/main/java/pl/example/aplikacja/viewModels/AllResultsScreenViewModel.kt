@@ -26,6 +26,9 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     private val userApi = apiProvider.userApi
     private val heartbeatApi = apiProvider.heartbeatApi
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
 
     private val _glucoseResults = MutableStateFlow<List<ResearchResult>>(emptyList())
     val glucoseResults: StateFlow<List<ResearchResult>> = _glucoseResults
@@ -45,6 +48,7 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     }
 
     private fun fetchItemsAsync() {
+        _isLoading.value = true
         viewModelScope.launch {
             try {
 
@@ -69,6 +73,8 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                     researchRepository.getResearchResultsForUser(USER_ID)
                 )
                 _heartbeatResult.value = emptyList()
+            } finally {
+                _isLoading.value=false
             }
         }
     }

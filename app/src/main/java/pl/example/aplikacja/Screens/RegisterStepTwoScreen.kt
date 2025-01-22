@@ -31,8 +31,7 @@ import pl.example.networkmodule.apiMethods.ApiProvider
 
 @Composable
 fun RegisterStepTwoScreen(
-    navController: NavHostController,
-    userId: String
+    navController: NavHostController, userId: String
 ) {
     val context = LocalContext.current
     val apiProvider = ApiProvider(context)
@@ -46,12 +45,11 @@ fun RegisterStepTwoScreen(
     var registerError by remember { mutableStateOf("") }
 
     Box(
-        Modifier
-            .fillMaxSize()
-    )
-    {
+        Modifier.fillMaxSize()
+    ) {
         Text(
-            text = "Dokończ konfigurację", modifier = Modifier
+            text = "Dokończ konfigurację",
+            modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(bottom = 16.dp, top = 100.dp),
             color = androidx.compose.ui.graphics.Color.White,
@@ -64,8 +62,7 @@ fun RegisterStepTwoScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(
-            value = name,
+        OutlinedTextField(value = name,
             onValueChange = { name = it },
             label = { Text(text = "Imie") },
             placeholder = { Text(text = "Wpisz imie") },
@@ -74,8 +71,7 @@ fun RegisterStepTwoScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Unspecified)
         )
 
-        OutlinedTextField(
-            value = lastName,
+        OutlinedTextField(value = lastName,
             onValueChange = { lastName = it },
             label = { Text(text = "Nazwisko") },
             placeholder = { Text(text = "Wpisz nazwisko") },
@@ -90,29 +86,24 @@ fun RegisterStepTwoScreen(
             label = "Jednostka stęzenia glukozy"
         )
 
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    try {
-                        if (viewModel.registerStepTwo(
-                                userId,
-                                name,
-                                lastName,
-                                prefUnit.toString()
-                            )
-                        ) {
-                            registerError = ""
-                            navController.navigate("main_screen")
-                        } else {
-                            registerError = "Rejestracja nie powiodła się."
-                        }
-
-                    } catch (e: Exception) {
-                        registerError = "Wystąpił błąd: ${e.message}"
+        Button(onClick = {
+            coroutineScope.launch {
+                try {
+                    if (viewModel.registerStepTwo(
+                            userId, name, lastName, prefUnit.toString()
+                        )
+                    ) {
+                        registerError = ""
+                        navController.navigate("main_screen")
+                    } else {
+                        registerError = "Rejestracja nie powiodła się."
                     }
+
+                } catch (e: Exception) {
+                    registerError = "Wystąpił błąd: ${e.message}"
                 }
             }
-        ) {
+        }) {
             Text(text = "Zatwierdź")
         }
 

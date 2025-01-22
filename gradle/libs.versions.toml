@@ -25,12 +25,15 @@ navigationCompose = "2.8.4"
 roomCommon = "2.6.1"
 roomKtx = "2.6.1"
 roomCompiler = "2.6.1"
+securityCrypto = "1.1.0-alpha06"
+securityCryptoKtx = "1.0.0"
 
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version = "1.0.0" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 ble = { module = "no.nordicsemi.android:ble", version.ref = "ble" }
 charts = { module = "com.github.tehras:charts", version.ref = "charts" }
 ehsannarmani-compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeChartsVersion" }
@@ -61,7 +64,6 @@ mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
-
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

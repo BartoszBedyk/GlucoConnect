@@ -35,8 +35,8 @@ class GlucoseResultRepository(context: Context)  {
         return dao.markAsSynced(id)
     }
 
-    suspend fun getLatestResearchResult(): List<ResearchResultDB?> {
-        return dao.getLatestResearchResult()
+    suspend fun getLatestThreeResearchResult(userId: String): List<ResearchResultDB> {
+        return dao.getLatestThreeResearchResult(userId)
     }
 
     suspend fun insertAllResults(results: List<ResearchResult>) {

@@ -83,6 +83,7 @@ dependencies {
     implementation (libs.ehsannarmani.compose.charts)
 
 
+
     implementation(libs.hilt.android.v2511)
     kapt(libs.hilt.android.compiler.v2511)
 }

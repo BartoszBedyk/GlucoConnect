@@ -29,21 +29,6 @@ data class UserMedicationDB(
     @ColumnInfo(name = "notes")
     val notes: String?,
 
-    @ColumnInfo(name = "medication_name")
-    val medicationName: String,
-
-    @ColumnInfo(name = "description")
-    val description: String?,
-
-    @ColumnInfo(name = "manufacturer")
-    val manufacturer: String?,
-
-    @ColumnInfo(name = "form")
-    val form: String?,
-
-    @ColumnInfo(name = "strength")
-    val strength: String?,
-
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false
 )

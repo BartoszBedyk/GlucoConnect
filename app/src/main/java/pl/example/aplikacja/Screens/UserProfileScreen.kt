@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,57 +42,100 @@ fun UserProfileScreen(navController: NavController) {
         UserProfileViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
     }
 
-    val userData = viewModel.userData.collectAsState()
-    val fontSize = 20
+    if(isNetworkAvailable(context)) {
 
-    val prefUnit = userData.value?.prefUint?.let { formatUnit(it) }
+        val userData = viewModel.userData.collectAsState()
+        val fontSize = 20
 
-
-    Box(Modifier.fillMaxSize()) {
-        Text(
-            text = "Dane użytkownika",
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp, bottom = 16.dp ),
-            fontSize = 32.sp,
-            fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
-        )
-    }
-
-    Log.e("TAG", "ID: ${userData.value?.id}")
+        val prefUnit = userData.value?.prefUint?.let { formatUnit(it) }
 
 
-
-    Column(
-        Modifier.padding(top = 64.dp, start = 16.dp, end = 16.dp)
-    ) {
-        TextRow(
-            label = "ID użytkownika", value = userData.value?.id.toString(), fontSize = fontSize
-        )
-        TextRow(
-            label = "Adres email", value = userData.value?.email.toString(), fontSize = fontSize
-        )
-        TextRow(
-            label = "Dane personalne",
-            value = userData.value?.firstName.toString() + " " + userData.value?.lastName.toString(),
-            fontSize = fontSize
-        )
-        if (prefUnit != null) {
-            TextRow(
-                label = "Jednostka stęzenia glukozy", value = prefUnit, fontSize = fontSize
+        Box(Modifier.fillMaxSize()) {
+            Text(
+                text = "Dane użytkownika",
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp, bottom = 16.dp),
+                fontSize = 32.sp,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
             )
         }
 
-        Box(Modifier.fillMaxSize().padding(bottom = 32.dp)) {
+        Log.e("TAG", "ID: ${userData.value?.id}")
+
+
+
+        Column(
+            Modifier.padding(top = 64.dp, start = 16.dp, end = 16.dp)
+        ) {
+            TextRow(
+                label = "ID użytkownika", value = userData.value?.id.toString(), fontSize = fontSize
+            )
+            TextRow(
+                label = "Adres email", value = userData.value?.email.toString(), fontSize = fontSize
+            )
+            TextRow(
+                label = "Dane personalne",
+                value = userData.value?.firstName.toString() + " " + userData.value?.lastName.toString(),
+                fontSize = fontSize
+            )
+            if (prefUnit != null) {
+                TextRow(
+                    label = "Jednostka stęzenia glukozy", value = prefUnit, fontSize = fontSize
+                )
+            }
+
+
+            Box(Modifier.fillMaxSize().padding(bottom = 32.dp)) {
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate("bluetooth_permission_screen") },
+                    icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
+                    text = { Text(text = "Bluetooth") },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+                )
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate("edit_user_data_screen") },
+                    icon = { Icon(Icons.Filled.Edit, "Przycisk do edycji danych.") },
+                    text = { Text(text = "Edytuj dane") },
+                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
+                )
+            }
+        }
+    } else
+    {
+        Box(Modifier.fillMaxSize()) {
+            Text(
+                text = "Dane użytkownika",
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp, bottom = 16.dp),
+                fontSize = 32.sp,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+            )
+            Text(
+                text = "Brak połączenia z internetem",
+                modifier = Modifier.align(Alignment.Center),
+                fontSize = 24.sp,
+                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
+                color = MaterialTheme.colorScheme.error
+            )
+
+            Text(
+                text = "W trybie offline nie ma dostępu do danych użytkownaika.",
+                modifier = Modifier.align(Alignment.Center),
+                fontSize = 18.sp,
+                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
+                color = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = "Połącz się by uzyskać dane.",
+                modifier = Modifier.align(Alignment.Center),
+                fontSize = 18.sp,
+                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
+                color = MaterialTheme.colorScheme.error
+            )
+
             ExtendedFloatingActionButton(
-                onClick = {navController.navigate("bluetooth_permission_screen")},
+                onClick = { navController.navigate("bluetooth_permission_screen") },
                 icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
                 text = { Text(text = "Bluetooth") },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
-            )
-            ExtendedFloatingActionButton(
-                onClick = {navController.navigate("edit_user_data_screen")},
-                icon = { Icon(Icons.Filled.Edit, "Przycisk do edycji danych.") },
-                text = { Text(text = "Edytuj dane") },
-                modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
             )
         }
     }

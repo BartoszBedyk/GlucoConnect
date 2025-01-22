@@ -3,8 +3,11 @@ package pl.example.aplikacja
 
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
 import pl.example.databasemodule.database.data.ResearchResultDB
+import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.networkmodule.apiData.ResearchResult
+import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.requestData.CreateUserMedicationForm
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
@@ -123,6 +126,38 @@ fun convertResearchDBtoResearchResult(researchResultDB: List<ResearchResultDB>):
         )
     }
 }
+
+fun convertMedicationResultToMedicationDB(result: UserMedicationResult): UserMedicationDB {
+    return UserMedicationDB(
+        medicationId = result.medicationId,
+        userId = result.userId,
+        dosage = result.dosage,
+        frequency = result.frequency,
+        startDate = result.startDate,
+        endDate = result.endDate,
+        notes = result.notes,
+        isSynced = true
+    )
+}
+
+
+fun convertMedicationFormToMedicationDB(form: CreateUserMedicationForm): UserMedicationDB {
+    return UserMedicationDB(
+        medicationId = form.medicationId,
+        userId = form.userId,
+        dosage = form.dosage,
+        frequency = form.frequency,
+        startDate = form.startDate,
+        endDate = form.endDate,
+        notes = form.notes,
+        isSynced = false
+    )
+}
+
+
+
+
+
 
 
 

@@ -46,7 +46,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
         )
     }
 
-    override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): Boolean {
+    override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): String? {
         val newUserMedication = UserMedicationResult(
             userId = userMedication.userId,
             medicationId = userMedication.medicationId,
@@ -62,7 +62,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
             strength = "Mock Strength"
         )
         mockUserMedications.add(newUserMedication)
-        return true
+        return userMedication.userId.toString()
     }
 
     override suspend fun readUserMedication(id: String): UserMedicationResult? {
@@ -119,6 +119,23 @@ class UserMedicationApiMock : UserMedicationApiInterface {
     }
 
     override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
+        return UserMedicationResult(
+            userId = UUID.randomUUID(),
+            medicationId = UUID.randomUUID(),
+            dosage = "500mg",
+            frequency = "Twice a day",
+            startDate = Date(),
+            endDate = null,
+            notes = "Take after meals",
+            medicationName = "Aspirin",
+            description = "Pain reliever",
+            manufacturer = "Pharma Inc.",
+            form = "Tablet",
+            strength = "500mg"
+        )
+    }
+
+    override suspend fun readUserMedicationByID(umId: String): UserMedicationResult? {
         return UserMedicationResult(
             userId = UUID.randomUUID(),
             medicationId = UUID.randomUUID(),
