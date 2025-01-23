@@ -5,6 +5,8 @@ import androidx.room.Room
 import pl.example.databasemodule.database.migration.MIGRATION_1_2
 import pl.example.databasemodule.database.migration.MIGRATION_2_3
 import pl.example.databasemodule.database.migration.MIGRATION_3_4
+import pl.example.databasemodule.database.migration.MIGRATION_4_5
+import pl.example.databasemodule.database.migration.MIGRATION_5_6
 
 object ResearchResultManager {
     @Volatile
@@ -23,7 +25,7 @@ object ResearchResultManager {
             ResearchResultDatabase::class.java,
             "research_results_database"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .fallbackToDestructiveMigration()
             .build()
     }

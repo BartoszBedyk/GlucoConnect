@@ -42,7 +42,7 @@ fun UserProfileScreen(navController: NavController) {
         UserProfileViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
     }
 
-    if(isNetworkAvailable(context)) {
+    if (isNetworkAvailable(context)) {
 
         val userData = viewModel.userData.collectAsState()
         val fontSize = 20
@@ -53,13 +53,14 @@ fun UserProfileScreen(navController: NavController) {
         Box(Modifier.fillMaxSize()) {
             Text(
                 text = "Dane użytkownika",
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp, bottom = 16.dp),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 32.dp, bottom = 16.dp),
                 fontSize = 32.sp,
                 fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
             )
         }
 
-        Log.e("TAG", "ID: ${userData.value?.id}")
 
 
 
@@ -84,58 +85,70 @@ fun UserProfileScreen(navController: NavController) {
             }
 
 
-            Box(Modifier.fillMaxSize().padding(bottom = 32.dp)) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 32.dp)) {
                 ExtendedFloatingActionButton(
                     onClick = { navController.navigate("bluetooth_permission_screen") },
                     icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
                     text = { Text(text = "Bluetooth") },
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
                 )
                 ExtendedFloatingActionButton(
                     onClick = { navController.navigate("edit_user_data_screen") },
                     icon = { Icon(Icons.Filled.Edit, "Przycisk do edycji danych.") },
                     text = { Text(text = "Edytuj dane") },
-                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp)
                 )
             }
         }
-    } else
-    {
+    } else {
         Box(Modifier.fillMaxSize()) {
-            Text(
-                text = "Dane użytkownika",
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp, bottom = 16.dp),
-                fontSize = 32.sp,
-                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
-            )
-            Text(
-                text = "Brak połączenia z internetem",
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 24.sp,
-                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
-                color = MaterialTheme.colorScheme.error
-            )
+            Column {
+                Text(
+                    text = "Dane użytkownika",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 32.dp, bottom = 16.dp),
+                    fontSize = 32.sp,
+                    fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+                )
+                Text(
+                    text = "Brak połączenia z internetem",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    fontSize = 24.sp,
+                    fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
+                    color = MaterialTheme.colorScheme.error
+                )
 
-            Text(
-                text = "W trybie offline nie ma dostępu do danych użytkownaika.",
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 18.sp,
-                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
-                color = MaterialTheme.colorScheme.error
-            )
-            Text(
-                text = "Połącz się by uzyskać dane.",
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 18.sp,
-                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
-                color = MaterialTheme.colorScheme.error
-            )
+                Text(
+                    text = "W trybie offline nie ma dostępu do danych.",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    fontSize = 18.sp,
+                    fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text = "Połącz się by uzyskać dane.",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    fontSize = 18.sp,
+                    fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
 
             ExtendedFloatingActionButton(
                 onClick = { navController.navigate("bluetooth_permission_screen") },
                 icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
                 text = { Text(text = "Bluetooth") },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
             )
         }
     }

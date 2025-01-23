@@ -93,4 +93,25 @@ class HeartbeatApi(private val ktorClient: KtorClient) : HeartbeatApiInterface {
         }
     }
 
+    override suspend fun getThreeHeartbeatResults(userId: String): List<HeartbeatResult>? {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$heartbeatEndpoint/three/$userId")
+            if (response.status == HttpStatusCode.OK)
+                if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                    response.body<List<HeartbeatResult>>()
+                } else {
+                    println("Unexpected content type: ${response.contentType()}")
+                    null
+                }
+            else {
+                Log.e("HeartbeatApi", "Request failed with status ${response.status}")
+                null
+            }
+
+        } catch (e: Exception) {
+            Log.e("HeartbeatApi", "Request failed with status ${e.message}")
+            null
+        }
+    }
+
 }

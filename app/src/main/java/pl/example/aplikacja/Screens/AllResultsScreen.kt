@@ -54,7 +54,12 @@ fun AllResultsScreenPreview() {
 @Composable
 fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
     val context = LocalContext.current
+    var screenType : Boolean? = null
+    if (type != null) {
+        screenType = !type
+    }
 
+    Log.d("SCREEN_ALL", "screenType: $screenType")
     val decoded: DecodedJWT = JWT.decode(getToken(context))
     val viewModel = remember { AllResultsScreenViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))  }
 
@@ -65,7 +70,8 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
     val glucoseResultsData by viewModel.glucoseResultsData.collectAsState()
     Log.d("ALL", "glucoseResultsData: $glucoseResultsData")
 
-    var checked by remember { mutableStateOf(type ?: true) }
+    var checked by remember { mutableStateOf(screenType ?: true) }
+
 
     Box(Modifier.fillMaxSize()) {
         if (isLoading) {
@@ -73,12 +79,14 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                CircularProgressIndicator()
-                Text(
-                    text = "Nawiązywanie połączenia...",
-                    modifier = Modifier.padding(top = 16.dp),
-                    color = androidx.compose.ui.graphics.Color.Gray
-                )
+                Column {
+                    CircularProgressIndicator()
+                    Text(
+                        text = "Nawiązywanie połączenia...",
+                        modifier = Modifier.padding(16.dp),
+                        color = androidx.compose.ui.graphics.Color.Gray
+                    )
+                }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
@@ -128,7 +136,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                         items(heartbeatResult) { item ->
                             Row(Modifier.animateItem()) {
                                 ItemView(item) { itemId ->
-                                    navController.navigate("glucose_result/$itemId")
+                                    navController.navigate("heartbeat_result/$itemId")
                                 }
                             }
                         }

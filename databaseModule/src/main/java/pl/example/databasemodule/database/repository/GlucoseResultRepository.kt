@@ -22,6 +22,10 @@ class GlucoseResultRepository(context: Context)  {
         return dao.getResearchResultsForUser(userId)
     }
 
+    suspend fun getResearchResultById(id: String): ResearchResultDB? {
+        return dao.getResearchResultById(id)
+    }
+
 
     suspend fun deleteResearchResult(id: String) {
         return dao.deleteResearchResult(id)

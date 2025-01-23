@@ -26,7 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.bluetoothmodule.domain.BLEScanner
 import pl.example.bluetoothmodule.domain.MyBleManager
@@ -44,6 +46,12 @@ fun BluetoothPermission(
     val bleScanner = remember { BLEScanner(context) }
     var isScanning by remember { mutableStateOf(false) }
     val state by bluetoothViewModel.state.collectAsState()
+    val measurmentData by bluetoothViewModel.lastMeasurement.collectAsState()
+    Log.i("SCREEN", "measurmentData: $measurmentData")
+
+    val measurmentData2 by bluetoothViewModel._lastMeasurement.collectAsState()
+    Log.i("SCREEN", "measurmentData2: $measurmentData2")
+    val result =""
 
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -107,8 +115,15 @@ fun BluetoothPermission(
                 onDeviceClick = { device ->
                    bluetoothViewModel.connectToGattDevice(pl.example.bluetoothmodule.domain.BluetoothDevice(device.name, device.address))
                 },
-                onDownloadTime = bluetoothViewModel::readLastMeasurementTime,
-                title = "Podłącz się z glukometrem"
+                onDownloadTime = {
+                    bluetoothViewModel.viewModelScope.launch {
+                        bluetoothViewModel.readLastMeasurement()
+                    }
+                    bluetoothViewModel.lastMeasurement.value
+                },
+                bluetoothViewModel = bluetoothViewModel,
+                title = "Podłącz się z glukometrem",
+                navController = navController
             )
         }
     }

@@ -16,8 +16,8 @@ interface ResearchResultDao {
     @Query("SELECT * FROM research_results WHERE user_id = :userId")
     suspend fun getResearchResultsForUser(userId: String): List<ResearchResultDB>
 
-    @Query("SELECT * FROM research_results WHERE user_id = :userId LIMIT 3")
-    suspend fun getResearchResultById(userId: String): ResearchResultDB?
+    @Query("SELECT * FROM research_results WHERE id = :id")
+    suspend fun getResearchResultById(id: String): ResearchResultDB?
 
     @Query("DELETE FROM research_results WHERE id = :id")
     suspend fun deleteResearchResult(id: String)

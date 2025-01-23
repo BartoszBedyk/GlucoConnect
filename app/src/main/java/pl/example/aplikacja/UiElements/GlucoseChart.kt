@@ -135,10 +135,68 @@ fun LineChartPreview() {
 fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
     val lines = listOf(
         Line(
-            label = "Glukoza",
+            label = "Ciśnienie rozkurczowe",
             values = heartbeatData.map { it.diastolicPressure.toDouble() },
             color = Brush.linearGradient(
+                colors = listOf(Color.Red, Color.Yellow)
+            ),
+            firstGradientFillColor = Color.Blue.copy(alpha = 0.3f),
+            secondGradientFillColor = Color.Cyan.copy(alpha = 0.1f),
+            drawStyle = DrawStyle.Stroke(3.dp),
+            strokeAnimationSpec = tween(1500),
+            gradientAnimationSpec = tween(1500),
+            gradientAnimationDelay = 500L,
+            dotProperties = DotProperties(
+                enabled = true,
+                radius = 5.dp,
+                color = SolidColor(Color.Red),
+                strokeWidth = 2.dp,
+                strokeColor = SolidColor(Color.Black),
+                animationEnabled = true,
+                animationSpec = tween(500)
+            ),
+            popupProperties = PopupProperties(
+                textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
+                    color = Color.Transparent,
+                    fontSize = 0.sp
+                )
+            ),
+            curvedEdges = true
+        ),
+        Line(
+            label = "Ciśnienie skurczowe",
+            values = heartbeatData.map { it.systolicPressure.toDouble() },
+            color = Brush.linearGradient(
                 colors = listOf(Color.Blue, Color.Cyan)
+            ),
+            firstGradientFillColor = Color.Blue.copy(alpha = 0.3f),
+            secondGradientFillColor = Color.Cyan.copy(alpha = 0.1f),
+            drawStyle = DrawStyle.Stroke(3.dp),
+            strokeAnimationSpec = tween(1500),
+            gradientAnimationSpec = tween(1500),
+            gradientAnimationDelay = 500L,
+            dotProperties = DotProperties(
+                enabled = true,
+                radius = 5.dp,
+                color = SolidColor(Color.Red),
+                strokeWidth = 2.dp,
+                strokeColor = SolidColor(Color.Black),
+                animationEnabled = true,
+                animationSpec = tween(500)
+            ),
+            popupProperties = PopupProperties(
+                textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
+                    color = Color.Transparent,
+                    fontSize = 0.sp
+                )
+            ),
+            curvedEdges = true
+        ),
+        Line(
+            label = "Puls",
+            values = heartbeatData.map { it.pulse.toDouble() },
+            color = Brush.linearGradient(
+                colors = listOf(Color.Yellow, Color.White)
             ),
             firstGradientFillColor = Color.Blue.copy(alpha = 0.3f),
             secondGradientFillColor = Color.Cyan.copy(alpha = 0.1f),

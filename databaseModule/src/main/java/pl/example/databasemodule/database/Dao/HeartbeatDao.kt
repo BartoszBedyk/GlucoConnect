@@ -32,4 +32,7 @@ interface HeartbeatDao {
 
     @Query("SELECT * FROM heartbeat_results WHERE is_synced = 0")
     suspend fun getUnsyncedHeartbeatResults(): List<HeartbeatDB>
+
+    @Query("SELECT * FROM heartbeat_results WHERE user_id = :userId ORDER BY timestamp DESC LIMIT 3")
+    suspend fun getThreeHeartbeatById(userId: String): List<HeartbeatDB>
 }

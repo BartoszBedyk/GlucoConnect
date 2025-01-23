@@ -41,6 +41,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.R
 import pl.example.aplikacja.UiElements.GlucoseChart
+import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
 import pl.example.aplikacja.removeQuotes
 import pl.example.networkmodule.getToken
@@ -55,7 +56,8 @@ fun MainScreen(navController: NavController) {
             removeQuotes(decoded.getClaim("userId").toString())
         )
     }
-    val items by viewModel.threeGlucoseItems.collectAsState()
+    val glucoseItems by viewModel.threeGlucoseItems.collectAsState()
+    val heartbeatItems by viewModel.heartbeatItems.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
@@ -63,42 +65,70 @@ fun MainScreen(navController: NavController) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                CircularProgressIndicator()
-                Text(
-                    text = "Nawiązywanie połączenia...",
-                    modifier = Modifier.padding(top = 16.dp),
-                    color = androidx.compose.ui.graphics.Color.Gray
-                )
+                Column {
+                    CircularProgressIndicator()
+                    Text(
+                        text = "Nawiązywanie połączenia...",
+                        modifier = Modifier.padding(16.dp),
+                        color = androidx.compose.ui.graphics.Color.Gray
+                    )
+                }
             }
         } else {
             Column(Modifier.padding(bottom = 16.dp).align(Alignment.TopCenter)) {
-                GlucoseChart(items)
-
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(bottom = 0.dp)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (items.isEmpty()) {
-                        item {
-                            Text(
-                                text = "Brak danych do wyświetlenia.",
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
-                                color = androidx.compose.ui.graphics.Color.Gray
-                            )
-                        }
-                    } else {
-                        items(items) { item ->
-                            ItemView(item) { itemId ->
-                                navController.navigate("glucose_result/$itemId")
+                if(glucoseItems.isNotEmpty()) {
+                    GlucoseChart(glucoseItems.asReversed())
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(bottom = 0.dp)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (glucoseItems.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "Brak danych do wyświetlenia.",
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    color = androidx.compose.ui.graphics.Color.Gray
+                                )
+                            }
+                        } else {
+                            items(glucoseItems) { item ->
+                                ItemView(item) { itemId ->
+                                    navController.navigate("glucose_result/$itemId")
+                                }
                             }
                         }
                     }
                 }
+                if(heartbeatItems.isNotEmpty()) {
+                    HeartbeatChart(heartbeatItems.asReversed())
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(bottom = 0.dp)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (heartbeatItems.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "Brak danych do wyświetlenia.",
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    color = androidx.compose.ui.graphics.Color.Gray
+                                )
+                            }
+                        } else {
+                            items(glucoseItems) { item ->
+                                ItemView(item) { itemId ->
+                                    navController.navigate("heartbeat_result/$itemId")
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
-
         ExpandableFloatingActionButton(navController)
     }
 }

@@ -8,9 +8,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
 import pl.example.aplikacja.convertResearchDBtoResearchResult
 import pl.example.aplikacja.convertUnits
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
+import pl.example.databasemodule.database.repository.HeartbeatRepository
+import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
@@ -21,6 +24,8 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     private val apiProvider = ApiProvider(context)
 
     private val researchRepository = GlucoseResultRepository(context)
+    private val prefUnitRepository = PrefUnitRepository(context)
+    private val heartbeatsRepository = HeartbeatRepository(context)
 
     private val resultApi = apiProvider.resultApi
     private val userApi = apiProvider.userApi
@@ -56,7 +61,6 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
                 _glucoseResults.value = convertUnits(results, prefUnit.value)
 
-
                 _heartbeatResult.value = heartbeatApi.readHeartbeatForUser(USER_ID) ?: emptyList()
 
 
@@ -65,16 +69,26 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
 
                 Log.e("NO WIFI", "Failed to fetch data from API: ${e.message}", e)
 
-                _glucoseResults.value = convertResearchDBtoResearchResult(
-                    researchRepository.getResearchResultsForUser(USER_ID)
-                )
+                if(prefUnitRepository.getUnitByUserId(USER_ID) == "MG_PER_DL")
+                {
+                    _prefUnit.value = GlucoseUnitType.MG_PER_DL
+                }else if(prefUnitRepository.getUnitByUserId(USER_ID) == "MMOL_PER_L"){
+                    _prefUnit.value = GlucoseUnitType.MMOL_PER_L
+                }
+                else {
+                    _prefUnit.value = GlucoseUnitType.MG_PER_DL
+                }
 
-                _glucoseResultData.value = convertResearchDBtoResearchResult(
-                    researchRepository.getResearchResultsForUser(USER_ID)
+                _glucoseResults.value = convertResearchDBtoResearchResult(
+                    researchRepository.getResearchResultsForUser(USER_ID) ?: emptyList()
                 )
-                _heartbeatResult.value = emptyList()
+                _glucoseResults.value = convertUnits(_glucoseResults.value, prefUnit.value)
+
+                _heartbeatResult.value = convertHeartBeatDBtoHeartbeatResult(
+                    heartbeatsRepository.getHeartbeatResultsForUser(USER_ID) ?: emptyList()
+                )
             } finally {
-                _isLoading.value=false
+                _isLoading.value = false
             }
         }
     }
@@ -86,12 +100,12 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 val unsyncedResults = researchRepository.getUnsyncedResearchResults()
                 if (unsyncedResults.isNotEmpty()) {
                     convertResearchDBtoResearchResult(unsyncedResults).forEach { result ->
-                        try{
+                        try {
                             resultApi.syncResult(result)
                             Log.d("SYNC", "Syncing result: $result")
                             researchRepository.markAsSynced(result.id.toString())
                             Log.d("SYNC", "Synced MARK: ${result.id}")
-                        }catch (e: Exception){
+                        } catch (e: Exception) {
                             Log.e("SYNC", "Failed to sync result: $result", e)
                         }
                     }

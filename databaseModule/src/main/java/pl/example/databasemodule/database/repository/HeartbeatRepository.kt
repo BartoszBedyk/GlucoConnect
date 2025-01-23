@@ -19,6 +19,10 @@ class HeartbeatRepository(context: Context) {
 
     }
 
+    suspend fun getHeartbeatResultById(id: String): HeartbeatDB? {
+        return dao.getHeartbeatResultById(id)
+    }
+
     suspend fun deleteHeartbeatResult(id: String) {
         return dao.deleteHeartbeatResult(id)
     }
@@ -33,6 +37,10 @@ class HeartbeatRepository(context: Context) {
 
     suspend fun getLatestHeartbeatResult(): List<HeartbeatDB?> {
         return dao.getLatestHeartbeatResult()
+    }
+
+    suspend fun getThreeHeartbeatById(userId: String): List<HeartbeatDB> {
+        return dao.getThreeHeartbeatById(userId)
     }
 
     suspend fun insertAll(results: List<HeartbeatDB>) {

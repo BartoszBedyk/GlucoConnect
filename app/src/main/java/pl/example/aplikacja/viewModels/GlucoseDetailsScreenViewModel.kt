@@ -6,16 +6,20 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.convertResearchDBtoResearchResult
+import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import java.math.RoundingMode
 
 class GlucoseDetailsScreenViewModel(
-    apiProvider: ApiProvider,
+    context: Context,
     private val RESULT_ID: String,
     private val USER_ID: String
 ) : ViewModel() {
+    private val apiProvider = ApiProvider(context)
+    private val glucoseResultRepository = GlucoseResultRepository(context)
 
     private val resultApi = apiProvider.resultApi
     private val userApi = apiProvider.userApi
@@ -26,6 +30,9 @@ class GlucoseDetailsScreenViewModel(
     private val _prefUnit = MutableStateFlow<GlucoseUnitType>(GlucoseUnitType.MMOL_PER_L)
     val prefUnit: StateFlow<GlucoseUnitType> = _prefUnit
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     init {
         fetchGlucoseResult()
 
@@ -33,9 +40,22 @@ class GlucoseDetailsScreenViewModel(
 
     private fun fetchGlucoseResult() {
         viewModelScope.launch {
-            val result = resultApi.getResearchResultsById(RESULT_ID)
-            _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MG_PER_DL
-            _glucoseResult.value = result?.let { convertUnit(it) }
+            _isLoading.value = true
+            try {
+                val result = resultApi.getResearchResultsById(RESULT_ID)
+                _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MG_PER_DL
+                _glucoseResult.value = result?.let { convertUnit(it) }
+            } catch (e: Exception) {
+                val result = glucoseResultRepository.getResearchResultById(RESULT_ID)
+                _prefUnit.value = GlucoseUnitType.MG_PER_DL
+                if (result != null) {
+                    _glucoseResult.value = convertResearchDBtoResearchResult(result)
+                }
+            } finally {
+
+                _isLoading.value = false
+            }
+
 
         }
     }

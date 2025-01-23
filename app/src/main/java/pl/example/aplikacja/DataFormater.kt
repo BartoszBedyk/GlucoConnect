@@ -2,18 +2,23 @@ package pl.example.aplikacja
 
 
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
+import pl.example.databasemodule.database.data.HeartbeatDB
 import pl.example.databasemodule.database.data.ResearchResultDB
 import pl.example.databasemodule.database.data.UserMedicationDB
+import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.math.RoundingMode
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import java.util.UUID
+import java.util.regex.Pattern
 
 fun formatDateTimeSpecificLocale(date: Date): String {
     val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale("pl", "PL"))
@@ -154,6 +159,77 @@ fun convertMedicationFormToMedicationDB(form: CreateUserMedicationForm): UserMed
     )
 }
 
+
+fun convertHeartBeatDBtoHeartbeatResult(researchResultDB: List<HeartbeatDB>): List<HeartbeatResult> {
+    return researchResultDB.map { dbResult ->
+        HeartbeatResult(
+            id = dbResult.id,
+            userId = dbResult.userId,
+            timestamp = dbResult.timestamp,
+            systolicPressure = dbResult.systolicPressure,
+            diastolicPressure = dbResult.diastolicPressure,
+            pulse = dbResult.pulse,
+            note = dbResult.note
+        )
+    }
+}
+
+fun convertHeartBeatDBtoHeartbeatResult(researchResultDB: HeartbeatDB): HeartbeatResult {
+    return HeartbeatResult(
+            id = researchResultDB.id,
+            userId = researchResultDB.userId,
+            timestamp = researchResultDB.timestamp,
+            systolicPressure = researchResultDB.systolicPressure,
+            diastolicPressure = researchResultDB.diastolicPressure,
+            pulse = researchResultDB.pulse,
+            note = researchResultDB.note
+        )
+    }
+
+
+fun convertHeartbeatResultToHeartBeatDB(researchResultDB: List<HeartbeatResult>): List<HeartbeatDB> {
+    return researchResultDB.map { dbResult ->
+        HeartbeatDB(
+            id = dbResult.id,
+            userId = dbResult.userId,
+            timestamp = dbResult.timestamp,
+            systolicPressure = dbResult.systolicPressure,
+            diastolicPressure = dbResult.diastolicPressure,
+            pulse = dbResult.pulse,
+            note = dbResult.note
+        )
+    }
+}
+
+fun parseMeasurement(input: String): Measurement? {
+    val parts = input.split(",").map { it.trim() }
+
+    if (parts.size == 3) {
+        val date = parts[0].substringAfter("Date:").trim()
+        val result = parts[1].substringAfter("Result:").trim()
+        val unit = parts[2].substringAfter("Unit:").trim()
+        try {
+            val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT'Z yyyy", Locale.US)
+            val dateParsed: Date = dateFormat.parse(date)
+            return Measurement(dateParsed, result.toDouble(), unit)
+        }
+        catch (e: ParseException) {
+            println("Niepoprawny format daty.")
+            return null
+        }
+    } else {
+        println("Niepoprawny format stringa.")
+        return null
+    }
+
+}
+
+
+data class Measurement(
+    val date: Date,
+    val result: Double,
+    val unit: String
+)
 
 
 

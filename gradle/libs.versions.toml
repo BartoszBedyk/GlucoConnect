@@ -36,6 +36,7 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 ble = { module = "no.nordicsemi.android:ble", version.ref = "ble" }
 charts = { module = "com.github.tehras:charts", version.ref = "charts" }
+common = { module = "lifecycle:common" }
 ehsannarmani-compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeChartsVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
