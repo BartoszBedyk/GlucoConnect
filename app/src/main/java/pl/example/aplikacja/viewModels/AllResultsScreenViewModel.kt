@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
 import pl.example.aplikacja.convertResearchDBtoResearchResult
 import pl.example.aplikacja.convertUnits
+import pl.example.aplikacja.stringUnitParser
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.databasemodule.database.repository.HeartbeatRepository
 import pl.example.databasemodule.database.repository.PrefUnitRepository
@@ -56,36 +57,19 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
         _isLoading.value = true
         viewModelScope.launch {
             try {
-
                 val results = resultApi.getResultsByUserId(USER_ID) ?: emptyList()
                 _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
                 _glucoseResults.value = convertUnits(results, prefUnit.value)
-
                 _heartbeatResult.value = heartbeatApi.readHeartbeatForUser(USER_ID) ?: emptyList()
-
-
                 researchRepository.insertAllResults(results)
             } catch (e: Exception) {
-
-                Log.e("NO WIFI", "Failed to fetch data from API: ${e.message}", e)
-
-                if(prefUnitRepository.getUnitByUserId(USER_ID) == "MG_PER_DL")
-                {
-                    _prefUnit.value = GlucoseUnitType.MG_PER_DL
-                }else if(prefUnitRepository.getUnitByUserId(USER_ID) == "MMOL_PER_L"){
-                    _prefUnit.value = GlucoseUnitType.MMOL_PER_L
-                }
-                else {
-                    _prefUnit.value = GlucoseUnitType.MG_PER_DL
-                }
-
+                _prefUnit.value = stringUnitParser(prefUnitRepository.getUnitByUserId(USER_ID))
                 _glucoseResults.value = convertResearchDBtoResearchResult(
-                    researchRepository.getResearchResultsForUser(USER_ID) ?: emptyList()
+                    researchRepository.getAllGlucoseResultsByUserId(USER_ID)
                 )
                 _glucoseResults.value = convertUnits(_glucoseResults.value, prefUnit.value)
-
                 _heartbeatResult.value = convertHeartBeatDBtoHeartbeatResult(
-                    heartbeatsRepository.getHeartbeatResultsForUser(USER_ID) ?: emptyList()
+                    heartbeatsRepository.getHeartbeatResultsForUser(USER_ID)
                 )
             } finally {
                 _isLoading.value = false
@@ -102,9 +86,7 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                     convertResearchDBtoResearchResult(unsyncedResults).forEach { result ->
                         try {
                             resultApi.syncResult(result)
-                            Log.d("SYNC", "Syncing result: $result")
                             researchRepository.markAsSynced(result.id.toString())
-                            Log.d("SYNC", "Synced MARK: ${result.id}")
                         } catch (e: Exception) {
                             Log.e("SYNC", "Failed to sync result: $result", e)
                         }

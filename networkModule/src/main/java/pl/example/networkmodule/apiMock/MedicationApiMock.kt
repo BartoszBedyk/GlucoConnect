@@ -110,4 +110,8 @@ class MedicationApiMock: MedicationApiInterface {
             false
         }
     }
+
+    override suspend fun getUnsynced(userId: String): List<MedicationResult>? {
+        return null
+    }
 }

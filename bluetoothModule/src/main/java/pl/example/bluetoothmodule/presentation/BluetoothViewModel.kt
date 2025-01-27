@@ -19,11 +19,12 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.ConnectionResult
 import pl.example.bluetoothmodule.domain.responseManagement
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,10 +47,6 @@ class BluetoothViewModel @Inject constructor(
     private val _receivedDataFlow = MutableSharedFlow<ByteArray>()
     val receivedDataFlow: Flow<ByteArray> = _receivedDataFlow.asSharedFlow()
 
-
-
-    //dane odebrane w onChange
-    private val receivedDataList: MutableList<ByteArray> = mutableListOf()
 
 
     private var deviceConnectionJob: Job? = null
@@ -77,19 +74,6 @@ class BluetoothViewModel @Inject constructor(
 
 
 
-    suspend fun readGlucometerTime(): String {
-        val command = byteArrayOf(
-            0x51.toByte(),
-            0x23.toByte(),
-            0x00, 0x00, 0x00, 0x00,
-            0xA3.toByte()
-        )
-        val glucometereClock = sendCommandAndWaitForResponse(command).firstOrNull()
-        val returnString = glucometereClock?.let { responseManagement(it) }
-        return returnString ?: ""
-    }
-
-
     fun startScan() {
         bluetoothController.startDiscovery()
     }
@@ -110,16 +94,10 @@ class BluetoothViewModel @Inject constructor(
 
     fun sendCommandAndWaitForResponse(command: ByteArray): Flow<ByteArray?> = flow {
         bluetoothGatt?.let {
-           // Log.i("BluetoothViewModel", "Sending command: ${command.joinToString(" ")}")
             bluetoothController.sendCommand(it, command)
-           // Log.i("BluetoothViewModel", "Command sent.")
-
-            // Pobranie pierwszego pakietu danych z `_receivedDataFlow`
             val response = bluetoothController.receivedDataFlow.firstOrNull { it.isNotEmpty() }
             emit(response)
-            //Log.d("BluetoothViewModel", "Response emitted: ${response?.contentToString()}")
         } ?: run {
-            //Log.e("BluetoothViewModel", "BluetoothGatt is not connected.")
             emit(null)
         }
     }
@@ -129,24 +107,86 @@ class BluetoothViewModel @Inject constructor(
     val lastMeasurement: StateFlow<String> = _lastMeasurement
 
     suspend fun readLastMeasurement(): String {
-        Log.i("BluetoothViewModel", "Reading last measurement...")
-
-        // Komenda do odczytu czasu
         val commandTime = byteArrayOf(0x51.toByte(), 0x25.toByte(), 0x00, 0x00, 0x00, 0x00, 0xA3.toByte())
         val timeResponse = sendCommandAndWaitForResponse(commandTime).firstOrNull()
         val resultTime = timeResponse?.let { responseManagement(it) } ?: ""
 
-        // Komenda do odczytu ostatniego pomiaru
         val commandResult = byteArrayOf(0x51.toByte(), 0x26.toByte(), 0x00, 0x00, 0x00, 0x00, 0xA3.toByte())
         val resultResponse = sendCommandAndWaitForResponse(commandResult).firstOrNull()
         val resultData = resultResponse?.let { responseManagement(it) } ?: ""
 
-        // Aktualizacja stanu złożonego wyniku
         _lastMeasurement.value = resultTime + "\n" + resultData
 
         Log.i("BluetoothViewModel", "_lastMeasurement: ${_lastMeasurement.value}")
         return _lastMeasurement.value
     }
+
+    suspend fun readDeviceSerialNumber(): String {
+        val commandTime = byteArrayOf(0x51.toByte(), 0x27.toByte(), 0x00, 0x00, 0x00, 0x00, 0xA3.toByte())
+        val timeResponse = sendCommandAndWaitForResponse(commandTime).firstOrNull()
+        val part1 = timeResponse?.let { responseManagement(it) } ?: ""
+
+        val commandResult = byteArrayOf(0x51.toByte(), 0x28.toByte(), 0x00, 0x00, 0x00, 0x00, 0xA3.toByte())
+        val resultResponse = sendCommandAndWaitForResponse(commandResult).firstOrNull()
+        val part2 = resultResponse?.let { responseManagement(it) } ?: ""
+
+        _lastMeasurement.value = part1 + "\n" + part2
+
+        Log.i("BluetoothViewModel", "_lastMeasurement: ${_lastMeasurement.value}")
+        return _lastMeasurement.value
+    }
+
+    suspend fun readGlucometerTime(): String{
+        val commandTime = byteArrayOf(
+            0x51.toByte(),
+            0x23.toByte(),
+            0x00, 0x00, 0x00, 0x00,
+            0xA3.toByte()
+        )
+        val timeResponse = sendCommandAndWaitForResponse(commandTime).firstOrNull()
+        val resultTime = timeResponse?.let { responseManagement(it) } ?: ""
+        _lastMeasurement.value = resultTime
+        return _lastMeasurement.value
+    }
+
+    suspend fun setGlucometerTime(): String{
+        val commandTime = getActualDateTimeCommand()
+        val timeResponse = sendCommandAndWaitForResponse(commandTime).firstOrNull()
+        val resultTime = timeResponse?.let { responseManagement(it) } ?: ""
+        _lastMeasurement.value = resultTime
+        return _lastMeasurement.value
+    }
+
+    suspend fun turnOffDevice(): String{
+        val commandTime = byteArrayOf(
+            0x51.toByte(),
+            0x50.toByte(),
+            0x00, 0x00, 0x00, 0x00,
+            0xA3.toByte()
+        )
+        val timeResponse = sendCommandAndWaitForResponse(commandTime).firstOrNull()
+        val resultTime = timeResponse?.let { responseManagement(it) } ?: ""
+        _lastMeasurement.value = resultTime
+        return _lastMeasurement.value
+    }
+
+    suspend fun clearMemory(): String{
+        val commandTime = byteArrayOf(
+            0x51.toByte(),
+            0x52.toByte(),
+            0x00, 0x00, 0x00, 0x00,
+            0xA3.toByte()
+        )
+        val timeResponse = sendCommandAndWaitForResponse(commandTime).firstOrNull()
+        val resultTime = timeResponse?.let { responseManagement(it) } ?: ""
+        _lastMeasurement.value = resultTime
+        return _lastMeasurement.value
+    }
+
+
+
+
+
 
 
 
@@ -183,4 +223,25 @@ class BluetoothViewModel @Inject constructor(
         super.onCleared()
         bluetoothController.release()
     }
+
+    private fun getActualDateTimeCommand(): ByteArray {
+        val date = Date()
+
+        val calendar = Calendar.getInstance().apply { time = date }
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val month = calendar.get(Calendar.MONTH) + 1 // MONTH is 0-based
+        val year = calendar.get(Calendar.YEAR) - 2000 // Assuming year offset from 2000
+
+        val data1_0 = (day and 0x1F) or ((month and 0x0F) shl 5) or ((year and 0x7F) shl 9)
+        val data0: Byte = (data1_0 and 0xFF).toByte()
+        val data1: Byte = ((data1_0 shr 8) and 0xFF).toByte()
+
+        val data2: Byte = calendar.get(Calendar.MINUTE).toByte()
+
+        val data3: Byte = calendar.get(Calendar.HOUR_OF_DAY).toByte()
+
+        return byteArrayOf(0x51.toByte(), 0x23.toByte(), data0, data1, data2, data3, 0xA3.toByte())
+    }
 }
+
+

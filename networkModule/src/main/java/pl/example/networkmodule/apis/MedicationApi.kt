@@ -75,4 +75,23 @@ class MedicationApi(private val ktorClient: KtorClient) : MedicationApiInterface
 
         }
     }
+
+    override suspend fun getUnsynced(userId: String): List<MedicationResult>? {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$medicationEndpoint/$userId/unsynced") {
+                contentType(ContentType.Application.Json)
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                response.body<List<MedicationResult>>()
+            } else {
+                Log.e("MedicationApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("MedicationApi", "Request failed with exception: ${e.message}")
+            null
+        }
+    }
+
 }

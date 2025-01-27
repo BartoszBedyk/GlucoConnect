@@ -9,9 +9,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.convertResearchResultToResearchDB
 import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.stringUnitParser
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
 import pl.example.databasemodule.database.data.ResearchResultDB
+import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.requestData.ResearchResultCreate
@@ -23,6 +25,7 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
 
     private val apiProvider = ApiProvider(context)
     private val researchRepository = GlucoseResultRepository(context)
+    private val unitRepository = PrefUnitRepository(context)
 
     private val resultApi = apiProvider.resultApi
     private val userApi = apiProvider.userApi
@@ -35,7 +38,6 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
     }
 
     suspend fun addGlucoseResult(form: ResearchResultCreate): Boolean {
-        Log.d("API", "Adding glucose result: $form")
          try {
             val id = resultApi.createResearchResult(form)
             if (id != null) {
@@ -56,7 +58,6 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
     private suspend fun addIntoDatabase(id: String): Boolean {
         return try {
             val researchResult = resultApi.getResearchResultsById(id)
-            Log.d("LOCALY ", "Fetched research result: $researchResult")
             if (researchResult != null) {
                 val converted = convertResearchResultToResearchDB(researchResult)
                 researchRepository.insert(converted)
@@ -73,7 +74,6 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
         try {
             val localResult = convertResearchResultCreateToResearchDB(form)
             researchRepository.insert(localResult)
-            Log.d("LOCALY", "Glucose result saved locally: $localResult")
             return true
         } catch (e: Exception) {
             Log.e("LOCALY", "Failed to save glucose result locally: ${e.message}", e)
@@ -99,8 +99,9 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
     private fun fetchUnit() {
         viewModelScope.launch {
             try {
-                _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MG_PER_DL
+                _prefUnit.value = userApi.getUserUnitById(USER_ID)!!
             } catch (e: Exception) {
+                _prefUnit.value = stringUnitParser(unitRepository.getUnitByUserId(USER_ID))
                 Log.e("API", "Failed to fetch user unit: ${e.message}", e)
             }
         }

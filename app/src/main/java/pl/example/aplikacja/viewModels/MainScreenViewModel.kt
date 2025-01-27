@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
 import pl.example.aplikacja.convertResearchDBtoResearchResult
 import pl.example.aplikacja.convertUnits
+import pl.example.aplikacja.stringUnitParser
 import pl.example.databasemodule.database.data.PrefUnitDB
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.databasemodule.database.repository.HeartbeatRepository
@@ -66,17 +67,9 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) :
             } catch (e: Exception) {
                 withContext(Dispatchers.IO) {
                     val localResults = researchRepository.getLatestThreeResearchResult(USER_ID)
-                    val localHeartbeats = heartbeatRepository.getThreeHeartbeatById(USER_ID) ?: emptyList()
-                    if(prefUnitRepository.getUnitByUserId(USER_ID) == "MG_PER_DL")
-                    {
-                        _prefUnit.value = GlucoseUnitType.MG_PER_DL
-                    }else if(prefUnitRepository.getUnitByUserId(USER_ID) == "MMOL_PER_L"){
-                        _prefUnit.value = GlucoseUnitType.MMOL_PER_L
-                    }
-                    else {
-                        _prefUnit.value = GlucoseUnitType.MG_PER_DL
-                    }
-
+                    val localHeartbeats =
+                        heartbeatRepository.getThreeHeartbeatById(USER_ID) ?: emptyList()
+                    _prefUnit.value = stringUnitParser(prefUnitRepository.getUnitByUserId(USER_ID))
                     _threeGlucoseItems.value = convertUnits(
                         localResults.map { convertResearchDBtoResearchResult(it) },
                         prefUnit.value

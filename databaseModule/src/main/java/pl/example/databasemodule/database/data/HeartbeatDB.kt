@@ -9,6 +9,7 @@ import java.util.UUID
 @Entity(tableName = "heartbeat_results")
 data class HeartbeatDB(
     @PrimaryKey(autoGenerate = false)
+    @ColumnInfo(name = "id")
     val id: UUID,
 
     @ColumnInfo(name = "user_id")

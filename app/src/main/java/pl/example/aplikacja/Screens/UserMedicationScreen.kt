@@ -61,12 +61,14 @@ fun UserMedicationScreen(navController: NavController?) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                CircularProgressIndicator()
-                Text(
-                    text = "Nawiązywanie połączenia...",
-                    modifier = Modifier.padding(top = 16.dp),
-                    color = androidx.compose.ui.graphics.Color.Gray
-                )
+                Column {
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+                    Text(
+                        text = "Nawiązywanie połączenia...",
+                        modifier = Modifier.padding(16.dp),
+                        color = androidx.compose.ui.graphics.Color.Gray
+                    )
+                }
             }
         } else {
 
@@ -135,24 +137,24 @@ fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Un
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.End
         ) {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {
-
-                    }
-            )
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {
-
-                    }
-            )
+//            Icon(
+//                imageVector = Icons.Default.Info,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .padding(8.dp)
+//                    .clickable {
+//
+//                    }
+//            )
+//            Icon(
+//                imageVector = Icons.Default.Lock,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .padding(8.dp)
+//                    .clickable {
+//
+//                    }
+//            )
         }
     }
 }

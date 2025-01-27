@@ -8,4 +8,5 @@ interface MedicationApiInterface {
     suspend fun readMedication(id: String): MedicationResult?
     suspend fun getAllMedications(): List<MedicationResult>?
     suspend fun deleteMedication(id: String): Boolean
+    suspend fun getUnsynced(userId: String): List<MedicationResult>?
 }

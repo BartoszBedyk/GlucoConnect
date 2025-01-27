@@ -69,6 +69,20 @@ fun convertUnits(
 }
 
 
+fun stringUnitParser(string: String?): GlucoseUnitType {
+    return when (string) {
+        "mg/dL" -> GlucoseUnitType.MG_PER_DL
+        "mmol/l" -> GlucoseUnitType.MMOL_PER_L
+        "MG_PER_DL" -> GlucoseUnitType.MG_PER_DL
+        "MMOL_PER_L" -> GlucoseUnitType.MMOL_PER_L
+        else -> GlucoseUnitType.MG_PER_DL
+    }
+
+}
+
+
+
+
 fun convertResearchDBtoResearchResult(researchResultDB: ResearchResultDB): ResearchResult {
     val dbResult =  ResearchResult(
         id = researchResultDB.id,
@@ -103,7 +117,7 @@ fun convertResearchResultToResearchDB(researchResultDB: ResearchResult): Researc
 
 private fun convertGlucoseUnitType(dbUnit: GlucoseUnitTypeDB): GlucoseUnitType {
     return when (dbUnit) {
-        GlucoseUnitTypeDB.MG_PER_DL -> GlucoseUnitType.MMOL_PER_L
+        GlucoseUnitTypeDB.MG_PER_DL -> GlucoseUnitType.MG_PER_DL
         GlucoseUnitTypeDB.MMOL_PER_L -> GlucoseUnitType.MMOL_PER_L
         else -> throw IllegalArgumentException("Unknown GlucoseUnitTypeDB: $dbUnit")
     }
@@ -111,7 +125,7 @@ private fun convertGlucoseUnitType(dbUnit: GlucoseUnitTypeDB): GlucoseUnitType {
 
 private fun convertGlucoseUnitType(dbUnit: GlucoseUnitType): GlucoseUnitTypeDB {
     return when (dbUnit) {
-        GlucoseUnitType.MG_PER_DL -> GlucoseUnitTypeDB.MMOL_PER_L
+        GlucoseUnitType.MG_PER_DL -> GlucoseUnitTypeDB.MG_PER_DL
         GlucoseUnitType.MMOL_PER_L -> GlucoseUnitTypeDB.MMOL_PER_L
         else -> throw IllegalArgumentException("Unknown GlucoseUnitTypeDB: $dbUnit")
     }

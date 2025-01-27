@@ -20,4 +20,8 @@ interface MedicationDao {
 
     @Query("DELETE FROM medications WHERE id = :id")
     suspend fun deleteMedication(id: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(results: List<MedicationDB>)
+
 }

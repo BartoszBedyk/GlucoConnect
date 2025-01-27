@@ -16,6 +16,9 @@ class MedicationRepository(context: Context){
      suspend fun getMedicationById(id: String): MedicationDB? {
        return  dao.getMedicationById(id)
     }
+     suspend fun insertAll(results: List<MedicationDB>) {
+        dao.insertAll(results)
+    }
 
      suspend fun getAllMedications(): List<MedicationDB> {
         return dao.getAllMedications()

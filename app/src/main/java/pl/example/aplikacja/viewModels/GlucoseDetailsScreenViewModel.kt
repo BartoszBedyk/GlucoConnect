@@ -1,6 +1,7 @@
 package pl.example.aplikacja.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,4 +75,18 @@ class GlucoseDetailsScreenViewModel(
             result
         }
     }
+
+    suspend fun deleteGlucoseResult(): Boolean {
+        return try {
+            resultApi.deleteResearchResult(RESULT_ID)
+            Log.d("GlucoseDetails", "Glucose result deleted successfully")
+            glucoseResultRepository.deleteResearchResult(RESULT_ID)
+            Log.d("GlucoseDetails", "Glucose result deleted from database")
+            true
+        } catch (e: Exception) {
+            Log.e("GlucoseDetails", "Error deleting glucose result: ${e.message}")
+            false
+        }
+    }
+
 }

@@ -27,6 +27,7 @@ import pl.example.aplikacja.Screens.EditUserDataScreen
 import pl.example.aplikacja.Screens.GlucoseResultScreen
 import pl.example.aplikacja.Screens.LoginScreen
 import pl.example.aplikacja.Screens.BluetoothPermission
+import pl.example.aplikacja.Screens.GlucometerAdminScreen
 import pl.example.aplikacja.Screens.HeartbeatResultScreen
 import pl.example.aplikacja.Screens.MainScreen
 import pl.example.aplikacja.Screens.MedicationResultScreen
@@ -150,11 +151,11 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             }
             composable("glucose_result/{itemId}") { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
-                GlucoseResultScreen(itemId)
+                GlucoseResultScreen(itemId, navController)
             }
             composable("heartbeat_result/{itemId}") { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
-                HeartbeatResultScreen(itemId)
+                HeartbeatResultScreen(itemId, navController)
             }
             composable("registration_screen") {
                 RegistrationScreen(navController)
@@ -195,10 +196,13 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             }
             composable("medication_result/{itemId}") { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
-                MedicationResultScreen(itemId)
+                MedicationResultScreen(itemId, navController)
             }
             composable("add_user_medication_screen") {
                 AddUserMedicationScreen(navController)
+            }
+            composable("glucometer_admin_screen") {
+                GlucometerAdminScreen(bluetoothViewModel, navController)
             }
 
 

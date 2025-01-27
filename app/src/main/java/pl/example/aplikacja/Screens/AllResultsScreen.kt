@@ -80,7 +80,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 Column {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                     Text(
                         text = "Nawiązywanie połączenia...",
                         modifier = Modifier.padding(16.dp),

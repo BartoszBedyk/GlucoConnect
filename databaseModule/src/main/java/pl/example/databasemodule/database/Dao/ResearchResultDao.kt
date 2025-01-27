@@ -13,7 +13,7 @@ interface ResearchResultDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(researchResult: ResearchResultDB)
 
-    @Query("SELECT * FROM research_results WHERE user_id = :userId")
+    @Query("SELECT * FROM research_results WHERE user_id = :userId ORDER BY timestamp DESC")
     suspend fun getResearchResultsForUser(userId: String): List<ResearchResultDB>
 
     @Query("SELECT * FROM research_results WHERE id = :id")

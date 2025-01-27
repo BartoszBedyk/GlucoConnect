@@ -135,20 +135,16 @@ class UserMedicationApiMock : UserMedicationApiInterface {
         )
     }
 
-    override suspend fun readUserMedicationByID(umId: String): UserMedicationResult? {
-        return UserMedicationResult(
-            userId = UUID.randomUUID(),
-            medicationId = UUID.randomUUID(),
-            dosage = "500mg",
-            frequency = "Twice a day",
-            startDate = Date(),
-            endDate = null,
-            notes = "Take after meals",
-            medicationName = "Aspirin",
-            description = "Pain reliever",
-            manufacturer = "Pharma Inc.",
-            form = "Tablet",
-            strength = "500mg"
-        )
+    override suspend fun readUserMedicationByID(umId: String): List<UserMedicationResult>? {
+        return null
+    }
+
+    override suspend fun markAsSynced(userId: String): Boolean {
+        return true
+    }
+
+    override suspend fun getUserMedicationId(id: String, medicationId: String): String?{
+        return null
+
     }
 }

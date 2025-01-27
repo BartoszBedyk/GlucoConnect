@@ -40,17 +40,18 @@ class AddUserMedicationViewModel(context: Context, private val USER_ID: String) 
         Log.d("API", "Adding user medication: $form")
         return try {
             val id = userMedicationApi.createUserMedication(form)
+            Log.d("API", "User medication added with ID: $id")
             if (id != null) {
                 val success = addMedicationToDatabase(removeQuotes(id))
                 if (!success) {
                     Log.e("LOCALY", "Failed to add medication into local database.")
                 }
-                return success
             }
-            saveMedicationLocally(form)
+            true
         } catch (e: Exception) {
             Log.e("API", "Failed to add user medication to API, saving locally: ${e.message}", e)
-            true
+            saveMedicationLocally(form)
+            false
         }
     }
 
@@ -59,7 +60,7 @@ class AddUserMedicationViewModel(context: Context, private val USER_ID: String) 
             val medicationResult = userMedicationApi.readUserMedicationByID(id)
             Log.d("LOCALY", "Fetched user medication: $medicationResult")
             if (medicationResult != null) {
-                val converted = convertMedicationResultToMedicationDB(medicationResult)
+                val converted = convertMedicationResultToMedicationDB(medicationResult.first())
                 userMedicationRepository.insert(converted)
                 return true
             }

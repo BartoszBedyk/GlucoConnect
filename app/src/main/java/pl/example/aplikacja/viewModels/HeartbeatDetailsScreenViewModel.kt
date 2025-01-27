@@ -1,6 +1,7 @@
 package pl.example.aplikacja.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,11 +39,28 @@ class HeartbeatDetailsScreenViewModel(
                 val result = heartbeatAPi.getHeartBeat(RESULT_ID)
                 _heartbeatResult.value = result
             } catch (e: Exception) {
+                Log.e("GlucoseDetails", "podejmie pobranie z bazy")
                 val result = heartbeatResultRepository.getHeartbeatResultById(RESULT_ID)
+                Log.e("GlucoseDetails", "podejmie pobranie z bazy ${result?.systolicPressure}")
                 _heartbeatResult.value = result?.let { convertHeartBeatDBtoHeartbeatResult(it) }
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    suspend fun deleteHeartbeatResult(): Boolean {
+        var deleted: Boolean = false
+        viewModelScope.launch {
+            try {
+                heartbeatAPi.deleteHeartbeat(RESULT_ID)
+                heartbeatResultRepository.deleteHeartbeatResult(RESULT_ID)
+                deleted = true
+            } catch (e: Exception) {
+                Log.e("GlucoseDetails", "Error deleting glucose result: ${e.message}")
+                deleted = false
+            }
+        }
+        return deleted
     }
 }

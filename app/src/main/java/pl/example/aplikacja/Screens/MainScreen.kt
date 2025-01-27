@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -59,6 +61,7 @@ fun MainScreen(navController: NavController) {
     val glucoseItems by viewModel.threeGlucoseItems.collectAsState()
     val heartbeatItems by viewModel.heartbeatItems.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
             Box(
@@ -66,7 +69,7 @@ fun MainScreen(navController: NavController) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 Column {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                     Text(
                         text = "Nawiązywanie połączenia...",
                         modifier = Modifier.padding(16.dp),
@@ -75,58 +78,35 @@ fun MainScreen(navController: NavController) {
                 }
             }
         } else {
-            Column(Modifier.padding(bottom = 16.dp).align(Alignment.TopCenter)) {
-                if(glucoseItems.isNotEmpty()) {
-                    GlucoseChart(glucoseItems.asReversed())
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(bottom = 0.dp)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (glucoseItems.isEmpty()) {
-                            item {
-                                Text(
-                                    text = "Brak danych do wyświetlenia.",
-                                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                                    color = androidx.compose.ui.graphics.Color.Gray
-                                )
-                            }
-                        } else {
-                            items(glucoseItems) { item ->
-                                ItemView(item) { itemId ->
-                                    navController.navigate("glucose_result/$itemId")
-                                }
-                            }
-                        }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                if (glucoseItems.isNotEmpty()) {
+                    item {
+                        GlucoseChart(glucoseItems.reversed())
                     }
-                }
-                if(heartbeatItems.isNotEmpty()) {
-                    HeartbeatChart(heartbeatItems.asReversed())
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(bottom = 0.dp)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (heartbeatItems.isEmpty()) {
-                            item {
-                                Text(
-                                    text = "Brak danych do wyświetlenia.",
-                                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                                    color = androidx.compose.ui.graphics.Color.Gray
-                                )
-                            }
-                        } else {
-                            items(glucoseItems) { item ->
-                                ItemView(item) { itemId ->
-                                    navController.navigate("heartbeat_result/$itemId")
-                                }
-                            }
+                    items(glucoseItems) { item ->
+                        ItemView(item) { itemId ->
+                            navController.navigate("glucose_result/$itemId")
                         }
                     }
                 }
 
+
+                if (heartbeatItems.isNotEmpty()) {
+                    item {
+                        HeartbeatChart(heartbeatItems.reversed())
+                    }
+                    items(heartbeatItems) { item ->
+                        ItemView(item) { itemId ->
+                            navController.navigate("heartbeat_result/$itemId")
+                        }
+                    }
+                }
             }
         }
         ExpandableFloatingActionButton(navController)

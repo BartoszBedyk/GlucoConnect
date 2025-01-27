@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,19 +31,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.auth0.jwt.JWT
+import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.viewModels.LoginScreenViewModel
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
+import java.util.Date
 
 @Composable
 fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostController) {
     val context = LocalContext.current
-
-    if (getToken(context) != null) {
-        navController.navigate("main_screen")
-    }
 
     val coroutineScope = rememberCoroutineScope()
     val apiProvider = ApiProvider(context)
@@ -52,6 +53,29 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     var loginError by remember { mutableStateOf("") }
     var blocked by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        val currentToken = getToken(context)
+        if (currentToken != null) {
+            val decoded: DecodedJWT = JWT.decode(currentToken)
+            val expiration = decoded.expiresAt
+            val now = Date()
+
+            if (expiration != null && now.before(expiration)) {
+                // Token jest ważny
+                navController.navigate("main_screen")
+                println("Token jest ważny")
+            } else {
+                //navController.navigate("main_screen")
+                val refreshedToken = viewModel.refreshToken(context)
+                if (refreshedToken != null) {
+                    navController.navigate("main_screen")
+                    println("Token odświeżony")
+                } else {
+                    println("Token wygasł i nie można go odświeżyć")
+                }
+            }
+        }
+    }
 
     Box(Modifier
         .fillMaxSize())
@@ -59,7 +83,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         Text(text = "Zaloguj się", modifier = Modifier
             .align(Alignment.TopCenter)
             .padding(bottom = 16.dp, top = 100.dp),
-            color = androidx.compose.ui.graphics.Color.White,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 32.sp
             )
     }
@@ -118,7 +142,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         if (loginError.isNotEmpty()) {
             Text(
                 text = loginError,
-                color = androidx.compose.ui.graphics.Color.Red,
+                color = MaterialTheme.colorScheme.error,
                 fontSize = 16.sp,
                 overflow = TextOverflow.Clip,
                 maxLines = 2,

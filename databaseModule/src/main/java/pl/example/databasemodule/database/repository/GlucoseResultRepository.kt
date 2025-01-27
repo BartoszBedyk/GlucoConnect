@@ -18,7 +18,7 @@ class GlucoseResultRepository(context: Context)  {
         dao.insert(researchResult)
     }
 
-    suspend fun getResearchResultsForUser(userId: String): List<ResearchResultDB> {
+    suspend fun getAllGlucoseResultsByUserId(userId: String): List<ResearchResultDB> {
         return dao.getResearchResultsForUser(userId)
     }
 
@@ -44,13 +44,12 @@ class GlucoseResultRepository(context: Context)  {
     }
 
     suspend fun insertAllResults(results: List<ResearchResult>) {
-
         val dbResults = results.map { result ->
             ResearchResultDB(
                 id = result.id,
                 sequenceNumber = result.sequenceNumber,
                 glucoseConcentration = result.glucoseConcentration,
-                unit = GlucoseUnitTypeDB.valueOf(result.unit.name),
+                unit = stringUnitDBParser(result.unit.toString()),
                 timestamp = result.timestamp,
                 userId = result.userId,
                 deletedOn = result.deletedOn,
@@ -58,8 +57,18 @@ class GlucoseResultRepository(context: Context)  {
                 isSynced = true
             )
         }
-
         dao.insertAll(dbResults)
+    }
+
+    fun stringUnitDBParser(string: String?): GlucoseUnitTypeDB {
+        return when (string) {
+            "mg/dL" -> GlucoseUnitTypeDB.MG_PER_DL
+            "mmol/l" -> GlucoseUnitTypeDB.MMOL_PER_L
+            "MG_PER_DL" -> GlucoseUnitTypeDB.MG_PER_DL
+            "MMOL_PER_L" -> GlucoseUnitTypeDB.MMOL_PER_L
+            else -> GlucoseUnitTypeDB.MG_PER_DL
+        }
+
     }
 
 

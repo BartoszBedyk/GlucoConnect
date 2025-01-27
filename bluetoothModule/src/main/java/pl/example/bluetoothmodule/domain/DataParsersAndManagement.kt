@@ -23,7 +23,7 @@ fun parseClockTimeResponse(response: ByteArray): String {
     val hour = response[5].toInt() and 0x1F
 
     Log.d("Parsuje", "%02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute))
-    return "%02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute)
+    return "Date: %02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute)
 }
 
 fun parseMeasurementTimeToDate(frame: ByteArray): String? {
@@ -102,10 +102,28 @@ fun parseTurnOffDeviceResponse(response: ByteArray): String {
 }
 
 fun parseClearMemoryResponse(response: ByteArray): String {
-    if (response.size != 8 || response[1].toInt() != 0x52) {
-        throw IllegalArgumentException("Invalid frame or command for clear memory response.")
+    if (response.size != 8) {
+        throw IllegalArgumentException("Nieprawidłowa długość odpowiedzi: ${response.size} bajtów. Oczekiwano 8 bajtów.")
     }
-    return "Memory cleared successfully."
+
+    val cmd = response[0]
+    if (cmd != 0x52.toByte()) {
+        throw IllegalArgumentException("Nieprawidłowy CMD: 0x%02X. Oczekiwano 0x52.".format(cmd))
+    }
+
+    val ack = response[1]
+    if (ack != 0x52.toByte()) {
+        throw IllegalArgumentException("Nieprawidłowy ACK: 0x%02X. Oczekiwano 0x52.".format(ack))
+    }
+
+    val data0 = response[2]
+    val data1 = response[3]
+    val data2 = response[4]
+    val data3 = response[5]
+    if (data0 != 0x00.toByte() || data1 != 0x00.toByte() || data2 != 0x00.toByte() || data3 != 0x00.toByte()) {
+        throw IllegalArgumentException("Nieprawidłowe dane: oczekiwano zer w polach DATA_0, DATA_1, DATA_2, DATA_3.")
+    }
+    return true.toString()
 }
 
 fun parseCommunicationModeNotification(response: ByteArray): String {
@@ -114,8 +132,6 @@ fun parseCommunicationModeNotification(response: ByteArray): String {
     }
     return "Device entered communication mode."
 }
-
-
 
 
 fun responseManagement(frame: ByteArray): String {

@@ -3,6 +3,7 @@
 package pl.example.aplikacja.Screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,11 +27,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,11 +44,9 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.formatDateTimeWithoutLocale
-import pl.example.aplikacja.formatUnit
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.util.Calendar
@@ -78,8 +77,8 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
     )
 
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel =
-        AddGlucoseResultViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))
+    val viewModel = remember { AddGlucoseResultViewModel(context, removeQuotes(decoded.getClaim("userId").toString())) }
+
 
     val prefUnit by viewModel.prefUnit.collectAsState()
 
@@ -118,7 +117,6 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
             fontSize = 15.sp
         )
 
-        // Poprawne przypisanie wartości do menu
         unitState?.let {
             GlucoseUnitDropdownMenu(
                 selectedUnit = it,
@@ -127,13 +125,16 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
             )
         }
 
-        Checkbox(checked = checked, onCheckedChange = { state ->
-            if (state) {
-                openDialogDate = true
-                openDateTimePicker = true
-            }
-            checked = state
-        })
+        Row(verticalAlignment = CenterVertically) {
+            Text(text = "Data pomiaru")
+            Checkbox(checked = checked, onCheckedChange = { state ->
+                if (state) {
+                    openDialogDate = true
+                    openDateTimePicker = true
+                }
+                checked = state
+            })
+        }
 
         if (checked) {
             TextRowEdit(
@@ -200,9 +201,14 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
             }
         }
 
-        FloatingActionButton(onClick = {
-            navController.navigate("bluetooth_permission_screen")
-        }) {
+        FloatingActionButton(
+            onClick = {
+                navController.navigate("bluetooth_permission_screen")
+            },
+            modifier = Modifier
+                .padding(16.dp)
+                .align(androidx.compose.ui.Alignment.CenterHorizontally)
+        ) {
             Text(text = "Użyj glukometru")
         }
 
@@ -210,7 +216,11 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
             coroutineScope.launch {
                 if (viewModel.addGlucoseResult(
                         ResearchResultCreate(
-                            userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
+                            userId = UUID.fromString(
+                                removeQuotes(
+                                    decoded.getClaim("userId").toString()
+                                )
+                            ),
                             sequenceNumber = 1,
                             glucoseConcentration = glucoseConcentrationState.value.toDoubleOrNull()
                                 ?: 0.0,

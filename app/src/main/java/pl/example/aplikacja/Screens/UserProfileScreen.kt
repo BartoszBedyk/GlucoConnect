@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -109,7 +110,7 @@ fun UserProfileScreen(navController: NavController) {
         }
     } else {
         Box(Modifier.fillMaxSize()) {
-            Column {
+            Column(Modifier.align(Alignment.Center).padding(bottom = 32.dp)) {
                 Text(
                     text = "Dane użytkownika",
                     modifier = Modifier
@@ -143,7 +144,7 @@ fun UserProfileScreen(navController: NavController) {
             }
 
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("bluetooth_permission_screen") },
+                onClick = { navController.navigate("glucometer_admin_screen") },
                 icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
                 text = { Text(text = "Bluetooth") },
                 modifier = Modifier
