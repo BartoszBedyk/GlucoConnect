@@ -17,6 +17,7 @@ import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.apiMethods.ApiProvider
 
 class MainScreenViewModel(context: Context, private val USER_ID: String) :
@@ -36,6 +37,9 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) :
     private val _threeGlucoseItems = MutableStateFlow<List<ResearchResult>>(emptyList())
     val threeGlucoseItems: StateFlow<List<ResearchResult>> = _threeGlucoseItems
 
+    private val _userType = MutableStateFlow<UserType>(UserType.PATIENT)
+    val userType: StateFlow<UserType> = _userType
+
     private val _heartbeatItems = MutableStateFlow<List<HeartbeatResult>>(emptyList())
     val heartbeatItems: StateFlow<List<HeartbeatResult>> = _heartbeatItems
 
@@ -43,6 +47,7 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) :
     val prefUnit: StateFlow<GlucoseUnitType> = _prefUnit
 
     init {
+        getUserType()
         fetchItemsAsync()
     }
 
@@ -81,6 +86,14 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) :
             }
         }
     }
+
+    fun getUserType(){
+        viewModelScope.launch {
+            _userType.value = userApi.getUserById(USER_ID)?.type ?: UserType.PATIENT
+        }
+    }
+
+
 
 
 }

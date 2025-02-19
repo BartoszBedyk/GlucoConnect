@@ -3,7 +3,6 @@ package pl.example.bluetoothmodule.domain
 import android.util.Log
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import java.util.Calendar
-import java.util.Date
 
 
 fun parseDeviceModelResponse(response: ByteArray): String {

@@ -58,7 +58,8 @@ fun DeviceScreen(
     onDownloadTime: suspend () -> String,
     bluetoothViewModel: pl.example.bluetoothmodule.presentation.BluetoothViewModel,
     title: String,
-    navController: NavHostController
+    navController: NavHostController,
+    destination: String?
 ) {
     val coroutineScope = rememberCoroutineScope()
     val measurementResult = remember { mutableStateOf("") }
@@ -80,11 +81,12 @@ fun DeviceScreen(
         ) {
             Column {
                 Text(text = "Aplikacja nie posiada uprawnień do podłączenia urządzeń Bluetooth")
-                Button(onClick = { openAppSettings(context) }) {
+                Button(onClick = { openAppSettings(context) }, modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)) {
                     Text(text = "Nadaj uprawnienia")
                 }
             }
         } else {
+
             Column {
                 Text(
                     text = title,
@@ -112,7 +114,7 @@ fun DeviceScreen(
                         Text(text = "Stop scan")
                     }
                 }
-
+                if(destination == "addResult"){
                 Box {
                     ElevatedButton(
                         onClick = {
@@ -131,32 +133,37 @@ fun DeviceScreen(
                         Text(text = "Pobierz pomiar")
                     }
                 }
-
-                if (measurmentData.isNotBlank()) {
-                    TextButton(onClick = {
-                        coroutineScope.launch {
-                            val parsedData = parseMeasurement(measurmentData)
-                            if (parsedData != null) {
-                                if (viewModel.addGlucoseResult(
-                                        ResearchResultCreate(
-                                            userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
-                                            sequenceNumber = 1,
-                                            glucoseConcentration = parsedData.result,
-                                            unit = parsedData.unit,
-                                            timestamp = parsedData.date
+                    if (measurmentData.isNotBlank() ) {
+                        TextButton(onClick = {
+                            coroutineScope.launch {
+                                val parsedData = parseMeasurement(measurmentData)
+                                if (parsedData != null) {
+                                    if (viewModel.addGlucoseResult(
+                                            ResearchResultCreate(
+                                                userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
+                                                sequenceNumber = 1,
+                                                glucoseConcentration = parsedData.result,
+                                                unit = parsedData.unit,
+                                                timestamp = parsedData.date
+                                            )
                                         )
-                                    )
-                                ) {
-                                    navController.navigate("main_screen")
-                                } else {
-
+                                    ) {
+                                        navController.navigate("main_screen")
+                                    } else {
+//
+                                    }
                                 }
                             }
+                        }) {
+                            Text(text = "Dodaj pomiar")
                         }
-                    }) {
-                        Text(text = "Dodaj pomiar")
                     }
+                }else if (destination == "glucometer"){
+                    GlucometerAdminScreen(bluetoothViewModel, navController)
                 }
+
+
+
             }
         }
     }

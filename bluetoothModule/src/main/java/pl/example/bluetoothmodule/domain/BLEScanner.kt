@@ -71,7 +71,7 @@ class BLEScanner(private val context: Context) {
 
     }
 
-
+    @SuppressLint("MissingPermission")
     fun startScan() {
         if (ActivityCompat.checkSelfPermission(
                 context,

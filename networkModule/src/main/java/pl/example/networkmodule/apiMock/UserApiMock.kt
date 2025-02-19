@@ -79,7 +79,7 @@ class UserApiMock : UserApiInterface {
             lastName = "Paweł",
             email = "lala@wp.pl",
             password = "5435654",
-            type = UserType.PATIENT,
+            type = UserType.OBSERVER,
             isBlocked = false,
             prefUint = GlucoseUnitType.MMOL_PER_L
         )
@@ -117,5 +117,10 @@ class UserApiMock : UserApiInterface {
 
     override suspend fun getUserUnitById(id: String): GlucoseUnitType? {
         return mockUsers.find { it.id.toString() == id }?.prefUint ?: GlucoseUnitType.MG_PER_DL
+    }
+
+    override suspend fun getAllUsers(): List<UserResult>?{
+        return null
+
     }
 }

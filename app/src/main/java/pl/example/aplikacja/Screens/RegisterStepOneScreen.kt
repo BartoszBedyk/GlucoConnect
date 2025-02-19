@@ -1,6 +1,7 @@
 package pl.example.aplikacja.Screens
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +50,7 @@ fun RegistrationScreen(navController: NavHostController){
         Text(text = "Zarejestruj się", modifier = Modifier
             .align(Alignment.TopCenter)
             .padding(bottom = 16.dp, top = 100.dp),
-            color = androidx.compose.ui.graphics.Color.White,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 32.sp
         )
     }
@@ -86,6 +89,13 @@ fun RegistrationScreen(navController: NavHostController){
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.padding(vertical = 8.dp)
         )
+
+            Text(text = "Rejestrując się wyrażasz zgodę na umowę licencyjną", modifier = Modifier.padding(vertical = 8.dp)
+                .clickable {
+                    navController.navigate("licence_screen/licencyjna")
+                }
+            )
+
 
         Button(
             onClick = {

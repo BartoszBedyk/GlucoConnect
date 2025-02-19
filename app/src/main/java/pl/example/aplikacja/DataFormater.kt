@@ -9,6 +9,7 @@ import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.math.RoundingMode
@@ -214,6 +215,21 @@ fun convertHeartbeatResultToHeartBeatDB(researchResultDB: List<HeartbeatResult>)
         )
     }
 }
+
+fun toUserType(userType: String): UserType{
+    return when (userType) {
+        "ADMIN" -> UserType.ADMIN
+        "PATIENT" -> UserType.PATIENT
+        "DOCTOR" -> UserType.DOCTOR
+        "OBSERVER" -> UserType.OBSERVER
+
+        else -> {
+            UserType.PATIENT
+        }
+    }
+}
+
+
 
 fun parseMeasurement(input: String): Measurement? {
     val parts = input.split(",").map { it.trim() }

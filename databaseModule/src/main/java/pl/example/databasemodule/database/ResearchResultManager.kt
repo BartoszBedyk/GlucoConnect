@@ -10,19 +10,19 @@ import pl.example.databasemodule.database.migration.MIGRATION_5_6
 
 object ResearchResultManager {
     @Volatile
-    private var db: ResearchResultDatabase? = null
+    private var db: GlucoConnectMobileBase? = null
 
-    fun getDatabase(context: Context): ResearchResultDatabase {
+    fun getDatabase(context: Context): GlucoConnectMobileBase {
 
         return db ?: synchronized(this) {
             db ?: buildDatabase(context).also { db = it }
         }
     }
 
-    private fun buildDatabase(context: Context): ResearchResultDatabase {
+    private fun buildDatabase(context: Context): GlucoConnectMobileBase {
         return Room.databaseBuilder(
             context.applicationContext,
-            ResearchResultDatabase::class.java,
+            GlucoConnectMobileBase::class.java,
             "research_results_database"
         )
             .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)

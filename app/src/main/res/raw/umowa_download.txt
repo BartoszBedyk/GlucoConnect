@@ -1,0 +1,27 @@
+LICENCJA NA WYKORZYSTANIE DANYCH Z APLIKACJI GLUCOMAXXCONNECT
+
+1. Podmiot udzielający licencji:
+   Bartosz Bedyk, autor aplikacji GlucoMaxxConnect.
+
+2. Zakres licencji:
+   Niniejsza licencja zezwala na wykorzystanie danych z bazy aplikacji GlucoMaxxConnect w celach naukowych, badawczych, analitycznych oraz statystycznych.
+
+3. Warunki wykorzystania danych:
+   a) Dane mogą być wykorzystywane wyłącznie w ramach prac naukowych, analiz i badań.
+   b) Każda praca naukowa, publikacja lub analiza wykorzystująca dane z aplikacji GlucoMaxxConnect musi zawierać odpowiednie oznaczenie, że dane zostały pobrane z bazy danych aplikacji GlucoMaxxConnect.
+   c) Oznaczenie powinno zawierać co najmniej:
+      - Nazwę aplikacji: GlucoMaxxConnect,
+      - Imię i nazwisko autora: Bartosz Bedyk,
+      - Rok pozyskania danych.
+
+4. Ograniczenia:
+   a) Zabrania się udostępniania danych osobom trzecim w celach komercyjnych.
+   b) Zabrania się modyfikowania danych w sposób naruszający integralność informacji.
+
+5. Postanowienia końcowe:
+   a) Naruszenie warunków licencji może skutkować cofnięciem zezwolenia na wykorzystywanie danych.
+   b) Wszelkie spory wynikające z niniejszej licencji będą rozstrzygane zgodnie z przepisami prawa polskiego.
+
+Bartosz Bedyk,
+Autor aplikacji GlucoMaxxConnect
+

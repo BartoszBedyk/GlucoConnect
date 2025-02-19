@@ -22,6 +22,8 @@ import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.Screens.AddGlucoseResultScreen
 import pl.example.aplikacja.Screens.AddHeartbeatResultScreen
 import pl.example.aplikacja.Screens.AddUserMedicationScreen
+import pl.example.aplikacja.Screens.AdministrationMainScreen
+import pl.example.aplikacja.Screens.AllResultsDownload
 import pl.example.aplikacja.Screens.AllResultsScreen
 import pl.example.aplikacja.Screens.EditUserDataScreen
 import pl.example.aplikacja.Screens.GlucoseResultScreen
@@ -29,6 +31,7 @@ import pl.example.aplikacja.Screens.LoginScreen
 import pl.example.aplikacja.Screens.BluetoothPermission
 import pl.example.aplikacja.Screens.GlucometerAdminScreen
 import pl.example.aplikacja.Screens.HeartbeatResultScreen
+import pl.example.aplikacja.Screens.LicenceScreen
 import pl.example.aplikacja.Screens.MainScreen
 import pl.example.aplikacja.Screens.MedicationResultScreen
 import pl.example.aplikacja.Screens.RegisterStepTwoScreen
@@ -101,7 +104,8 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
                 bluetoothViewModel,
                 navBarViewModel,
                 onDeviceConnected = {},
-                navController
+                navController,
+                destination = "bluetooth"
             )
         }
     }
@@ -116,7 +120,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
 
 
     val showBottomBar = when (currentDestination) {
-        "login_screen", "registration_screen", "register_step_two_screen/{userId}", "register_step_two_screen" -> false
+        "login_screen", "registration_screen", "register_step_two_screen/{userId}", "register_step_two_screen", "download_results", "licence_screen" -> false
         else -> true
     }
 
@@ -138,12 +142,15 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("user_profile_screen") {
                 UserProfileScreen(navController)
             }
-            composable("bluetooth_permission_screen") {
+            composable("bluetooth_permission_screen/{destination}")
+            { backStackEntry ->
+                val destination = backStackEntry.arguments?.getString("destination") ?: ""
                 BluetoothPermission(
                     bluetoothViewModel,
                     navBarViewModel,
                     onDeviceConnected = {},
-                    navController
+                    navController,
+                    destination = destination
                 )
             }
             composable("login_screen") {
@@ -162,12 +169,12 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             }
             composable("register_step_two_screen/{userId}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
-                RegisterStepTwoScreen( navController, userId)
+                RegisterStepTwoScreen(navController, userId)
             }
-            composable("user_profile_screen"){
+            composable("user_profile_screen") {
                 UserProfileScreen(navController)
             }
-            composable("edit_user_data_screen"){
+            composable("edit_user_data_screen") {
                 EditUserDataScreen(navController)
             }
             composable("all_results_screen") {
@@ -203,6 +210,16 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             }
             composable("glucometer_admin_screen") {
                 GlucometerAdminScreen(bluetoothViewModel, navController)
+            }
+            composable("licence_screen/{typUmowy}") { backStackEntry ->
+                val typUmowy = backStackEntry.arguments?.getString("typUmowy") ?: ""
+                LicenceScreen(typUmowy)
+            }
+            composable("download_results") {
+                AllResultsDownload(navController)
+            }
+            composable("admin_main_screen") {
+                AdministrationMainScreen(navController)
             }
 
 

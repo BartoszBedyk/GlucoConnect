@@ -37,7 +37,9 @@ import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.viewModels.LoginScreenViewModel
 import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.clearToken
 import pl.example.networkmodule.getToken
+import pl.example.networkmodule.saveToken
 import java.util.Date
 
 @Composable
@@ -46,7 +48,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
 
     val coroutineScope = rememberCoroutineScope()
     val apiProvider = ApiProvider(context)
-    val viewModel = LoginScreenViewModel(apiProvider)
+    val viewModel =  LoginScreenViewModel(apiProvider)
 
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -54,6 +56,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     var blocked by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
         val currentToken = getToken(context)
         if (currentToken != null) {
             val decoded: DecodedJWT = JWT.decode(currentToken)
@@ -61,19 +64,30 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
             val now = Date()
 
             if (expiration != null && now.before(expiration)) {
-                // Token jest ważny
                 navController.navigate("main_screen")
                 println("Token jest ważny")
+                saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+
             } else {
-                //navController.navigate("main_screen")
+                navController.navigate("main_screen")
                 val refreshedToken = viewModel.refreshToken(context)
                 if (refreshedToken != null) {
-                    navController.navigate("main_screen")
+
                     println("Token odświeżony")
+                    //clearToken(context)
+                    //saveToken(context, refreshedToken)
+                    saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+                    navController.navigate("main_screen")
+
                 } else {
                     println("Token wygasł i nie można go odświeżyć")
+                    saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+                    //clearToken(context)
+                    navController.navigate("main_screen")
                 }
             }
+            saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+            navController.navigate("main_screen")
         }
     }
 

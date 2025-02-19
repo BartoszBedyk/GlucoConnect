@@ -1,0 +1,28 @@
+UMOWA LICENCYJNA UŻYTKOWNIKA KOŃCOWEGO (EULA)
+
+1. POSTANOWIENIA OGÓLNE
+   1.1. Niniejsza Umowa Licencyjna Użytkownika Końcowego ("Umowa") jest prawnym porozumieniem pomiędzy Tobą ("Użytkownik") a Bartosz Bedyk, autorem aplikacji GlucoMaxxConnect ("Aplikacja").
+   1.2. Korzystając z Aplikacji, Użytkownik akceptuje warunki niniejszej Umowy.
+
+2. LICENCJA
+   2.1. Autor udziela Użytkownikowi niewyłącznej, niezbywalnej licencji na korzystanie z Aplikacji zgodnie z jej przeznaczeniem.
+   2.2. Zabrania się modyfikowania, dekompilowania, sprzedawania lub rozpowszechniania Aplikacji bez pisemnej zgody Autora.
+
+3. PRZETWARZANIE DANYCH OSOBOWYCH
+   3.4. Użytkownik, rejestrując się do serwisu GlucoMaxxConnect, wyraża zgodę na analizę i udostępnianie zanonimizowanych danych medycznych w celach badawczych, statystycznych oraz rozwoju Aplikacji, zgodnie z RODO i polskim prawem.
+   3.1. Aplikacja przetwarza dane medyczne (poziom glukozy, ciśnienie tętnicze, leki pacjenta) oraz dane personalne Użytkownika.
+   3.2. Dane przetwarzane są zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO) oraz polską ustawą o ochronie danych osobowych.
+   3.3. Szczegóły dotyczące przetwarzania danych zawarte są w Polityce Prywatności.
+
+4. OBOWIĄZKI UŻYTKOWNIKA
+   4.1. Użytkownik zobowiązuje się do podawania prawdziwych danych oraz zabezpieczenia dostępu do Aplikacji.
+
+5. ODPOWIEDZIALNOŚĆ
+   5.1. Autor nie ponosi odpowiedzialności za szkody wynikające z nieprawidłowego użytkowania Aplikacji.
+   5.2. Aplikacja ma charakter informacyjny i nie zastępuje konsultacji medycznej.
+
+6. POSTANOWIENIA KOŃCOWE
+   6.1. Niniejsza Umowa podlega prawu Rzeczpospolitej Polskiej i prawu Unii Europejskiej.
+   6.2. Wszelkie spory rozstrzygane będą przez sąd w Polsce właściwy dla siedziby Bartosz Bedyk.
+
+

@@ -21,7 +21,7 @@ import pl.example.databasemodule.database.data.UserMedicationDB
     exportSchema = false
 )
 @TypeConverters(Converters::class)
-abstract class ResearchResultDatabase : RoomDatabase() {
+abstract class GlucoConnectMobileBase : RoomDatabase() {
     abstract val researchResultDao: ResearchResultDao
     abstract val heartbeatResultDao: HeartbeatDao
     abstract val userMedicationDao: UserMedicationDao

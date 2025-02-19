@@ -203,7 +203,7 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
 
         FloatingActionButton(
             onClick = {
-                navController.navigate("bluetooth_permission_screen")
+                navController.navigate("bluetooth_permission_screen/addResult")
             },
             modifier = Modifier
                 .padding(16.dp)

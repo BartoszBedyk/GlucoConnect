@@ -43,7 +43,8 @@ fun BluetoothPermission(
     bluetoothViewModel: BluetoothViewModel,
     navBarViewModel: BottomNavBarViewModel,
     onDeviceConnected: (BluetoothDevice) -> Unit = {},
-    navController: NavHostController
+    navController: NavHostController,
+    destination: String?
 ) {
     val context = LocalContext.current
     val bleScanner = remember { BLEScanner(context) }
@@ -131,7 +132,8 @@ fun BluetoothPermission(
                 },
                 bluetoothViewModel = bluetoothViewModel,
                 title = "Podłącz się z glukometrem",
-                navController = navController
+                navController = navController,
+                destination = destination
             )
         }
     }

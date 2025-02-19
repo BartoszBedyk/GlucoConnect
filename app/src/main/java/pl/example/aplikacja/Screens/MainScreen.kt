@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -46,6 +44,8 @@ import pl.example.aplikacja.UiElements.GlucoseChart
 import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
 import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.toUserType
+import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.getToken
 
 @Composable
@@ -58,9 +58,18 @@ fun MainScreen(navController: NavController) {
             removeQuotes(decoded.getClaim("userId").toString())
         )
     }
+        when(toUserType(decoded.getClaim("userType").toString())){
+            UserType.PATIENT -> return
+            UserType.DOCTOR -> return
+            UserType.ADMIN -> navController.navigate("admin_main_screen")
+            UserType.OBSERVER -> navController.navigate("download_results")
+        }
+
     val glucoseItems by viewModel.threeGlucoseItems.collectAsState()
     val heartbeatItems by viewModel.heartbeatItems.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
@@ -78,40 +87,41 @@ fun MainScreen(navController: NavController) {
                 }
             }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
 
-                if (glucoseItems.isNotEmpty()) {
-                    item {
-                        GlucoseChart(glucoseItems.reversed())
-                    }
-                    items(glucoseItems) { item ->
-                        ItemView(item) { itemId ->
-                            navController.navigate("glucose_result/$itemId")
+                    if (glucoseItems.isNotEmpty()) {
+                        item {
+                            GlucoseChart(glucoseItems.reversed())
+                        }
+                        items(glucoseItems) { item ->
+                            ItemView(item) { itemId ->
+                                navController.navigate("glucose_result/$itemId")
+                            }
                         }
                     }
-                }
 
 
-                if (heartbeatItems.isNotEmpty()) {
-                    item {
-                        HeartbeatChart(heartbeatItems.reversed())
-                    }
-                    items(heartbeatItems) { item ->
-                        ItemView(item) { itemId ->
-                            navController.navigate("heartbeat_result/$itemId")
+                    if (heartbeatItems.isNotEmpty()) {
+                        item {
+                            HeartbeatChart(heartbeatItems.reversed())
+                        }
+                        items(heartbeatItems) { item ->
+                            ItemView(item) { itemId ->
+                                navController.navigate("heartbeat_result/$itemId")
+                            }
                         }
                     }
                 }
             }
+            ExpandableFloatingActionButton(navController)
         }
-        ExpandableFloatingActionButton(navController)
     }
-}
+
 
 
 @Composable

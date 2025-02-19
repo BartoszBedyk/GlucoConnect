@@ -37,10 +37,6 @@ import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.BluetoothDeviceDomain
 import pl.example.bluetoothmodule.domain.ConnectionResult
-import pl.example.bluetoothmodule.domain.MyBleManager.Companion.CHARACTERISTIC_UUID
-import pl.example.bluetoothmodule.domain.parseMeasurementTimeToDate
-import pl.example.bluetoothmodule.domain.responseManagement
-import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 import java.io.IOException
 import java.util.UUID
 import android.bluetooth.BluetoothDevice as AndroidBluetoothDevice
@@ -52,10 +48,10 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     private val bluetoothManager by lazy {
         context.getSystemService(BluetoothManager::class.java)
     }
-
     private val bluetoothAdapter by lazy {
         bluetoothManager?.adapter
     }
+
     private val _isConnected = MutableStateFlow(false)
     override val isConnected: StateFlow<Boolean>
         get() = _isConnected.asStateFlow()
@@ -369,10 +365,10 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                         val receivedData = characteristic?.value
                         if (receivedData != null && receivedData.isNotEmpty()) {
                             synchronized(receivedDataList) {
-                                receivedDataList.add(receivedData) // Dodanie do listy
+                                receivedDataList.add(receivedData)
                             }
                             CoroutineScope(Dispatchers.IO).launch {
-                                _receivedDataFlow.emit(receivedData) // Emitowanie do Flow
+                                _receivedDataFlow.emit(receivedData)
                             }
                         }
                     }

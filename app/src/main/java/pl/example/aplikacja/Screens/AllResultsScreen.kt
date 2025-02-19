@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
+import pl.example.aplikacja.UiElements.GlucoseChart
+import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AllResultsScreenViewModel
@@ -118,6 +120,11 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                         userScrollEnabled = true,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        if (glucoseResults.isNotEmpty()) {
+                            item {
+                                GlucoseChart(glucoseResults.reversed().take(14))
+                            }
+                        }
                         items(glucoseResults) { item ->
                             Row(Modifier.animateItem()) {
                                 ItemView(item) { itemId ->
@@ -133,6 +140,12 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                             .weight(1f),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+
+                        if (heartbeatResult.isNotEmpty()) {
+                            item {
+                                HeartbeatChart(heartbeatResult.reversed().take(14))
+                            }
+                        }
                         items(heartbeatResult) { item ->
                             Row(Modifier.animateItem()) {
                                 ItemView(item) { itemId ->
