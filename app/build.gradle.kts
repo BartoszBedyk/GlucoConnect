@@ -77,9 +77,13 @@ dependencies {
     implementation(libs.ble)
     implementation(project(":bluetoothModule"))
     implementation(project(":networkModule"))
+    implementation(project(":databaseModule"))
 
     implementation(libs.material3)
     implementation (libs.ehsannarmani.compose.charts)
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation(libs.kotlinx.serialization.json)
+
 
 
     implementation(libs.hilt.android.v2511)

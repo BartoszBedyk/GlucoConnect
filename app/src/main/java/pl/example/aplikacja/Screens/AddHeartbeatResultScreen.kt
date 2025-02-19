@@ -68,10 +68,11 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = true,
     )
-    val apiProvider = remember { ApiProvider(context) }
+
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel =
-        AddHeartbeatViewModel(apiProvider)
+    val viewModel = remember {
+        AddHeartbeatViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))
+    }
 
     val timestampFull by remember {
         derivedStateOf {

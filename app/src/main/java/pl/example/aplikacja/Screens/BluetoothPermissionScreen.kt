@@ -11,8 +11,10 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,8 +27,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.bluetoothmodule.domain.BLEScanner
 import pl.example.bluetoothmodule.domain.MyBleManager
@@ -38,12 +43,19 @@ fun BluetoothPermission(
     bluetoothViewModel: BluetoothViewModel,
     navBarViewModel: BottomNavBarViewModel,
     onDeviceConnected: (BluetoothDevice) -> Unit = {},
-    navController: NavHostController
+    navController: NavHostController,
+    destination: String?
 ) {
     val context = LocalContext.current
     val bleScanner = remember { BLEScanner(context) }
     var isScanning by remember { mutableStateOf(false) }
     val state by bluetoothViewModel.state.collectAsState()
+    val measurmentData by bluetoothViewModel.lastMeasurement.collectAsState()
+    Log.i("SCREEN", "measurmentData: $measurmentData")
+
+    val measurmentData2 by bluetoothViewModel._lastMeasurement.collectAsState()
+    Log.i("SCREEN", "measurmentData2: $measurmentData2")
+    val result =""
 
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -82,13 +94,18 @@ fun BluetoothPermission(
 
     when {
         state.isConnecting -> {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
             ) {
-                CircularProgressIndicator()
-                Text(text = "Nawiązywanie połączenia...")
+                Column {
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+                    Text(
+                        text = "Nawiązywanie połączenia...",
+                        modifier = Modifier.padding(16.dp),
+                        color = androidx.compose.ui.graphics.Color.Gray
+                    )
+                }
             }
         }
 
@@ -107,8 +124,16 @@ fun BluetoothPermission(
                 onDeviceClick = { device ->
                    bluetoothViewModel.connectToGattDevice(pl.example.bluetoothmodule.domain.BluetoothDevice(device.name, device.address))
                 },
-                onDownloadTime = bluetoothViewModel::readLastMeasurementTime,
-                title = "Podłącz się z glukometrem"
+                onDownloadTime = {
+                    bluetoothViewModel.viewModelScope.launch {
+                        bluetoothViewModel.readLastMeasurement()
+                    }
+                    bluetoothViewModel.lastMeasurement.value
+                },
+                bluetoothViewModel = bluetoothViewModel,
+                title = "Podłącz się z glukometrem",
+                navController = navController,
+                destination = destination
             )
         }
     }
@@ -122,9 +147,6 @@ fun BluetoothPermission(
             }
         }
     }
-    //ColorSquare(isTrue = true)
-
-    //BottomNavigationBar(navBarViewModel, navController)
 }
 
 

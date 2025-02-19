@@ -37,8 +37,6 @@ import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.BluetoothDeviceDomain
 import pl.example.bluetoothmodule.domain.ConnectionResult
-import pl.example.bluetoothmodule.domain.parseMeasurementTimeToDate
-import pl.example.bluetoothmodule.domain.responseManagement
 import java.io.IOException
 import java.util.UUID
 import android.bluetooth.BluetoothDevice as AndroidBluetoothDevice
@@ -50,10 +48,10 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     private val bluetoothManager by lazy {
         context.getSystemService(BluetoothManager::class.java)
     }
-
     private val bluetoothAdapter by lazy {
         bluetoothManager?.adapter
     }
+
     private val _isConnected = MutableStateFlow(false)
     override val isConnected: StateFlow<Boolean>
         get() = _isConnected.asStateFlow()
@@ -71,6 +69,16 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     private val _errors = MutableSharedFlow<String>()
     override val errors: SharedFlow<String>
         get() = _errors.asSharedFlow()
+
+    private val _receivedDataFlow = MutableSharedFlow<ByteArray>()
+    override val receivedDataFlow: Flow<ByteArray> = _receivedDataFlow.asSharedFlow()
+
+    private val receivedDataList = mutableListOf<ByteArray>()
+
+    override fun getStoredData(): List<ByteArray> {
+        return synchronized(receivedDataList) { receivedDataList.toList() }
+    }
+
 
 
     private val foundDeviceReceiver = FoundDeviceReceiver { device ->
@@ -340,7 +348,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                     gatt: BluetoothGatt?,
                     characteristic: BluetoothGattCharacteristic?
                 ) {
-                    //Log.d("GATT_CHANGED", "Characteristic changed.")
+                    Log.d("GATT_CHANGED", "Characteristic changed.")
                     val receivedData = characteristic?.value
                     if (receivedData != null) {
                         if (receivedData.isNotEmpty() && receivedData[0] == 0x54.toByte()) {
@@ -350,17 +358,17 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                             )
                             handleCommunicationModeEntry()
                         } else {
-                            //Log.d("GATT_DATA", "Data received: ${receivedData.contentToString()}")
+                            Log.d("GATT_DATA", "Data received: ${receivedData.contentToString()}")
                         }
                     }
                     if (characteristic?.uuid == UUID.fromString(CHARACTERISTIC_UUID)) {
                         val receivedData = characteristic?.value
-                        //Log.d("GATT_CHANGED", "Data received: ${receivedData?.contentToString()}")
-                        if (receivedData != null) {
-                            try {
-                                responseManagement(receivedData)
-                            } catch (e: Exception) {
-                                Log.d("GATT_CHANGED_PARSERS", "Exception: ${e.message}")
+                        if (receivedData != null && receivedData.isNotEmpty()) {
+                            synchronized(receivedDataList) {
+                                receivedDataList.add(receivedData)
+                            }
+                            CoroutineScope(Dispatchers.IO).launch {
+                                _receivedDataFlow.emit(receivedData)
                             }
                         }
                     }

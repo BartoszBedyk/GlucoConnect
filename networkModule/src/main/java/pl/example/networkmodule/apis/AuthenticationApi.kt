@@ -2,6 +2,7 @@ package pl.example.networkmodule.apis
 
 import android.util.Log
 import io.ktor.client.call.body
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -30,6 +31,26 @@ class AuthenticationApi(private val ktorClient: KtorClient): AuthenticationApiIn
             }
         } catch (e: Exception) {
             Log.e("AuthenticationApi", "Request failed with status ${e.message}")
+            return null
+        }
+    }
+
+    override suspend fun refreshToken(token: String): String? {
+        try {
+            val response = client.post("http://10.0.2.2:8080/refresh-token") {
+                contentType(ContentType.Application.Json)
+                header("Authorization", "Bearer $token")
+            }
+
+            return if (response.status == HttpStatusCode.OK) {
+                val responseBody = response.body<Map<String, String>>()
+                responseBody["token"]
+            } else {
+                Log.e("AuthenticationApi", "Refresh failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("AuthenticationApi", "Refresh failed: ${e.message}")
             return null
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,10 +16,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,44 +40,89 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.R
+import pl.example.aplikacja.UiElements.GlucoseChart
+import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
 import pl.example.aplikacja.removeQuotes
-import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.aplikacja.toUserType
+import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.getToken
 
 @Composable
 fun MainScreen(navController: NavController) {
     val context = LocalContext.current
-
-    val apiProvider = ApiProvider(context)
-
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember { MainScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString())) }
-    val items by viewModel.threeGlucoseItems.collectAsState()
+    val viewModel = remember {
+        MainScreenViewModel(
+            context,
+            removeQuotes(decoded.getClaim("userId").toString())
+        )
+    }
+        when(toUserType(decoded.getClaim("userType").toString())){
+            UserType.PATIENT -> return
+            UserType.DOCTOR -> return
+            UserType.ADMIN -> navController.navigate("admin_main_screen")
+            UserType.OBSERVER -> navController.navigate("download_results")
+        }
+
+    val glucoseItems by viewModel.threeGlucoseItems.collectAsState()
+    val heartbeatItems by viewModel.heartbeatItems.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
 
-//    val prefUnit by viewModel.prefUnit.collectAsState()
-    //LineChartCompose()
 
-    Box {
-
-
-        LazyColumn(
-            modifier = Modifier
-                .padding(bottom = 0.dp)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(items) { item ->
-                ItemView(item) { itemId ->
-                    navController.navigate("glucose_result/$itemId")
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (isLoading) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Column {
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+                    Text(
+                        text = "Nawiązywanie połączenia...",
+                        modifier = Modifier.padding(16.dp),
+                        color = androidx.compose.ui.graphics.Color.Gray
+                    )
                 }
             }
-        }
-        ExpandableFloatingActionButton(navController);
+        } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
 
+                    if (glucoseItems.isNotEmpty()) {
+                        item {
+                            GlucoseChart(glucoseItems.reversed())
+                        }
+                        items(glucoseItems) { item ->
+                            ItemView(item) { itemId ->
+                                navController.navigate("glucose_result/$itemId")
+                            }
+                        }
+                    }
+
+
+                    if (heartbeatItems.isNotEmpty()) {
+                        item {
+                            HeartbeatChart(heartbeatItems.reversed())
+                        }
+                        items(heartbeatItems) { item ->
+                            ItemView(item) { itemId ->
+                                navController.navigate("heartbeat_result/$itemId")
+                            }
+                        }
+                    }
+                }
+            }
+            ExpandableFloatingActionButton(navController)
+        }
     }
-}
+
+
 
 @Composable
 fun ExpandableFloatingActionButton(navController: NavController) {

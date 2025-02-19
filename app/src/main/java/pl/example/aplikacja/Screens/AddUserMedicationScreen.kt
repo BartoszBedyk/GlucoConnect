@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -23,7 +21,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +38,6 @@ import pl.example.aplikacja.formatDateTimeWithoutTime
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddUserMedicationViewModel
 import pl.example.networkmodule.apiData.MedicationResult
-import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 import java.util.Date
@@ -62,9 +58,9 @@ fun AddUserMedicationScreen(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val apiProvider = remember { ApiProvider(context) }
+
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember { AddUserMedicationViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString())) }
+    val viewModel = remember { AddUserMedicationViewModel(context, removeQuotes(decoded.getClaim("userId").toString())) }
     val medication = viewModel.medications.collectAsState()
     var selectedMedication by remember { mutableStateOf<MedicationResult?>(null) }
 
@@ -219,19 +215,19 @@ fun AddUserMedicationScreen(navController: NavController) {
                         return@launch
                     }
                     Log.d("AddUserMedication", "Submitting with startDate: $startDate, endDate: $endDate")
-                    val success = viewModel.createUserMedication(
-                        CreateUserMedicationForm(
-                            userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
-                            medicationId = selectedMedication!!.id,
-                            dosage = dose,
-                            frequency = frequency,
-                            startDate = startDate,
-                            endDate = endDate,
-                            notes = note
-                        )
-                    )
-                    if (success) {
+                    if (viewModel.addUserMedication(
+                            CreateUserMedicationForm(
+                                userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
+                                medicationId = selectedMedication!!.id,
+                                dosage = dose,
+                                frequency = frequency,
+                                startDate = startDate,
+                                endDate = endDate,
+                                notes = note
+                            )
+                        )) {
                         navController.navigate("user_medication_screen")
+                        snackState.showSnackbar("Dodano lek.")
                     } else {
                         snackState.showSnackbar("Nie udało się dodać leku.")
                     }

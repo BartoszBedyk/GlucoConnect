@@ -13,3 +13,10 @@ fun getToken(context: Context): String? {
     val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     return sharedPreferences.getString("jwt_token", null)
 }
+
+fun clearToken(context: Context) {
+    val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+    sharedPreferences.edit().remove("jwt_token").apply()
+}
+
+

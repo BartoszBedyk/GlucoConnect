@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.HeartbeatResult
+import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiMethods.HeartbeatApiInterface
 import pl.example.networkmodule.requestData.CreateHeartbeatForm
 
@@ -32,24 +33,20 @@ class HeartbeatApi(private val ktorClient: KtorClient) : HeartbeatApiInterface {
     }
 
     override suspend fun getHeartBeat(id: String): HeartbeatResult? {
-        return try {
-            val response = client.get("http://10.0.2.2:8080/$heartbeatEndpoint/$id")
-            if (response.status == HttpStatusCode.OK) {
-                if (response.contentType()?.match(ContentType.Application.Json) == true) {
-                    response.body<HeartbeatResult>()
-                } else {
-                    println("Unexpected content type: ${response.contentType()}")
-                    null
-                }
+        val response = client.get("http://10.0.2.2:8080/$heartbeatEndpoint/$id")
+        return if (response.status == HttpStatusCode.OK) {
+            if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                response.body<HeartbeatResult>()
             } else {
-                Log.e("HeartbeatApi", "Request failed with status ${response.status}")
+                println("Unexpected content type: ${response.contentType()}")
                 null
             }
-        } catch (e: Exception) {
-            Log.e("HeartbeatApi", "Request failed with status ${e.message}")
+        } else {
+            Log.e("ResultApi", "Request failed with status ${response.status}")
             null
         }
     }
+
 
     override suspend fun readHeartbeatForUser(userId: String): List<HeartbeatResult>? {
         return try {
@@ -90,6 +87,27 @@ class HeartbeatApi(private val ktorClient: KtorClient) : HeartbeatApiInterface {
         } catch (e: Exception) {
             Log.e("HeartbeatApi", "Request failed with status ${e.message}")
             false
+        }
+    }
+
+    override suspend fun getThreeHeartbeatResults(userId: String): List<HeartbeatResult>? {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/$heartbeatEndpoint/three/$userId")
+            if (response.status == HttpStatusCode.OK)
+                if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                    response.body<List<HeartbeatResult>>()
+                } else {
+                    println("Unexpected content type: ${response.contentType()}")
+                    null
+                }
+            else {
+                Log.e("HeartbeatApi", "Request failed with status ${response.status}")
+                null
+            }
+
+        } catch (e: Exception) {
+            Log.e("HeartbeatApi", "Request failed with status ${e.message}")
+            null
         }
     }
 

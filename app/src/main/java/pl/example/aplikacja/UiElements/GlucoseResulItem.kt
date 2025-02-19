@@ -26,7 +26,8 @@ import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 @Composable
 fun ItemView(item: ResearchResult, onItemClick: (String) -> Unit) {
 
-    Column(modifier = Modifier.fillMaxWidth()
+    Column(modifier = Modifier
+        .fillMaxWidth()
         .clickable { onItemClick(item.id.toString()) }
         .background(chooseColorForGlucose(item.glucoseConcentration, item.unit))
     ) {
@@ -47,12 +48,13 @@ fun ItemView(item: ResearchResult, onItemClick: (String) -> Unit) {
 @Composable
 fun ItemView(item: HeartbeatResult, onItemClick: (String) -> Unit) {
 
-    Column(modifier = Modifier.fillMaxWidth()
+    Column(modifier = Modifier
+        .fillMaxWidth()
         .clickable { onItemClick(item.id.toString()) }
         //.background(chooseColorForGlucose(item.glucoseConcentration, item.unit))
     ) {
         Text(
-            text = "Ciśnienie: ${item.systolicPressure}" + "/" + "${item.diastolicPressure}" +"  " + "${item.pulse}",
+            text = "Ciśnienie: ${item.systolicPressure}" + "/" + "${item.diastolicPressure}" + "  " + "${item.pulse}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 4.dp)
@@ -69,27 +71,85 @@ private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush
     return when (unit) {
         GlucoseUnitType.MMOL_PER_L -> {
             if (glucose < 5.5 && glucose > 3.9) {
-                Brush.linearGradient(listOf(Color.White, Color.Green), start = Offset(0.5f, 0.5f), end = Offset.Infinite)
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color.Green,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent
+                    ),
+                    start = Offset(900f, 0f),
+                    end = Offset(0f, 0f)
+                )
             } else if (glucose > 5.5) {
-                Brush.linearGradient(listOf(Color.White,Color.Yellow))
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color.Green,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent
+                    ),
+                    start = Offset(900f, 0f),
+                    end = Offset(0f, 0f)
+                )
             } else if (glucose < 3.9) {
-                Brush.linearGradient(listOf(Color.White,Color.Red))
-            }
-            else {
-                Brush.linearGradient(listOf(Color.White,Color.White))
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color.Red,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent
+                    ),
+                    start = Offset(900f, 0f),
+                    end = Offset(0f, 0f)
+                )
+            } else {
+                Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
             }
         }
 
         GlucoseUnitType.MG_PER_DL -> {
             if (glucose < 99.0 && glucose > 70.0) {
-                Brush.linearGradient(listOf(Color.White,Color.Green), start = Offset(1.1f, 1.1f), end = Offset(0.8f, 0.8f))
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color.Green,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent
+                    ),
+                    start = Offset(900f, 0f),
+                    end = Offset(0f, 0f)
+                )
             } else if (glucose > 99.0) {
-                Brush.linearGradient(listOf(Color.White,Color.Yellow), start = Offset(0.5f, 0.5f), end = Offset(0.8f, 0.8f))
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color.Yellow,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent
+                    ),
+                    start = Offset(900f, 0f),
+                    end = Offset(0f, 0f)
+                )
             } else if (glucose < 70.0) {
-                Brush.linearGradient(listOf(Color.White,Color.Red))
-            }
-            else {
-                Brush.linearGradient(listOf(Color.White,Color.White))
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color.Red,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent
+                    ),
+                    start = Offset(900f, 0f),
+                    end = Offset(0f, 0f)
+                )
+            } else {
+                Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
             }
         }
 

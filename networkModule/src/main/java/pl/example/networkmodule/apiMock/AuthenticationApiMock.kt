@@ -21,4 +21,8 @@ class AuthenticationApiMock : AuthenticationApiInterface {
             null
         }
     }
+
+    override suspend fun refreshToken(token: String): String? {
+        return null
+    }
 }

@@ -16,4 +16,5 @@ interface UserApiInterface {
     suspend fun unitUpdate(form: UnitUpdate): Boolean
     suspend fun updateUserNulls(form: UpdateUserNullForm): Boolean
     suspend fun getUserUnitById(id: String): GlucoseUnitType?
+    suspend fun getAllUsers(): List<UserResult>?
 }

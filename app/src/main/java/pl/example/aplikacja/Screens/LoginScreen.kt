@@ -1,5 +1,9 @@
 package pl.example.aplikacja.Screens
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,29 +31,65 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.auth0.jwt.JWT
+import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.viewModels.LoginScreenViewModel
 import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.clearToken
 import pl.example.networkmodule.getToken
+import pl.example.networkmodule.saveToken
+import java.util.Date
 
 @Composable
 fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostController) {
     val context = LocalContext.current
 
-    if (getToken(context) != null) {
-        //navController.navigate("main_screen")
-    }
-
     val coroutineScope = rememberCoroutineScope()
     val apiProvider = ApiProvider(context)
-    val viewModel = LoginScreenViewModel(apiProvider)
+    val viewModel =  LoginScreenViewModel(apiProvider)
 
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loginError by remember { mutableStateOf("") }
     var blocked by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+        val currentToken = getToken(context)
+        if (currentToken != null) {
+            val decoded: DecodedJWT = JWT.decode(currentToken)
+            val expiration = decoded.expiresAt
+            val now = Date()
+
+            if (expiration != null && now.before(expiration)) {
+                navController.navigate("main_screen")
+                println("Token jest ważny")
+                saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+
+            } else {
+                navController.navigate("main_screen")
+                val refreshedToken = viewModel.refreshToken(context)
+                if (refreshedToken != null) {
+
+                    println("Token odświeżony")
+                    //clearToken(context)
+                    //saveToken(context, refreshedToken)
+                    saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+                    navController.navigate("main_screen")
+
+                } else {
+                    println("Token wygasł i nie można go odświeżyć")
+                    saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+                    //clearToken(context)
+                    navController.navigate("main_screen")
+                }
+            }
+            saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczOTk4NjM4NH0.GDylxhbcZQGUMPpsWJMsO4btQOH9IbTxrc3ujL0d0tw")
+            navController.navigate("main_screen")
+        }
+    }
 
     Box(Modifier
         .fillMaxSize())
@@ -55,7 +97,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         Text(text = "Zaloguj się", modifier = Modifier
             .align(Alignment.TopCenter)
             .padding(bottom = 16.dp, top = 100.dp),
-            color = androidx.compose.ui.graphics.Color.White,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 32.sp
             )
     }
@@ -92,11 +134,15 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
                     blocked = true
                     loginError = ""
                     coroutineScope.launch {
-                        val token = viewModel.login(login, password, context)
-                        if (token != null) {
-                            navController.navigate("main_screen")
+                        if (isNetworkAvailable(context)) {
+                            val token = viewModel.login(login, password, context)
+                            if (token != null) {
+                                navController.navigate("main_screen")
+                            } else {
+                                loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
+                            }
                         } else {
-                            loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
+                            loginError = "Brak połączenia z Internetem. Sprawdź połączenie i spróbuj ponownie."
                         }
                         blocked = false
                     }
@@ -110,7 +156,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         if (loginError.isNotEmpty()) {
             Text(
                 text = loginError,
-                color = androidx.compose.ui.graphics.Color.Red,
+                color = MaterialTheme.colorScheme.error,
                 fontSize = 16.sp,
                 overflow = TextOverflow.Clip,
                 maxLines = 2,
@@ -129,6 +175,14 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
         .clickable { navController.navigate("registration_screen") })
     }
 
+}
+
+@SuppressLint("ServiceCast")
+fun isNetworkAvailable(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val activeNetwork = connectivityManager.activeNetwork ?: return false
+    val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
 
 

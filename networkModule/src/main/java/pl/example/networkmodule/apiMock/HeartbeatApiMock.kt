@@ -144,4 +144,8 @@ class HeartbeatApiMock : HeartbeatApiInterface {
         mockHeartbeats.removeAll { it.userId.toString() == userId }
         return mockHeartbeats.size < initialSize
     }
+
+    override suspend fun getThreeHeartbeatResults(userId: String): List<HeartbeatResult>? {
+        return null
+    }
 }

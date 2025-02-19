@@ -1,5 +1,6 @@
 package pl.example.aplikacja.Screens
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -18,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
+import pl.example.aplikacja.UiElements.GlucoseChart
+import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AllResultsScreenViewModel
@@ -51,64 +56,101 @@ fun AllResultsScreenPreview() {
 @Composable
 fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
     val context = LocalContext.current
+    var screenType : Boolean? = null
+    if (type != null) {
+        screenType = !type
+    }
 
-    val apiProvider = ApiProvider(context)
+    Log.d("SCREEN_ALL", "screenType: $screenType")
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember { AllResultsScreenViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))  }
+    val viewModel = remember { AllResultsScreenViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))  }
 
+    val isLoading by viewModel.isLoading.collectAsState()
     val glucoseResults by viewModel.glucoseResults.collectAsState()
     val heartbeatResult by viewModel.heartbeatResult.collectAsState()
-    var checked by remember { mutableStateOf(type ?: true) }
+
+    val glucoseResultsData by viewModel.glucoseResultsData.collectAsState()
+    Log.d("ALL", "glucoseResultsData: $glucoseResultsData")
+
+    var checked by remember { mutableStateOf(screenType ?: true) }
+
 
     Box(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
-            Box(Modifier.align(Alignment.CenterHorizontally)) {
-                Switch(
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                        uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                        uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                    ),
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.TopCenter)
-                )
+        if (isLoading) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Column {
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+                    Text(
+                        text = "Nawiązywanie połączenia...",
+                        modifier = Modifier.padding(16.dp),
+                        color = androidx.compose.ui.graphics.Color.Gray
+                    )
+                }
             }
+        } else {
+            Column(Modifier.fillMaxSize()) {
+                Box(Modifier.align(Alignment.CenterHorizontally)) {
+                    Switch(
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                            uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                        ),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.TopCenter)
+                    )
+                }
 
 
-            if (checked) {
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    userScrollEnabled = true,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    items(glucoseResults) { item ->
-                        Row(Modifier.animateItem()) {
-                            ItemView(item) { itemId ->
-                                navController.navigate("glucose_result/$itemId")
+                if (checked) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        userScrollEnabled = true,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (glucoseResults.isNotEmpty()) {
+                            item {
+                                GlucoseChart(glucoseResults.reversed().take(14))
+                            }
+                        }
+                        items(glucoseResults) { item ->
+                            Row(Modifier.animateItem()) {
+                                ItemView(item) { itemId ->
+                                    navController.navigate("glucose_result/$itemId")
+                                }
                             }
                         }
                     }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(heartbeatResult) { item ->
-                        Row(Modifier.animateItem()) {
-                            ItemView(item) { itemId ->
-                                navController.navigate("glucose_result/$itemId")
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        if (heartbeatResult.isNotEmpty()) {
+                            item {
+                                HeartbeatChart(heartbeatResult.reversed().take(14))
+                            }
+                        }
+                        items(heartbeatResult) { item ->
+                            Row(Modifier.animateItem()) {
+                                ItemView(item) { itemId ->
+                                    navController.navigate("heartbeat_result/$itemId")
+                                }
                             }
                         }
                     }

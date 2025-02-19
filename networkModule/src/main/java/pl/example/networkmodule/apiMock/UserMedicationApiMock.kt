@@ -46,7 +46,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
         )
     }
 
-    override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): Boolean {
+    override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): String? {
         val newUserMedication = UserMedicationResult(
             userId = userMedication.userId,
             medicationId = userMedication.medicationId,
@@ -62,7 +62,7 @@ class UserMedicationApiMock : UserMedicationApiInterface {
             strength = "Mock Strength"
         )
         mockUserMedications.add(newUserMedication)
-        return true
+        return userMedication.userId.toString()
     }
 
     override suspend fun readUserMedication(id: String): UserMedicationResult? {
@@ -133,5 +133,18 @@ class UserMedicationApiMock : UserMedicationApiInterface {
             form = "Tablet",
             strength = "500mg"
         )
+    }
+
+    override suspend fun readUserMedicationByID(umId: String): List<UserMedicationResult>? {
+        return null
+    }
+
+    override suspend fun markAsSynced(userId: String): Boolean {
+        return true
+    }
+
+    override suspend fun getUserMedicationId(id: String, medicationId: String): String?{
+        return null
+
     }
 }

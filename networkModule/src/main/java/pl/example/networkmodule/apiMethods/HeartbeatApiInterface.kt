@@ -9,4 +9,5 @@ interface HeartbeatApiInterface {
     suspend fun readHeartbeatForUser(userId: String): List<HeartbeatResult>?
     suspend fun deleteHeartbeat(id: String): Boolean
     suspend fun deleteHeartbeatsForUser(userId: String): Boolean
+    suspend fun getThreeHeartbeatResults(userId: String): List<HeartbeatResult>?
 }

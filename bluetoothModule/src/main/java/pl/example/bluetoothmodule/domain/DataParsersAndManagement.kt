@@ -1,8 +1,8 @@
 package pl.example.bluetoothmodule.domain
 
 import android.util.Log
+import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import java.util.Calendar
-import java.util.Date
 
 
 fun parseDeviceModelResponse(response: ByteArray): String {
@@ -22,18 +22,18 @@ fun parseClockTimeResponse(response: ByteArray): String {
     val hour = response[5].toInt() and 0x1F
 
     Log.d("Parsuje", "%02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute))
-    return "%02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute)
+    return "Date: %02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute)
 }
 
-fun parseMeasurementTimeToDate(frame: ByteArray): Date? {
-    val year = 2000 + ((frame[3].toInt() ushr 1) and 0x7F) // 7 bitów na rok
+fun parseMeasurementTimeToDate(frame: ByteArray): String? {
+    val year = 2000 + ((frame[3].toInt() ushr 1) and 0x7F)
     val month =
-        ((frame[3].toInt() shl 3) or (frame[2].toInt() ushr 5)) and 0x0F // 4 bity na miesiąc
-    val day = frame[2].toInt() and 0x1F // 5 bitów na dzień
+        ((frame[3].toInt() shl 3) or (frame[2].toInt() ushr 5)) and 0x0F
+    val day = frame[2].toInt() and 0x1F
 
 
-    val hour = frame[5].toInt() and 0x1F // 5 bitów na godzinę
-    val minute = frame[4].toInt() and 0x3F // 6 bitów na minutę
+    val hour = frame[5].toInt() and 0x1F
+    val minute = frame[4].toInt() and 0x3F
 
 
     val calendar = Calendar.getInstance()
@@ -46,7 +46,7 @@ fun parseMeasurementTimeToDate(frame: ByteArray): Date? {
     calendar.set(Calendar.MILLISECOND, 0)
 
     Log.e("DATE", calendar.time.toString())
-    return calendar.time
+    return "Date: ${calendar.time},"
 }
 
 
@@ -76,8 +76,8 @@ fun parseStorageDataResult(response: ByteArray): String {
         0xC -> "Lactate"
         else -> "Unknown"
     }
-
-    return "Result: $value mg/dL, Type I: $typeI, Type II: $typeII ($typeDescription)"
+    //return "Result: $value, Unit: mg/dL, Type I: $typeI, Type II: $typeII ($typeDescription)"
+    return "Result: $value, Unit: ${GlucoseUnitType.MG_PER_DL.toString()}"
 }
 
 fun parseStorageNumberOfData(response: ByteArray): Int {
@@ -101,10 +101,28 @@ fun parseTurnOffDeviceResponse(response: ByteArray): String {
 }
 
 fun parseClearMemoryResponse(response: ByteArray): String {
-    if (response.size != 8 || response[1].toInt() != 0x52) {
-        throw IllegalArgumentException("Invalid frame or command for clear memory response.")
+    if (response.size != 8) {
+        throw IllegalArgumentException("Nieprawidłowa długość odpowiedzi: ${response.size} bajtów. Oczekiwano 8 bajtów.")
     }
-    return "Memory cleared successfully."
+
+    val cmd = response[0]
+    if (cmd != 0x52.toByte()) {
+        throw IllegalArgumentException("Nieprawidłowy CMD: 0x%02X. Oczekiwano 0x52.".format(cmd))
+    }
+
+    val ack = response[1]
+    if (ack != 0x52.toByte()) {
+        throw IllegalArgumentException("Nieprawidłowy ACK: 0x%02X. Oczekiwano 0x52.".format(ack))
+    }
+
+    val data0 = response[2]
+    val data1 = response[3]
+    val data2 = response[4]
+    val data3 = response[5]
+    if (data0 != 0x00.toByte() || data1 != 0x00.toByte() || data2 != 0x00.toByte() || data3 != 0x00.toByte()) {
+        throw IllegalArgumentException("Nieprawidłowe dane: oczekiwano zer w polach DATA_0, DATA_1, DATA_2, DATA_3.")
+    }
+    return true.toString()
 }
 
 fun parseCommunicationModeNotification(response: ByteArray): String {
@@ -115,21 +133,19 @@ fun parseCommunicationModeNotification(response: ByteArray): String {
 }
 
 
-
-
-fun responseManagement(frame: ByteArray) {
+fun responseManagement(frame: ByteArray): String {
     if (frame.size != 8) {
         throw IllegalArgumentException("Invalid frame length: ${frame.size}, expected 8 bytes.")
     }
     val cmd = frame[1].toInt()
-    when (cmd) {
+    return when (cmd) {
         0x23 -> parseClockTimeResponse(frame)
         0x24 -> parseDeviceModelResponse(frame)
-        0x25 -> parseMeasurementTimeToDate(frame)
+        0x25 -> parseMeasurementTimeToDate(frame) ?: "Invalid measurement time"
         0x26 -> parseStorageDataResult(frame)
-        0x27 -> parseSerialNumber(frame)
-        0x28 -> parseSerialNumber(frame)
-        0x2B -> parseStorageNumberOfData(frame)
+        0x27 -> parseSerialNumber(frame) ?: "Invalid serial number part 1"
+        0x28 -> parseSerialNumber(frame) ?: "Invalid serial number part 2"
+        0x2B -> parseStorageNumberOfData(frame).toString()
         0x33 -> parseWriteSystemClockTimeResponse(frame)
         0x50 -> parseTurnOffDeviceResponse(frame)
         0x52 -> parseClearMemoryResponse(frame)
@@ -137,6 +153,7 @@ fun responseManagement(frame: ByteArray) {
         else -> throw IllegalArgumentException("Invalid response command: ${frame[1]}.")
     }
 }
+
 
 
 
