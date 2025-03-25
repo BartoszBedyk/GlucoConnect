@@ -11,6 +11,10 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
@@ -22,6 +26,7 @@ import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.Screens.AddGlucoseResultScreen
 import pl.example.aplikacja.Screens.AddHeartbeatResultScreen
 import pl.example.aplikacja.Screens.AddUserMedicationScreen
+import pl.example.aplikacja.Screens.AdminUserDirectScreen
 import pl.example.aplikacja.Screens.AdministrationMainScreen
 import pl.example.aplikacja.Screens.AllResultsDownload
 import pl.example.aplikacja.Screens.AllResultsScreen
@@ -34,6 +39,7 @@ import pl.example.aplikacja.Screens.HeartbeatResultScreen
 import pl.example.aplikacja.Screens.LicenceScreen
 import pl.example.aplikacja.Screens.MainScreen
 import pl.example.aplikacja.Screens.MedicationResultScreen
+import pl.example.aplikacja.Screens.ObserverMainScreen
 import pl.example.aplikacja.Screens.RegisterStepTwoScreen
 import pl.example.aplikacja.Screens.RegistrationScreen
 import pl.example.aplikacja.Screens.UserMedicationScreen
@@ -47,9 +53,9 @@ fun BottomNavigationBar(navBarViewModel: BottomNavBarViewModel, navController: N
     NavigationBar {
         navBarViewModel.items.forEachIndexed { index, item ->
             NavigationBarItem(
-                selected = navBarViewModel.selectedItemIndex.intValue == index,
+                selected = navBarViewModel.selectedItemIndex.value == index,
                 onClick = {
-                    navBarViewModel.selectedItemIndex.intValue = index
+                    navBarViewModel.selectedItemIndex.value = index
                     navController.navigate(item.title)
                 },
                 icon = {
@@ -63,18 +69,16 @@ fun BottomNavigationBar(navBarViewModel: BottomNavBarViewModel, navController: N
                         }
                     }) {
                         Icon(
-                            imageVector = if (index == navBarViewModel.selectedItemIndex.intValue) {
+                            imageVector = if (index == navBarViewModel.selectedItemIndex.value) {
                                 item.selectedIcon
                             } else item.unselectedIcon,
                             contentDescription = item.title
                         )
                     }
-
                 }
             )
         }
     }
-
 }
 
 data class BottomNavigationItem(
@@ -92,7 +96,7 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
     NavHost(navController = navController, startDestination = "login_screen") {
         composable("main_screen") {
             Log.d("Navigation", "Navigated to Home Screen")
-            MainScreen(navController)
+            MainScreen(navController, null)
         }
 //        composable("login_screen") {
 //            Log.d("Navigation", "Navigated to Login Screen")
@@ -115,14 +119,28 @@ fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Bluet
 fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
     val navController = rememberNavController()
 
-    val currentBackStackEntry = navController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStackEntry.value?.destination?.route
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStackEntry?.destination?.route ?: "unknown"
 
+    Log.d("AppScaffold", "Current backstack entry: $currentBackStackEntry")
+    val userId = navController.currentBackStackEntry?.arguments?.getString("userId")
+    Log.d("AppScaffold", "Current destination: $currentDestination")
 
-    val showBottomBar = when (currentDestination) {
-        "login_screen", "registration_screen", "register_step_two_screen/{userId}", "register_step_two_screen", "download_results", "licence_screen" -> false
-        else -> true
+    LaunchedEffect(currentBackStackEntry) {
+        Log.d("AppScaffold", "Updated destination: $currentDestination")
     }
+    val showBottomBar = !listOf(
+        "login_screen",
+        "registration_screen",
+        "register_step_two_screen",
+        "register_step_two_screen/{userId}",
+        //"download_results",
+        "licence_screen",
+        "observer_main"
+    ).contains(currentDestination)
+
+
+
 
     Scaffold(
         bottomBar = {
@@ -137,7 +155,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("main_screen") {
-                MainScreen(navController)
+                MainScreen(navController, null)
             }
             composable("user_profile_screen") {
                 UserProfileScreen(navController)
@@ -221,6 +239,21 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("admin_main_screen") {
                 AdministrationMainScreen(navController)
             }
+            composable("admin_user_direct/{userId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                AdminUserDirectScreen(userId,navController)
+            }
+            composable("observer_main_screen") {
+                ObserverMainScreen(navController)
+            }
+            composable("observer_main") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                MainScreen(navController, userId)
+            }
+            composable("main_screen/{userId}") {
+                MainScreen(navController, userId)
+            }
+
 
 
         }

@@ -6,12 +6,14 @@ import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiMock.AuthenticationApiMock
 import pl.example.networkmodule.apiMock.HeartbeatApiMock
 import pl.example.networkmodule.apiMock.MedicationApiMock
+import pl.example.networkmodule.apiMock.ObserverApiMock
 import pl.example.networkmodule.apiMock.ResultApiMock
 import pl.example.networkmodule.apiMock.UserApiMock
 import pl.example.networkmodule.apiMock.UserMedicationApiMock
 import pl.example.networkmodule.apis.AuthenticationApi
 import pl.example.networkmodule.apis.HeartbeatApi
 import pl.example.networkmodule.apis.MedicationApi
+import pl.example.networkmodule.apis.ObserverApi
 import pl.example.networkmodule.apis.ResultApi
 import pl.example.networkmodule.apis.UserApi
 import pl.example.networkmodule.apis.UserMedicationApi
@@ -22,6 +24,8 @@ class ApiProvider(context: Context) {
         val USE_MOCK_API: Boolean = false    //false = mock
         val fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTIiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsImV4cCI6MTczNjY4MzE3MH0.20HffuC0WtxdS8bsjFQKqm69YOIEMBGwLIUCvHTpVGE"
     }
+
+    public val innerContext = context
 
 
 
@@ -58,6 +62,12 @@ class ApiProvider(context: Context) {
 
     val medicationApi: MedicationApiInterface by lazy {
         if (USE_MOCK_API) MedicationApiMock() else MedicationApi(
+            KtorClient(context)
+        )
+    }
+
+    val observerApi: ObserverApiInterface by lazy {
+        if (USE_MOCK_API) ObserverApiMock() else ObserverApi(
             KtorClient(context)
         )
     }

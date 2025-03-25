@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.hilt.android.v2511)
     kapt(libs.hilt.android.compiler.v2511)
-
+    implementation(libs.dotenv.kotlin)
 
 
 }

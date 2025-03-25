@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,10 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pl.example.aplikacja.Screens.TextRow
 import pl.example.aplikacja.formatDateTimeSpecificLocale
 import pl.example.aplikacja.formatUnit
 import pl.example.networkmodule.apiData.HeartbeatResult
+import pl.example.networkmodule.apiData.ObserverResult
 import pl.example.networkmodule.apiData.ResearchResult
+import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 
 
@@ -44,6 +48,36 @@ fun ItemView(item: ResearchResult, onItemClick: (String) -> Unit) {
         )
     }
 }
+
+@Composable
+fun ItemView(item: UserResult, onItemClick: (String) -> Unit) {
+
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onItemClick(item.id.toString())}
+    ) {
+        TextRow(label = "Imię i nazwisko", value =  item.firstName + " " + item.lastName)
+        TextRow(label = "Status", value =  "Zaakceptowany")
+        HorizontalDivider(thickness = 1.dp)
+    }
+}
+
+@Composable
+fun ItemView(item: ObserverResult, onItemClick: (String) -> Unit) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onItemClick(item.id.toString())}
+    ) {
+        TextRow(label = "Identyfikator użytkownika", value =  item.observerId.toString())
+        TextRow(label = "Status", value =  "Oczekujący akceptacji")
+        HorizontalDivider(thickness = 1.dp)
+    }
+}
+
+
+
+
+
 
 @Composable
 fun ItemView(item: HeartbeatResult, onItemClick: (String) -> Unit) {

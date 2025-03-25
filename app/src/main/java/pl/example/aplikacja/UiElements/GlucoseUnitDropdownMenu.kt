@@ -18,7 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.example.aplikacja.formatUnit
+import pl.example.aplikacja.formatUserType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
+import pl.example.networkmodule.apiData.enumTypes.UserType
 
 
 @Composable
@@ -58,6 +61,51 @@ fun GlucoseUnitDropdownMenu(
                     text = { Text(text = formatUnit(unit)) },
                     onClick = {
                         onUnitSelected(unit)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UserTypeDropdownMenu(
+    selectedUnit: RestrictedUserType,
+    onUnitSelected: (RestrictedUserType) -> Unit,
+    label: String
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var paddingValue = 8.dp
+
+    if(label.isBlank()) paddingValue = 0.dp
+
+    Row(Modifier.padding(vertical = paddingValue)) {
+        OutlinedTextField(
+            value = formatUserType(selectedUnit),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Rozwiń",
+                    Modifier.clickable { expanded = true }
+                )
+            },
+            modifier = Modifier
+                .clickable { expanded = true }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            RestrictedUserType.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(text = formatUserType(type)) },
+                    onClick = {
+                        onUnitSelected(type)
                         expanded = false
                     }
                 )

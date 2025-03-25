@@ -19,10 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +41,7 @@ import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import pl.example.aplikacja.parseMeasurement
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
@@ -75,13 +78,22 @@ fun DeviceScreen(
         AddGlucoseResultViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))
 
 
+    LaunchedEffect(Unit) {
+        onStartScan()
+    }
+
     Column {
         if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
             context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
         ) {
             Column {
                 Text(text = "Aplikacja nie posiada uprawnień do podłączenia urządzeń Bluetooth")
-                Button(onClick = { openAppSettings(context) }, modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)) {
+                Button(
+                    onClick = { openAppSettings(context) },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
                     Text(text = "Nadaj uprawnienia")
                 }
             }
@@ -114,111 +126,138 @@ fun DeviceScreen(
                         Text(text = "Stop scan")
                     }
                 }
-                if(destination == "addResult"){
-                Box {
-                    ElevatedButton(
-                        onClick = {
-                            Log.d("DOWNLOAD_TIME", "Button clicked")
-                            coroutineScope.launch {
-                                Log.d("DOWNLOAD_TIME", "Coroutine launched")
-                                measurementResult.value = onDownloadTime()
-                                Log.d("DOWNLOAD_TIME", "Result received: $measurementResult.value")
-                                Log.d("DOWNLOAD_TIME", "Result: ${measurmentData}")
-                            }
-                        },
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.BottomCenter)
-                    ) {
-                        Text(text = "Pobierz pomiar")
+                if (destination == "addResult") {
+                    Box {
+                        LaunchedEffect(Unit) {
+                            bluetoothViewModel.readLastMeasurement()
+                        }
+
+                        ElevatedButton(
+                            onClick = {
+                                Log.d("DOWNLOAD_TIME", "Button clicked")
+                                coroutineScope.launch {
+                                    bluetoothViewModel.readLastMeasurement()
+                                }
+                            },
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.BottomCenter)
+                        ) {
+                            Text(text = "Pobierz pomiar")
+                        }
+
+
                     }
-                }
-                    if (measurmentData.isNotBlank() ) {
-                        TextButton(onClick = {
-                            coroutineScope.launch {
-                                val parsedData = parseMeasurement(measurmentData)
-                                if (parsedData != null) {
-                                    if (viewModel.addGlucoseResult(
-                                            ResearchResultCreate(
-                                                userId = UUID.fromString(removeQuotes(decoded.getClaim("userId").toString())),
-                                                sequenceNumber = 1,
-                                                glucoseConcentration = parsedData.result,
-                                                unit = parsedData.unit,
-                                                timestamp = parsedData.date
+                    if (measurmentData.isNotBlank()) {
+
+                        Card(
+                            Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterHorizontally)) {
+                            TextRow(
+                                label = "Ostatni pomiar",
+                                value = parseMeasurement(measurmentData)?.date
+                                    .toString()
+                            )
+                            TextRow(
+                                label = "Poziom glukozy",
+                                value = parseMeasurement(measurmentData)?.result.toString()
+                            )
+
+                            TextButton(onClick = {
+                                coroutineScope.launch {
+                                    val parsedData = parseMeasurement(measurmentData)
+                                    if (parsedData != null) {
+                                        if (viewModel.addGlucoseResult(
+                                                ResearchResultCreate(
+                                                    userId = UUID.fromString(
+                                                        removeQuotes(
+                                                            decoded.getClaim(
+                                                                "userId"
+                                                            ).toString()
+                                                        )
+                                                    ),
+                                                    sequenceNumber = 1,
+                                                    glucoseConcentration = parsedData.result,
+                                                    unit = parsedData.unit,
+                                                    timestamp = parsedData.date
+                                                )
                                             )
-                                        )
-                                    ) {
-                                        navController.navigate("main_screen")
-                                    } else {
+                                        ) {
+                                            navController.navigate("main_screen")
+                                        } else {
 //
+                                        }
                                     }
                                 }
+                            }) {
+                                Text(text = "Dodaj pomiar")
                             }
-                        }) {
-                            Text(text = "Dodaj pomiar")
+
                         }
+
+
                     }
-                }else if (destination == "glucometer"){
+                } else if (destination == "glucometer") {
                     GlucometerAdminScreen(bluetoothViewModel, navController)
                 }
 
 
-
             }
         }
     }
-    }
+}
 
-    fun openAppSettings(context: Context) {
-        context.startActivity(
-            Intent(
-                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.fromParts("package", context.packageName, null)
-            )
+fun openAppSettings(context: Context) {
+    context.startActivity(
+        Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", context.packageName, null)
         )
-    }
+    )
+}
 
-    @Composable
-    @SuppressLint("MissingPermission")
-    fun BluetoothDeviceList(
-        pairedDevices: List<android.bluetooth.BluetoothDevice>,
-        scannedDevices: List<android.bluetooth.BluetoothDevice>,
-        onClick: (android.bluetooth.BluetoothDevice) -> Unit,
-        modifier: Modifier = Modifier
-    ) {
-        LazyColumn(modifier = modifier) {
-            item {
-                Text(
-                    text = "Sparowane urządzenia",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-            items(pairedDevices) { device ->
-                Text(text = device.name ?: "(Brak nazwy)",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onClick(device) }
-                        .padding(16.dp))
-            }
+@Composable
+@SuppressLint("MissingPermission")
+fun BluetoothDeviceList(
+    pairedDevices: List<android.bluetooth.BluetoothDevice>,
+    scannedDevices: List<android.bluetooth.BluetoothDevice>,
+    onClick: (android.bluetooth.BluetoothDevice) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier = modifier) {
+        item {
+            Text(
+                text = "Sparowane urządzenia",
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(16.dp)
+            )
         }
-
-        LazyColumn(modifier = modifier) {
-            item {
-                Text(
-                    text = "Wykryte urządzenia",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-            items(scannedDevices) { device ->
-                Text(text = device.name ?: "(Brak nazwy)",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onClick(device) }
-                        .padding(16.dp))
-            }
+        items(pairedDevices) { device ->
+            Text(text = device.name ?: "(Brak nazwy)",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onClick(device) }
+                    .padding(16.dp))
         }
     }
+
+    LazyColumn(modifier = modifier) {
+        item {
+            Text(
+                text = "Wykryte urządzenia",
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+        items(scannedDevices) { device ->
+            Text(text = device.name ?: "(Brak nazwy)",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onClick(device) }
+                    .padding(16.dp))
+        }
+    }
+}

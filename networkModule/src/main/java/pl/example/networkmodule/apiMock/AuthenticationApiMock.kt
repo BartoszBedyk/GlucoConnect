@@ -25,4 +25,8 @@ class AuthenticationApiMock : AuthenticationApiInterface {
     override suspend fun refreshToken(token: String): String? {
         return null
     }
+
+    override suspend fun isApiAvlible(): Boolean? {
+        return true
+    }
 }

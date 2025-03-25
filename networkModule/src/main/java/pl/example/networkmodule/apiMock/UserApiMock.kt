@@ -115,6 +115,10 @@ class UserApiMock : UserApiInterface {
         return true
     }
 
+    override suspend fun giveUserNulls(form: UpdateUserNullForm): Boolean {
+        return true
+    }
+
     override suspend fun getUserUnitById(id: String): GlucoseUnitType? {
         return mockUsers.find { it.id.toString() == id }?.prefUint ?: GlucoseUnitType.MG_PER_DL
     }
@@ -122,5 +126,25 @@ class UserApiMock : UserApiInterface {
     override suspend fun getAllUsers(): List<UserResult>?{
         return null
 
+    }
+
+    override suspend fun observe(partOne: String, partTwo: String): UserResult? {
+        return null
+    }
+
+    override suspend fun changeUserType(id: String, type: String): Boolean {
+        return false
+    }
+
+    override suspend fun giveUserType(id: String, type: String): Boolean {
+        return false
+    }
+
+    override suspend fun deleteUser(id: String): Boolean {
+        return true
+    }
+
+    override suspend fun resetPassword(id: String, newPassword: String): Boolean {
+        return true
     }
 }

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,15 +55,14 @@ fun UserItem(user: UserResult, onItemClick: (String) -> Unit) {
         .fillMaxWidth()
         .clickable { onItemClick(user.id.toString()) }
     ) {
-        TextRow(label = "Adres email", value = user.email, fontSize = 20)
         TextRow(
             label = "Dane personalne",
             value = user.firstName + " " + user.lastName,
             fontSize = 20
         )
-        TextRow(label = "ID użytkownika", value = user.isBlocked.toString(), fontSize = 20)
-        TextRow(label = "ID użytkownika", value = user.type.toString(), fontSize = 20)
-
+        TextRow(label = "ID:", value = user.id.toString(), fontSize = 20)
+        TextRow(label = "Zablokowany", value = user.isBlocked.toString(), fontSize = 20)
+        HorizontalDivider()
     }
 
 

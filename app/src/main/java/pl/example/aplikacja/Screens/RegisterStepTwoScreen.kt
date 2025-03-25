@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,8 +27,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
+import pl.example.aplikacja.UiElements.UserTypeDropdownMenu
 import pl.example.aplikacja.viewModels.RegistrationStepTwoScreenViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.apiMethods.ApiProvider
 
 @Composable
@@ -43,7 +47,8 @@ fun RegisterStepTwoScreen(
     var prefUnit by remember { mutableStateOf<GlucoseUnitType>(GlucoseUnitType.MG_PER_DL) }
     var expanded by remember { mutableStateOf(false) }
     var registerError by remember { mutableStateOf("") }
-
+    var typeState by remember { mutableStateOf<RestrictedUserType>(RestrictedUserType.PATIENT) }
+    val snackState = remember { SnackbarHostState() }
     Box(
         Modifier.fillMaxSize()
     ) {
@@ -52,7 +57,7 @@ fun RegisterStepTwoScreen(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(bottom = 16.dp, top = 100.dp),
-            color = androidx.compose.ui.graphics.Color.White,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 32.sp
         )
     }
@@ -62,7 +67,8 @@ fun RegisterStepTwoScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(value = name,
+        OutlinedTextField(
+            value = name,
             onValueChange = { name = it },
             label = { Text(text = "Imie") },
             placeholder = { Text(text = "Wpisz imie") },
@@ -71,7 +77,8 @@ fun RegisterStepTwoScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Unspecified)
         )
 
-        OutlinedTextField(value = lastName,
+        OutlinedTextField(
+            value = lastName,
             onValueChange = { lastName = it },
             label = { Text(text = "Nazwisko") },
             placeholder = { Text(text = "Wpisz nazwisko") },
@@ -86,18 +93,35 @@ fun RegisterStepTwoScreen(
             label = "Jednostka stęzenia glukozy"
         )
 
+        UserTypeDropdownMenu(
+            selectedUnit = typeState,
+            onUnitSelected = { typeState = it },
+            label = "Typ użytkownika"
+        )
+
+
         Button(onClick = {
             coroutineScope.launch {
                 try {
-                    if (viewModel.registerStepTwo(
-                            userId, name, lastName, prefUnit.toString()
-                        )
-                    ) {
-                        registerError = ""
-                        navController.navigate("main_screen")
-                    } else {
-                        registerError = "Rejestracja nie powiodła się."
+                    if(validateForm(name, lastName)!=null){
+                        registerError =  validateForm(name, lastName).toString()
+                    }else
+                    {
+                        if (viewModel.registerStepTwo(
+                                userId, name, lastName, prefUnit.toString()
+                            )
+                        ) {
+                            viewModel.updateType(userId, typeState.toString())
+                            registerError = ""
+                            navController.navigate("login_screen")
+                            snackState.showSnackbar("Możesz się zalogować!")
+
+                        } else {
+                            registerError = "Rejestracja nie powiodła się."
+                            snackState.showSnackbar("Pamiętaj o poprawności danych")
+                        }
                     }
+
 
                 } catch (e: Exception) {
                     registerError = "Wystąpił błąd: ${e.message}"
@@ -115,4 +139,17 @@ fun RegisterStepTwoScreen(
             )
         }
     }
+}
+
+fun validateForm(name: String, lastName: String): String?{
+    if (name.isEmpty() || lastName.isEmpty()) {
+        return "Pola nie mogą być puste"
+    }
+    if (name.length < 2 || lastName.length < 2) {
+        return "Dane muszą mieć więcej niż 2 znaki"
+    }
+    if (!name.all { it.isLetter() } || !lastName.all { it.isLetter() }) {
+        return "Imie i nazwisko muszą zawierać litery"
+    }
+    return null
 }

@@ -83,7 +83,7 @@ dependencies {
     implementation (libs.ehsannarmani.compose.charts)
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation(libs.kotlinx.serialization.json)
-
+    implementation(libs.dotenv.kotlin)
 
 
     implementation(libs.hilt.android.v2511)
