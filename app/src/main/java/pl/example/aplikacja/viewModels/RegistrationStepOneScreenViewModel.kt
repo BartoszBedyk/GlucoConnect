@@ -10,7 +10,6 @@ class RegistrationStepOneScreenViewModel(private val apiProvider: ApiProvider) :
     suspend fun register(login: String, password: String): String? {
         val userCredentials = CreateUserForm(login, password)
         return userApi.createUser(userCredentials)
-
     }
 
 }

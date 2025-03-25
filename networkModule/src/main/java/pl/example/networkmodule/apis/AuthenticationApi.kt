@@ -2,6 +2,7 @@ package pl.example.networkmodule.apis
 
 import android.util.Log
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -52,6 +53,18 @@ class AuthenticationApi(private val ktorClient: KtorClient): AuthenticationApiIn
         } catch (e: Exception) {
             Log.e("AuthenticationApi", "Refresh failed: ${e.message}")
             return null
+        }
+    }
+
+    override suspend fun isApiAvlible(): Boolean {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/health") {
+                contentType(ContentType.Application.Json)
+            }
+            response.status == HttpStatusCode.OK
+        } catch (e: Exception) {
+            Log.e("AuthenticationApi", "API availability check failed: ${e.message}")
+            false
         }
     }
 

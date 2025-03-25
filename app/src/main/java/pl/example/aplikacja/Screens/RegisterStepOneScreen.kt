@@ -1,6 +1,5 @@
 package pl.example.aplikacja.Screens
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +41,7 @@ fun RegistrationScreen(navController: NavHostController){
     var password by remember { mutableStateOf("") }
     var passwordRepeat by remember { mutableStateOf("") }
     var registerError by remember { mutableStateOf("") }
+    val snackState = remember { SnackbarHostState() }
 
 
     Box(Modifier
@@ -99,8 +99,10 @@ fun RegistrationScreen(navController: NavHostController){
 
         Button(
             onClick = {
-                if (checkPassword(password, passwordRepeat)) {
-                    registerError = ""
+                if (checkPassword(password, passwordRepeat)!=null){
+                    registerError = checkPassword(password, passwordRepeat).toString()
+                }else
+                {
                     coroutineScope.launch {
                         try {
                             val userId = viewModel.register(login, password)
@@ -108,13 +110,12 @@ fun RegistrationScreen(navController: NavHostController){
                                 navController.navigate("register_step_two_screen/$userId")
                             } else {
                                 registerError = "Rejestracja nie powiodła się."
+                                snackState.showSnackbar("Błąd rejestracji sprawdź hasło oraz email.")
                             }
                         } catch (e: Exception) {
                             registerError = "Wystąpił błąd: ${e.message}"
                         }
                     }
-                } else {
-                    registerError = "Podane hasła nie są takie same."
                 }
             }
         ) {
@@ -134,6 +135,26 @@ fun RegistrationScreen(navController: NavHostController){
 
 }
 
-fun checkPassword(password: String, passwordRepeat: String): Boolean {
-    return password == passwordRepeat
+fun checkPassword(password: String, passwordRepeat: String): String? {
+    if (password.isEmpty() || passwordRepeat.isEmpty()) {
+        return "Pola nie mogą być puste"
+    }
+    if (password.length < 8 || passwordRepeat.length < 8) {
+        return "Hasła muszą mieć więcej niż 8 znaków"
+
+    }
+    if (!password.all { it.isLetterOrDigit() } || !passwordRepeat.all { it.isLetterOrDigit() }) {
+        return "Hasła muszą zawierać litery i cyfry"
+    }
+    if (password != passwordRepeat) {
+        return "Podane hasła nie są takie same"
+    }
+    if (!password.any { it.isUpperCase() } || !passwordRepeat.any { it.isUpperCase() }) {
+        return "Hasła muszą zawierać co najmniej jedną wielką literę"
+    }
+    if (!password.any { it.isDigit() } || !passwordRepeat.any { it.isDigit() }) {
+        return "Hasła muszą zawierać co najmniej jedną cyfrę"
+    }
+    return null
 }
+

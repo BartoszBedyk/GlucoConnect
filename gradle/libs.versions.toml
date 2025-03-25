@@ -4,6 +4,7 @@ ble = "2.9.0"
 charts = "1.1.0"
 composeCharts = "1.0.0"
 composeChartsVersion = "0.1.0"
+dotenvKotlin = "6.3.0"
 hiltAndroid = "2.51.1"
 hiltAndroidCompiler = "2.51.1"
 hiltAndroidVersion = "2.51.1"
@@ -37,6 +38,7 @@ androidx-security-crypto = { module = "androidx.security:security-crypto", versi
 ble = { module = "no.nordicsemi.android:ble", version.ref = "ble" }
 charts = { module = "com.github.tehras:charts", version.ref = "charts" }
 common = { module = "lifecycle:common" }
+dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenvKotlin" }
 ehsannarmani-compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeChartsVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }

@@ -15,6 +15,12 @@ interface UserApiInterface {
     suspend fun unblockUser(id: String): Boolean
     suspend fun unitUpdate(form: UnitUpdate): Boolean
     suspend fun updateUserNulls(form: UpdateUserNullForm): Boolean
+    suspend fun giveUserNulls(form: UpdateUserNullForm): Boolean
     suspend fun getUserUnitById(id: String): GlucoseUnitType?
     suspend fun getAllUsers(): List<UserResult>?
+    suspend fun observe(partOne: String, partTwo: String): UserResult?
+    suspend fun changeUserType(id: String, type: String): Boolean
+    suspend fun giveUserType(id: String, type: String): Boolean
+    suspend fun deleteUser(id: String): Boolean
+    suspend fun resetPassword(id: String, newPassword: String): Boolean
 }

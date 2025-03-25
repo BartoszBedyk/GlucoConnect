@@ -221,8 +221,14 @@ class BluetoothViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        bluetoothController.release()
+        try {
+            bluetoothController.release()
+        } catch (e: IllegalArgumentException) {
+            Log.e("BluetoothViewModel", "Błąd: Próba wyrejestrowania nieistniejącego odbiornika!", e)
+        }
     }
+
+
 
     private fun getActualDateTimeCommand(): ByteArray {
         val date = Date()

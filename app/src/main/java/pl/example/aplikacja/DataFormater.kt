@@ -9,6 +9,7 @@ import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
+import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 import pl.example.networkmodule.requestData.ResearchResultCreate
@@ -46,7 +47,31 @@ fun formatUnit(unit: GlucoseUnitType): String {
         GlucoseUnitType.MMOL_PER_L -> "mmol/l"
         GlucoseUnitType.MG_PER_DL -> "mg/dL"
     }
+}
 
+fun formatUserType(unit: UserType): String {
+    return when (unit) {
+        UserType.ADMIN -> "Administrator"
+        UserType.DOCTOR -> "Lekarz"
+        UserType.OBSERVER -> "Obserwator"
+        UserType.PATIENT -> "Pacjent"
+    }
+}
+
+fun UserType.toRestrictedUserTypeOrNull(): RestrictedUserType? {
+    return when (this) {
+        UserType.PATIENT -> RestrictedUserType.PATIENT
+        UserType.OBSERVER -> RestrictedUserType.OBSERVER
+        else -> null
+    }
+}
+
+fun formatUserType(unit: RestrictedUserType): String {
+    return when (unit) {
+        RestrictedUserType.PATIENT -> "Pacjent"
+        RestrictedUserType.OBSERVER -> "Obserwator"
+        RestrictedUserType.BRAK -> "Wybierz typ"
+    }
 }
 
 fun convertUnits(

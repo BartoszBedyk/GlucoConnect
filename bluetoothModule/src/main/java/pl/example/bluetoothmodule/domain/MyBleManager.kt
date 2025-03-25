@@ -12,7 +12,10 @@ import java.util.UUID
 
 class MyBleManager(context: Context) : BleManager(context) {
 
+
+    
     companion object {
+
         val SERVICE_UUID = UUID.fromString("00001523-1212-efde-1523-785feabcd123")
         val CHARACTERISTIC_UUID = UUID.fromString("00001524-1212-efde-1523-785feabcd123")
         const val CLIENT_CHARACTERISTIC_CONFIG_UUID = "00002a51-0000-1000-8000-00805f9b34fb"
