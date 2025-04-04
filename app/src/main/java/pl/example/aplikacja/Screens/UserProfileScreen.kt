@@ -72,9 +72,10 @@ fun UserProfileScreen(navController: NavController) {
     var showDialogObservator by remember { mutableStateOf(false) }
     var showAcceptDialog by remember { mutableStateOf(false) }
     var selectedObserver by remember { mutableStateOf<UserResult?>(null) }
+    val healthy by viewModel.healthy.collectAsState()
 
 
-    if (isNetworkAvailable(context)) {
+    if (isNetworkAvailable(context) && healthy) {
         var codeImput by remember { mutableStateOf("") }
         val userData = viewModel.userData.collectAsState()
         val observed = viewModel.observed.collectAsState()

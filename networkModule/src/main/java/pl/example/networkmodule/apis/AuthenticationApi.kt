@@ -2,6 +2,7 @@ package pl.example.networkmodule.apis
 
 import android.util.Log
 import io.ktor.client.call.body
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -59,6 +60,9 @@ class AuthenticationApi(private val ktorClient: KtorClient): AuthenticationApiIn
     override suspend fun isApiAvlible(): Boolean {
         return try {
             val response = client.get("http://10.0.2.2:8080/health") {
+                timeout {
+                    requestTimeoutMillis = 2000
+                }
                 contentType(ContentType.Application.Json)
             }
             response.status == HttpStatusCode.OK

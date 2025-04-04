@@ -53,8 +53,8 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     //saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTEiLCJ1c2VybmFtZSI6ImQuZEB3cC5wbCIsInVzZXJUeXBlIjoiT0JTRVJWRVIiLCJleHAiOjE3NDI0MDUxNTZ9.oBoivhg8ri8uRRRbnm4NYI9ieCyeqP1FPU_NYphbM2I")
     //clearToken(context)
     val coroutineScope = rememberCoroutineScope()
-    val apiProvider = ApiProvider(context)
-    val viewModel = LoginScreenViewModel(apiProvider)
+    val apiProvider = remember { ApiProvider(context) }
+    val viewModel = remember { LoginScreenViewModel(apiProvider) }
 
     val healthy by viewModel.healthy.collectAsState()
     var login by remember { mutableStateOf("") }
@@ -137,9 +137,11 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
                         if (isNetworkAvailable(context) && healthy == true) {
                             val token = viewModel.login(login, password, context)
                             if (token != null) {
+                                saveToken(context, token)
                                 val intent = Intent(context, MainActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                                 context.startActivity(intent)
+                                //navController.navigate("main_screen")
                             } else {
                                 loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
                             }

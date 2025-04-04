@@ -83,7 +83,7 @@ fun RegisterStepTwoScreen(
             label = { Text(text = "Nazwisko") },
             placeholder = { Text(text = "Wpisz nazwisko") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Unspecified),
-            visualTransformation = PasswordVisualTransformation(),
+            //visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.padding(vertical = 8.dp)
         )
 

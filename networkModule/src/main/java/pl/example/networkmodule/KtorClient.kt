@@ -3,6 +3,7 @@ package pl.example.networkmodule
 import android.content.Context
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logger
@@ -21,6 +22,11 @@ class KtorClient(context: Context) {
             token?.let {
                 headers.append("Authorization", "Bearer ${getToken(context)}")
             }
+        }
+        install(HttpTimeout){
+            requestTimeoutMillis = 15000
+            connectTimeoutMillis = 10000
+            socketTimeoutMillis = 15000
         }
 
         install(Logging) {

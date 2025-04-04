@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.aplikacja.convertResearchDBtoResearchResult
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.networkmodule.apiData.ResearchResult
@@ -34,7 +35,15 @@ class GlucoseDetailsScreenViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+
+    private val authenticationApi = apiProvider.authenticationApi
+
+
+    private val _healthy = MutableStateFlow<Boolean>(false)
+    val healthy: StateFlow<Boolean> = _healthy
+
     init {
+        isApiAvilible(apiProvider.innerContext)
         fetchGlucoseResult()
 
     }
@@ -43,6 +52,8 @@ class GlucoseDetailsScreenViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                if (!healthy.value) throw IllegalStateException("API not available")
+
                 val result = resultApi.getResearchResultsById(RESULT_ID)
                 _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MG_PER_DL
                 _glucoseResult.value = result?.let { convertUnit(it) }
@@ -86,6 +97,22 @@ class GlucoseDetailsScreenViewModel(
         } catch (e: Exception) {
             Log.e("GlucoseDetails", "Error deleting glucose result: ${e.message}")
             false
+        }
+    }
+
+    var lastCheckedTime = 0L
+    private fun isApiAvilible(context: Context) {
+        val now = System.currentTimeMillis()
+        if (now - lastCheckedTime < 10_000) return
+        lastCheckedTime = now
+
+        viewModelScope.launch {
+            try {
+                _healthy?.value =
+                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+            } catch (e: Exception) {
+                _healthy?.value = false
+            }
         }
     }
 

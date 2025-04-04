@@ -80,7 +80,6 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
 
-
     private val foundDeviceReceiver = FoundDeviceReceiver { device ->
         _scannedDevices.update { devices ->
             if (device in devices) devices else (devices + device)
@@ -99,35 +98,55 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
     private var currentServerSocket: BluetoothServerSocket? = null
     private var currentClientSocket: BluetoothSocket? = null
+    private var isFoundDeviceReceiverRegistered = false
+    private var isBluetoothStateReceiverRegistered = false
+
 
 
     init {
         updatePairedDevices()
-        context.registerReceiver(
-            bluetoothStateReceiver,
-            IntentFilter().apply {
-                addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
-                addAction(android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED)
-                addAction(android.bluetooth.BluetoothDevice.ACTION_ACL_DISCONNECTED)
-            }
-
-        )
+        context.registerReceiver(bluetoothStateReceiver, IntentFilter().apply {
+            addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
+            addAction(android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED)
+            addAction(android.bluetooth.BluetoothDevice.ACTION_ACL_DISCONNECTED)
+        })
+        isBluetoothStateReceiverRegistered = true
     }
+
 
     override fun startDiscovery() {
         if (!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+            if (isFoundDeviceReceiverRegistered) {
+                try {
+                    context.unregisterReceiver(foundDeviceReceiver)
+                    isFoundDeviceReceiverRegistered = false
+                    Log.d("BluetoothViewModel", "Odbiornik foundDeviceReceiver wyrejestrowany (brak uprawnień)")
+                } catch (e: IllegalArgumentException) {
+                    Log.e("BluetoothViewModel", "Błąd przy wyrejestrowywaniu foundDeviceReceiver: ${e.message}")
+                }
+            }
             return
         }
-        context.registerReceiver(
-            foundDeviceReceiver,
-            IntentFilter(android.bluetooth.BluetoothDevice.ACTION_FOUND)
-        )
+
+        if (!isFoundDeviceReceiverRegistered) {
+            try {
+                context.registerReceiver(
+                    foundDeviceReceiver, IntentFilter(android.bluetooth.BluetoothDevice.ACTION_FOUND)
+                )
+                isFoundDeviceReceiverRegistered = true
+                Log.d("BluetoothViewModel", "Odbiornik foundDeviceReceiver zarejestrowany")
+            } catch (e: Exception) {
+                Log.e("BluetoothViewModel", "Błąd podczas rejestrowania foundDeviceReceiver: ${e.message}")
+                return
+            }
+        } else {
+            Log.d("BluetoothViewModel", "Odbiornik foundDeviceReceiver już zarejestrowany")
+        }
 
         updatePairedDevices()
-
         bluetoothAdapter?.startDiscovery()
-
     }
+
 
     override fun stopDiscovery() {
         if (!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
@@ -137,10 +156,25 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
     override fun release() {
-        context.unregisterReceiver(foundDeviceReceiver)
-        context.unregisterReceiver(bluetoothStateReceiver)
+        if (isFoundDeviceReceiverRegistered) {
+            try {
+                context.unregisterReceiver(foundDeviceReceiver)
+                isFoundDeviceReceiverRegistered = false
+            } catch (e: IllegalArgumentException) {
+                Log.w("BluetoothController", "FoundDeviceReceiver już wyrejestrowany.")
+            }
+        }
+        if (isBluetoothStateReceiverRegistered) {
+            try {
+                context.unregisterReceiver(bluetoothStateReceiver)
+                isBluetoothStateReceiverRegistered = false
+            } catch (e: IllegalArgumentException) {
+                Log.w("BluetoothController", "BluetoothStateReceiver już wyrejestrowany.")
+            }
+        }
         closeConnection()
     }
+
 
     override fun startBluetoothServer(): Flow<ConnectionResult> {
         return flow {
@@ -148,8 +182,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                 throw SecurityException("No BLUETOOTH_CONNECT permission.")
             }
             currentServerSocket = bluetoothAdapter?.listenUsingRfcommWithServiceRecord(
-                "Aplikacja Inżynierska",
-                UUID.fromString(SERVICE_UUID)
+                "Aplikacja Inżynierska", UUID.fromString(SERVICE_UUID)
             )
             var shouldLoop = true
             while (shouldLoop) {
@@ -181,8 +214,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
 
 
-            currentClientSocket = bluetoothDevice
-                ?.createRfcommSocketToServiceRecord(
+            currentClientSocket = bluetoothDevice?.createRfcommSocketToServiceRecord(
                     UUID.fromString(SERVICE_UUID)
                 )
             stopDiscovery()
@@ -218,10 +250,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
         if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
             return
         }
-        bluetoothAdapter
-            ?.bondedDevices
-            ?.map { it }
-            ?.also { devices ->
+        bluetoothAdapter?.bondedDevices?.map { it }?.also { devices ->
                 _pairedDevices.update { devices }
             }
     }
@@ -254,9 +283,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
             val gattCallback = object : BluetoothGattCallback() {
                 override fun onConnectionStateChange(
-                    gatt: BluetoothGatt,
-                    status: Int,
-                    newState: Int
+                    gatt: BluetoothGatt, status: Int, newState: Int
                 ) {
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
                         Log.d("GATT", "Connected to GATT server.")
@@ -299,9 +326,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
                 }
 
                 override fun onCharacteristicWrite(
-                    gatt: BluetoothGatt,
-                    characteristic: BluetoothGattCharacteristic,
-                    status: Int
+                    gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
                 ) {
                     when (status) {
                         BluetoothGatt.GATT_SUCCESS -> {
@@ -345,8 +370,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
                 @Deprecated("Deprecated in Java")
                 override fun onCharacteristicChanged(
-                    gatt: BluetoothGatt?,
-                    characteristic: BluetoothGattCharacteristic?
+                    gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?
                 ) {
                     Log.d("GATT_CHANGED", "Characteristic changed.")
                     val receivedData = characteristic?.value
@@ -394,8 +418,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
 
         val service = gatt.getService(UUID.fromString(SERVICE_UUID))
-        val characteristic =
-            service?.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID))
+        val characteristic = service?.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID))
 
         if (characteristic != null) {
             if ((characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
@@ -430,8 +453,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
     private fun enableNotifications(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic
+        gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic
     ) {
         gatt.setCharacteristicNotification(characteristic, true)
         val descriptor =

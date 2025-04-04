@@ -47,19 +47,24 @@ class LoginScreenViewModel(private val apiProvider: ApiProvider): ViewModel() {
         }
     }
 
-     fun isApiAvilible(context: Context) {
+
+    var lastCheckedTime = 0L
+    fun isApiAvilible(context: Context) {
+
+        val now = System.currentTimeMillis()
+        if (now - lastCheckedTime < 10_000) return
+        lastCheckedTime = now
+
         viewModelScope.launch {
             try {
-                if (authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)) {
-                    _healthy.value = true
-                } else {
-                    _healthy.value = false
-                }
+                _healthy.value =
+                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
             } catch (e: Exception) {
                 _healthy.value = false
             }
         }
     }
+
 
     suspend fun refreshToken(context: Context): String? {
         return try {

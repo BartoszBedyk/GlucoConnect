@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
 import pl.example.aplikacja.convertResearchDBtoResearchResult
 import pl.example.aplikacja.convertUnits
@@ -32,6 +33,13 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     private val userApi = apiProvider.userApi
     private val heartbeatApi = apiProvider.heartbeatApi
 
+
+    private val authenticationApi = apiProvider.authenticationApi
+
+
+    private val _healthy = MutableStateFlow<Boolean>(false)
+    val healthy: StateFlow<Boolean> = _healthy
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -49,6 +57,7 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     val prefUnit: StateFlow<GlucoseUnitType> = _prefUnit
 
     init {
+        isApiAvilible(apiProvider.innerContext)
         syncDatabases()
         fetchItemsAsync()
     }
@@ -57,6 +66,8 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
         _isLoading.value = true
         viewModelScope.launch {
             try {
+                if (!healthy.value) throw IllegalStateException("API not available")
+
                 val results = resultApi.getResultsByUserId(USER_ID) ?: emptyList()
                 _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
                 _glucoseResults.value = convertUnits(results, prefUnit.value)
@@ -81,6 +92,8 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     private fun syncDatabases() {
         viewModelScope.launch {
             try {
+                if (!healthy.value) throw IllegalStateException("API not available")
+
                 val unsyncedResults = researchRepository.getUnsyncedResearchResults()
                 if (unsyncedResults.isNotEmpty()) {
                     convertResearchDBtoResearchResult(unsyncedResults).forEach { result ->
@@ -93,7 +106,23 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                     }
                 }
             } catch (e: Exception) {
-                Log.e("SYNC", "Failed to sync data with API: ${e.message}", e)
+                Log.i("SYNC", "Failed to sync data with API: ${e.message}", e)
+            }
+        }
+    }
+
+    var lastCheckedTime = 0L
+    private fun isApiAvilible(context: Context) {
+        val now = System.currentTimeMillis()
+        if (now - lastCheckedTime < 10_000) return
+        lastCheckedTime = now
+
+        viewModelScope.launch {
+            try {
+                _healthy?.value =
+                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+            } catch (e: Exception) {
+                _healthy?.value = false
             }
         }
     }

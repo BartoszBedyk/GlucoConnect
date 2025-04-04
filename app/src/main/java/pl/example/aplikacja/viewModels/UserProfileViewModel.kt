@@ -1,10 +1,13 @@
 package pl.example.aplikacja.viewModels
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.networkmodule.apiData.ObserverResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.UserResult
@@ -33,7 +36,15 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
     private val _observatorsUnAccepted = MutableStateFlow<List<UserResult>?>(emptyList())
     val observatorsUnAccepted: MutableStateFlow<List<UserResult>?> = _observatorsUnAccepted
 
+    private val authenticationApi = apiProvider.authenticationApi
+
+
+    private val _healthy = MutableStateFlow<Boolean>(false)
+    val healthy: StateFlow<Boolean> = _healthy
+
+
     init {
+        isApiAvilible(apiProvider.innerContext)
         fetchUserData()
         fetchUnaccepted()
         fetchAccepted()
@@ -41,13 +52,19 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
 
     private fun fetchUserData() {
         viewModelScope.launch {
-            _userData.value = userApi.getUserById(id = USER_ID)
+            try{
+                if (!healthy.value) throw IllegalStateException("API not available")
+                _userData.value = userApi.getUserById(id = USER_ID)
+            }catch (e: Exception){
+                println(e.message)
+            }
         }
     }
 
     private fun fetchUnaccepted(){
         viewModelScope.launch {
             try{
+                if (!healthy.value) throw IllegalStateException("API not available")
                 val unAccepted  = observerApi.getObservatorByObservedIdUnAccepted(USER_ID)
                 if (unAccepted != null) {
                     if (unAccepted.isNotEmpty()) {
@@ -77,7 +94,7 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
     private fun fetchAccepted(){
         viewModelScope.launch {
             try{
-
+                if (!healthy.value) throw IllegalStateException("API not available")
             }catch(e : Exception){
                 println(e.message)
             }
@@ -125,6 +142,22 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
                 observerApi.unAcceptObservation(CreateObserver(observerId, observedId))
             } catch (e: Exception) {
                 println(e.message)
+            }
+        }
+    }
+
+    var lastCheckedTime = 0L
+    private fun isApiAvilible(context: Context) {
+        val now = System.currentTimeMillis()
+        if (now - lastCheckedTime < 10_000) return
+        lastCheckedTime = now
+
+        viewModelScope.launch {
+            try {
+                _healthy?.value =
+                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+            } catch (e: Exception) {
+                _healthy?.value = false
             }
         }
     }

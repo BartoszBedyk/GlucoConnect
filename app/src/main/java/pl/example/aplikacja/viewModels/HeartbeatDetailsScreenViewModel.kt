@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
 import pl.example.aplikacja.convertResearchDBtoResearchResult
 import pl.example.databasemodule.database.repository.HeartbeatRepository
@@ -28,7 +29,15 @@ class HeartbeatDetailsScreenViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+
+    private val authenticationApi = apiProvider.authenticationApi
+
+
+    private val _healthy = MutableStateFlow<Boolean>(false)
+    val healthy: StateFlow<Boolean> = _healthy
+
     init {
+        isApiAvilible(apiProvider.innerContext)
         fetchHeartbeatResult()
     }
 
@@ -36,6 +45,9 @@ class HeartbeatDetailsScreenViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                if (!healthy.value) throw IllegalStateException("API not available")
+
+
                 val result = heartbeatAPi.getHeartBeat(RESULT_ID)
                 _heartbeatResult.value = result
             } catch (e: Exception) {
@@ -62,5 +74,21 @@ class HeartbeatDetailsScreenViewModel(
             }
         }
         return deleted
+    }
+
+    var lastCheckedTime = 0L
+    private fun isApiAvilible(context: Context) {
+        val now = System.currentTimeMillis()
+        if (now - lastCheckedTime < 10_000) return
+        lastCheckedTime = now
+
+        viewModelScope.launch {
+            try {
+                _healthy?.value =
+                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+            } catch (e: Exception) {
+                _healthy?.value = false
+            }
+        }
     }
 }
