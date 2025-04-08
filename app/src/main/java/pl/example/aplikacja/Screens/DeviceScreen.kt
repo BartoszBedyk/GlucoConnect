@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,11 +17,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,25 +34,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import pl.example.aplikacja.parseMeasurement
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
 import pl.example.bluetoothmodule.presentation.BluetoothUiState
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
-import java.util.Date
 import java.util.UUID
 
 @Composable
@@ -83,8 +84,9 @@ fun DeviceScreen(
     }
 
     Column {
-        if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
-            context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+        if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
+                Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             Column {
                 Text(text = "Aplikacja nie posiada uprawnień do podłączenia urządzeń Bluetooth")
@@ -108,7 +110,8 @@ fun DeviceScreen(
                 )
 
                 BluetoothDeviceList(
-                    state.pairedDevices, state.scannedDevices,
+                    state.pairedDevices,
+                    state.scannedDevices,
                     onClick = onDeviceClick,
                     Modifier
                         .fillMaxWidth()
@@ -119,16 +122,22 @@ fun DeviceScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Button(onClick = onStartScan) {
-                        Text(text = "Start scan")
-                    }
-                    Button(onClick = onStopScan) {
-                        Text(text = "Stop scan")
-                    }
+//                    Button(onClick = onStartScan) {
+//                        Text(text = "Start scan")
+//                    }
+//                    Button(onClick = onStopScan) {
+//                        Text(text = "Stop scan")
+//                    }
                 }
                 if (destination == "addResult") {
+                    if (state.isConnecting) {
+                        TopBluetoothPanel(isLoading = true)
+                    }
+
                     Box {
                         LaunchedEffect(Unit) {
+                            bluetoothViewModel.startScan()
+                            bluetoothViewModel.loadingBluetooth
                             bluetoothViewModel.readLastMeasurement()
                         }
 
@@ -138,8 +147,7 @@ fun DeviceScreen(
                                 coroutineScope.launch {
                                     bluetoothViewModel.readLastMeasurement()
                                 }
-                            },
-                            modifier = Modifier
+                            }, modifier = Modifier
                                 .padding(16.dp)
                                 .align(Alignment.BottomCenter)
                         ) {
@@ -153,11 +161,11 @@ fun DeviceScreen(
                         Card(
                             Modifier
                                 .padding(16.dp)
-                                .align(Alignment.CenterHorizontally)) {
+                                .align(Alignment.CenterHorizontally)
+                        ) {
                             TextRow(
                                 label = "Ostatni pomiar",
-                                value = parseMeasurement(measurmentData)?.date
-                                    .toString()
+                                value = parseMeasurement(measurmentData)?.date.toString()
                             )
                             TextRow(
                                 label = "Poziom glukozy",
@@ -259,5 +267,37 @@ fun BluetoothDeviceList(
                     .clickable { onClick(device) }
                     .padding(16.dp))
         }
+    }
+}
+
+@Preview(
+    name = "Standard",
+    group = "First",
+    device = "spec:width=1080px,height=2400px",
+    showSystemUi = true
+)
+@Composable
+fun TopBluetoothPanel(isLoading: Boolean = true, title: String = "Łączenie z urządzeniem") {
+    if (!isLoading) return
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.primary),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.CenterVertically),
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(32.dp)
+        )
+
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -17,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -72,7 +74,12 @@ fun BottomNavigationBar(navBarViewModel: BottomNavBarViewModel, navController: N
                             imageVector = if (index == navBarViewModel.selectedItemIndex.value) {
                                 item.selectedIcon
                             } else item.unselectedIcon,
-                            contentDescription = item.title
+                            contentDescription = item.title,
+                                    tint = if (index == navBarViewModel.selectedItemIndex.value) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onBackground
+                            }
                         )
                     }
                 }

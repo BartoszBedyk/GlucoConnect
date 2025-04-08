@@ -16,6 +16,8 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -63,10 +65,10 @@ class BottomNavBarViewModel(
     private fun getAdminItems(): List<BottomNavigationItem> = listOf(
         BottomNavigationItem("admin_main_screen", Icons.Default.Home, Icons.Outlined.Home, false),
         BottomNavigationItem(
-            "download_results",
-            Icons.Default.KeyboardArrowDown,
-            Icons.Outlined.KeyboardArrowDown,
-            false
+            title ="download_results",
+            selectedIcon = Icons.Default.KeyboardArrowDown,
+            unselectedIcon = Icons.Outlined.KeyboardArrowDown,
+            hasNews = false
         ),
         BottomNavigationItem(
             "user_profile_screen",
