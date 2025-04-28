@@ -55,7 +55,7 @@ fun BluetoothPermission(
 
     val measurmentData2 by bluetoothViewModel._lastMeasurement.collectAsState()
     Log.i("SCREEN", "measurmentData2: $measurmentData2")
-    val result =""
+    val result = ""
 
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -94,17 +94,19 @@ fun BluetoothPermission(
 
     when {
         state.isConnecting -> {
+
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Column {
-                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
-                    Text(
-                        text = "Nawiązywanie połączenia...",
-                        modifier = Modifier.padding(16.dp),
-                        color = androidx.compose.ui.graphics.Color.Gray
-                    )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(0.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    TopBluetoothPanel(isLoading = true)
                 }
             }
         }
@@ -114,7 +116,7 @@ fun BluetoothPermission(
                 state = state,
                 onStartScan = {
                     isScanning = true
-                   bluetoothViewModel.startScan()
+                    bluetoothViewModel.startScan()
                 },
                 onStopScan = {
                     isScanning = false
@@ -122,7 +124,12 @@ fun BluetoothPermission(
                 },
                 context = context,
                 onDeviceClick = { device ->
-                   bluetoothViewModel.connectToGattDevice(pl.example.bluetoothmodule.domain.BluetoothDevice(device.name, device.address))
+                    bluetoothViewModel.connectToGattDevice(
+                        pl.example.bluetoothmodule.domain.BluetoothDevice(
+                            device.name,
+                            device.address
+                        )
+                    )
                 },
                 onDownloadTime = {
                     bluetoothViewModel.viewModelScope.launch {

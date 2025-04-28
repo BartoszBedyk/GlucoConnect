@@ -20,11 +20,12 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
     private val client = ktorClient.client
 
     private val usersMedicationEndpoint: String = "user-medications"
+    private val adress = ktorClient.baseUrl
 
 
     override suspend fun createUserMedication(userMedication: CreateUserMedicationForm): String? {
         return try {
-            val response = client.post("http://10.0.2.2:8080/$usersMedicationEndpoint") {
+            val response = client.post("$adress/$usersMedicationEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(userMedication)
             }
@@ -36,7 +37,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
     }
 
     override suspend fun readUserMedication(id: String): UserMedicationResult? {
-        val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/$id")
+        val response = client.get("$adress/$usersMedicationEndpoint/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 response.body<UserMedicationResult>()
@@ -52,7 +53,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
 
     override suspend fun deleteUserMedication(id: String): Boolean {
         return try {
-            val response = client.delete("http://10.0.2.2:8080/$usersMedicationEndpoint/$id")
+            val response = client.delete("$adress/$usersMedicationEndpoint/$id")
             response.status == HttpStatusCode.OK
         } catch (e: Exception) {
             Log.e("UserMedicationApi", "Request failed with status ${e.message}")
@@ -62,7 +63,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
 
     override suspend fun deleteUserMedicationForUser(userId: String): Boolean {
         return try {
-            val response = client.delete("http://10.0.2.2:8080/$usersMedicationEndpoint/user/$userId")
+            val response = client.delete("$adress/$usersMedicationEndpoint/user/$userId")
             response.status == HttpStatusCode.OK
         } catch (e: Exception) {
             Log.e("UserMedicationApi", "Request failed with status ${e.message}")
@@ -72,7 +73,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
 
     override suspend fun readTodayUserMedication(id: String): List<UserMedicationResult>? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/today/$id") {
+            val response = client.get("$adress/$usersMedicationEndpoint/today/$id") {
                 contentType(ContentType.Application.Json)
             }
 
@@ -95,7 +96,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
 
     override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/user/$userId/$medicationId")
+            val response = client.get("$adress/$usersMedicationEndpoint/user/$userId/$medicationId")
 
             if (response.status == HttpStatusCode.OK) {
                 response.body()
@@ -111,7 +112,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
 
     override suspend fun readUserMedicationByID(umId: String): List<UserMedicationResult>? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/um/$umId")
+            val response = client.get("$adress/$usersMedicationEndpoint/um/$umId")
 
             if (response.status == HttpStatusCode.OK) {
                 response.body()
@@ -127,7 +128,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
 
     override suspend fun markAsSynced(userId: String): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$usersMedicationEndpoint/$userId/sync") {
+            val response = client.put("$adress/$usersMedicationEndpoint/$userId/sync") {
                 contentType(ContentType.Application.Json)
             }
             response.status == HttpStatusCode.OK
@@ -139,7 +140,7 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
 
     override suspend fun getUserMedicationId(id: String, medicationId: String): String? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$usersMedicationEndpoint/umById/$id/$medicationId") {
+            val response = client.get("$adress/$usersMedicationEndpoint/umById/$id/$medicationId") {
                 contentType(ContentType.Application.Json)
             }
 

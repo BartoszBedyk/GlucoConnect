@@ -18,10 +18,11 @@ import java.util.*
 class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
     private val client = ktorClient.client
     private val observerEndpoint: String = "observer"
+    private val adress = ktorClient.baseUrl
 
     override suspend fun observe(createObserver: CreateObserver): UUID? {
         return try {
-            val response = client.post("http://10.0.2.2:8080/$observerEndpoint") {
+            val response = client.post("$adress/$observerEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(createObserver)
             }
@@ -40,7 +41,7 @@ class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
 
     override suspend fun getObservedAcceptedByObserverId(observerId: String): List<ObserverResult>? {
 
-        val response = client.get("http://10.0.2.2:8080/$observerEndpoint/$observerId/accepted")
+        val response = client.get("$adress/$observerEndpoint/$observerId/accepted")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 response.body<List<ObserverResult>>()
@@ -55,7 +56,7 @@ class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
 
     override suspend fun getObservedUnAcceptedByObserverId(observerId: String): List<ObserverResult>? {
 
-        val response = client.get("http://10.0.2.2:8080/$observerEndpoint/$observerId/unaccepted")
+        val response = client.get("$adress/$observerEndpoint/$observerId/unaccepted")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
 
@@ -71,7 +72,7 @@ class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
 
     override suspend fun acceptObservation(createObserver: CreateObserver): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$observerEndpoint/accept") {
+            val response = client.put("$adress/$observerEndpoint/accept") {
                 contentType(ContentType.Application.Json)
                 setBody(createObserver)
             }
@@ -84,7 +85,7 @@ class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
 
     override suspend fun unAcceptObservation(createObserver: CreateObserver): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$observerEndpoint/unaccept") {
+            val response = client.put("$adress/$observerEndpoint/unaccept") {
                 contentType(ContentType.Application.Json)
                 setBody(createObserver)
             }
@@ -96,7 +97,7 @@ class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
     }
 
     override suspend fun getObservatorByObservedIdAccepted(observedId: String): List<ObserverResult>? {
-        val response = client.get("http://10.0.2.2:8080/$observerEndpoint/accepted/$observedId")
+        val response = client.get("$adress/$observerEndpoint/accepted/$observedId")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 Log.e("Accepted", response.body<List<ObserverResult>>().toString())
@@ -110,7 +111,7 @@ class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
     }
 
     override suspend fun getObservatorByObservedIdUnAccepted(observedId: String): List<ObserverResult>? {
-        val response = client.get("http://10.0.2.2:8080/$observerEndpoint/pending/$observedId")
+        val response = client.get("$adress/$observerEndpoint/pending/$observedId")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 Log.e("UNaccepted", response.body<List<ObserverResult>>().toString())

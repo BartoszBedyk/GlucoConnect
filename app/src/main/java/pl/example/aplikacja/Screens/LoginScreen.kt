@@ -135,6 +135,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
                     loginError = ""
                     coroutineScope.launch {
                         if (isNetworkAvailable(context) && healthy == true) {
+                            Log.i("LoginScreen", "Network is available")
                             val token = viewModel.login(login, password, context)
                             if (token != null) {
                                 saveToken(context, token)
@@ -146,8 +147,9 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
                                 loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
                             }
                         } else {
+                            //saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiI1NjI1MWVhNi0zYTU3LTRmYjQtOGQ3Ni1kMWQwODg0M2Y5YTMiLCJ1c2VybmFtZSI6ImZzLmZzQHdwLnBsIiwidXNlclR5cGUiOiJQQVRJRU5UIiwiZXhwIjoxNzQ0NzIwMjcxfQ.WuCwX23OwRtAnQUs8zz2n2U8oui1IVx8gXMwI9qeL9w")
                             loginError =
-                                "Brak połączenia z Internetem. Sprawdź połączenie i spróbuj ponownie."
+                                "Brak połączenia z serwerem. Sprawdź połączenie i spróbuj ponownie."
                         }
                         blocked = false
                     }

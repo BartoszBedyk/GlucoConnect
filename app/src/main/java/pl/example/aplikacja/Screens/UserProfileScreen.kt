@@ -430,7 +430,7 @@ fun UserProfileScreen(navController: NavController) {
             }
 
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("glucometer_admin_screen") },
+                onClick = { navController.navigate("bluetooth_permission_screen/glucometer") },
                 icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
                 text = { Text(text = "Bluetooth") },
                 modifier = Modifier

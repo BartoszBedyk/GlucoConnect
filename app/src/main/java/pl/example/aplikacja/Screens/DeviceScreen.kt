@@ -44,6 +44,7 @@ import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.formatDateTimeSpecificLocale
 import pl.example.aplikacja.parseMeasurement
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
@@ -130,9 +131,7 @@ fun DeviceScreen(
 //                    }
                 }
                 if (destination == "addResult") {
-                    if (state.isConnecting) {
-                        TopBluetoothPanel(isLoading = true)
-                    }
+
 
                     Box {
                         LaunchedEffect(Unit) {
@@ -141,18 +140,22 @@ fun DeviceScreen(
                             bluetoothViewModel.readLastMeasurement()
                         }
 
-                        ElevatedButton(
-                            onClick = {
-                                Log.d("DOWNLOAD_TIME", "Button clicked")
-                                coroutineScope.launch {
-                                    bluetoothViewModel.readLastMeasurement()
-                                }
-                            }, modifier = Modifier
-                                .padding(16.dp)
-                                .align(Alignment.BottomCenter)
-                        ) {
-                            Text(text = "Pobierz pomiar")
+                        if (state.isConnecting) {
+                            TopBluetoothPanel(isLoading = true)
                         }
+
+//                        ElevatedButton(
+//                            onClick = {
+//                                Log.d("DOWNLOAD_TIME", "Button clicked")
+//                                coroutineScope.launch {
+//                                    bluetoothViewModel.readLastMeasurement()
+//                                }
+//                            }, modifier = Modifier
+//                                .padding(16.dp)
+//                                .align(Alignment.BottomCenter)
+//                        ) {
+//                            Text(text = "Pobierz pomiar")
+//                        }
 
 
                     }
@@ -163,10 +166,16 @@ fun DeviceScreen(
                                 .padding(16.dp)
                                 .align(Alignment.CenterHorizontally)
                         ) {
-                            TextRow(
-                                label = "Ostatni pomiar",
-                                value = parseMeasurement(measurmentData)?.date.toString()
-                            )
+                            parseMeasurement(measurmentData)?.date?.let {
+                                formatDateTimeSpecificLocale(
+                                    it
+                                )
+                            }?.let {
+                                TextRow(
+                                    label = "Ostatni pomiar",
+                                    value = it
+                                )
+                            }
                             TextRow(
                                 label = "Poziom glukozy",
                                 value = parseMeasurement(measurmentData)?.result.toString()

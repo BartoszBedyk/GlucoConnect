@@ -1,6 +1,7 @@
 package pl.example.aplikacja
 
 
+import android.util.Log
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
 import pl.example.databasemodule.database.data.HeartbeatDB
 import pl.example.databasemodule.database.data.ResearchResultDB
@@ -24,6 +25,8 @@ import java.util.regex.Pattern
 
 fun formatDateTimeSpecificLocale(date: Date): String {
     val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale("pl", "PL"))
+    Log.i("GlucometerDate", "without format $date")
+    Log.i("GlucometerDate", "with format ${dateFormat.format(date)}")
     return dateFormat.format(date)
 }
 

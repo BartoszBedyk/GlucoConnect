@@ -15,10 +15,11 @@ import kotlinx.serialization.json.Json
 
 class KtorClient(context: Context) {
     private val token = getToken(context)
-
+    val baseUrl = "http://192.168.1.26:8080"
+    //val baseUrl = "http://10.0.2.2:8080"
     val client = HttpClient(OkHttp) {
         defaultRequest {
-            url("http://10.0.2.2:8080/")
+            url(baseUrl)
             token?.let {
                 headers.append("Authorization", "Bearer ${getToken(context)}")
             }

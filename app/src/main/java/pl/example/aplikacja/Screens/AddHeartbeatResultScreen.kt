@@ -2,6 +2,7 @@ package pl.example.aplikacja.Screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,6 +10,9 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -27,7 +31,9 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
@@ -87,140 +93,176 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
 
     SnackbarHost(hostState = snackState, Modifier)
 
-    Column(Modifier.padding(16.dp)) {
-        TextRowEdit(
-            label = "Systoliczne ciśnienie",
-            value = systolicPressure,
-            onValueChange = { systolicPressure = it },
-            fontSize = 20
-        )
+    Column(
+        Modifier.padding(18.dp),
+    ) {
+        OutlinedCard() {
+            Column(Modifier.padding(16.dp)) {
+                TextRowEdit(
+                    label = "Systoliczne ciśnienie",
+                    value = systolicPressure,
+                    onValueChange = { systolicPressure = it },
+                    fontSize = 18,
+                    true
+                )
 
-        TextRowEdit(
-            label = "Diastoliczne ciśnienie",
-            value = diastolicPressure,
-            onValueChange = { diastolicPressure = it },
-            fontSize = 20
-        )
+                TextRowEdit(
+                    label = "Diastoliczne ciśnienie",
+                    value = diastolicPressure,
+                    onValueChange = { diastolicPressure = it },
+                    fontSize = 18,
+                    true
+                )
 
-        TextRowEdit(
-            label = "Puls",
-            value = pulse,
-            onValueChange = { pulse = it },
-            fontSize = 20
-        )
+                TextRowEdit(
+                    label = "Puls",
+                    value = pulse,
+                    onValueChange = { pulse = it },
+                    fontSize = 18,
+                    true
+                )
 
-        TextRowEdit(
-            label = "Notatka",
-            value = note,
-            onValueChange = { note = it },
-            fontSize = 20
-        )
+                TextRowEdit(
+                    label = "Notatka",
+                    value = note,
+                    onValueChange = { note = it },
+                    fontSize = 18,
+                    false
+                )
 
-        Row(verticalAlignment = CenterVertically) {
-            Text(text = "Data pomiaru")
-            Checkbox(checked = checked, onCheckedChange = { state ->
-                if (state) {
-                    openDialogDate = true
-                    openDateTimePicker = true
+                Row(verticalAlignment = CenterVertically) {
+                    Text(
+                        text = "Data pomiaru",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
+                    Checkbox(checked = checked, onCheckedChange = { state ->
+                        if (state) {
+                            openDialogDate = true
+                            openDateTimePicker = true
+                        }
+                        checked = state
+                    })
                 }
-                checked = state
-            })
-        }
 
-        if (checked) {
-            TextRowEdit(
-                label = "Data pomiaru",
-                value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
-                onValueChange = {}, // Pole tylko do odczytu
-                fontSize = 20
-            )
+                if (checked) {
+                    TextRowEdit(
+                        label = "Data pomiaru",
+                        value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
+                        onValueChange = {},
+                        fontSize = 18,
+                        true
+                    )
 
-            if (openDialogDate) {
-                val datePickerState = rememberDatePickerState()
-                val confirmEnabled = remember {
-                    derivedStateOf { datePickerState.selectedDateMillis != null }
-                }
-                DatePickerDialog(
-                    onDismissRequest = {
-                        openDialogDate = false
-                        openDateTimePicker = false
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                if (datePickerState.selectedDateMillis != null) {
-                                    timestampDate = Date(datePickerState.selectedDateMillis!!)
-                                }
+                    if (openDialogDate) {
+                        val datePickerState = rememberDatePickerState()
+                        val confirmEnabled = remember {
+                            derivedStateOf { datePickerState.selectedDateMillis != null }
+                        }
+                        DatePickerDialog(
+                            onDismissRequest = {
                                 openDialogDate = false
                                 openDateTimePicker = false
-                                openClockTimePicker = true
                             },
-                            enabled = confirmEnabled.value
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        if (datePickerState.selectedDateMillis != null) {
+                                            timestampDate =
+                                                Date(datePickerState.selectedDateMillis!!)
+                                        }
+                                        openDialogDate = false
+                                        openDateTimePicker = false
+                                        openClockTimePicker = true
+                                    },
+                                    enabled = confirmEnabled.value
+                                ) {
+                                    Text("OK")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = {
+                                    openDialogDate = false
+                                    openDateTimePicker = false
+                                    openClockTimePicker = false
+                                }) {
+                                    Text("Anuluj")
+                                }
+                            }
                         ) {
-                            Text("OK")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            openDialogDate = false
-                            openDateTimePicker = false
-                            openClockTimePicker = false
-                        }) {
-                            Text("Anuluj")
+                            DatePicker(
+                                state = datePickerState,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .verticalScroll(rememberScrollState())
+                            )
                         }
                     }
-                ) {
-                    DatePicker(
-                        state = datePickerState,
+                    if (openClockTimePicker) {
+                        CustomTimePicker(
+                            timePickerState = timePickerState,
+                            onDismiss = {
+                                openClockTimePicker = false
+                            },
+                            onConfirm = {
+                                timestampTime = Pair(timePickerState.hour, timePickerState.minute)
+                                openClockTimePicker = false
+                            }
+                        )
+                    }
+                }
+
+                Row(verticalAlignment = CenterVertically) {
+                    Column(
                         modifier = Modifier
                             .padding(16.dp)
-                            .verticalScroll(rememberScrollState())
-                    )
+                            .fillMaxWidth(),
+                    ) {
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    if (
+                                        viewModel.addHeartbeatResult(
+                                            CreateHeartbeatForm(
+                                                userId = UUID.fromString(
+                                                    removeQuotes(
+                                                        decoded.getClaim("userId").toString()
+                                                    )
+                                                ),
+                                                timestamp = timestampFull ?: Date(),
+                                                pulse = pulse.toIntOrNull() ?: 0,
+                                                systolicPressure = systolicPressure.toIntOrNull()
+                                                    ?: 0,
+                                                diastolicPressure = diastolicPressure.toIntOrNull()
+                                                    ?: 0,
+                                                note = note
+                                            )
+                                        )
+                                    ) {
+                                        if (fromMain == true) {
+                                            navController.navigate("main_screen")
+                                        } else {
+                                            navController.navigate("all_results_screen/true")
+                                        }
+                                    } else {
+                                        snackState.showSnackbar("Nie udało się dodać pomiaru")
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(text = "Dodaj pomiar")
+                        }
+                    }
                 }
             }
-            if (openClockTimePicker) {
-                CustomTimePicker(
-                    timePickerState = timePickerState,
-                    onDismiss = {
-                        openClockTimePicker = false
-                    },
-                    onConfirm = {
-                        timestampTime = Pair(timePickerState.hour, timePickerState.minute)
-                        openClockTimePicker = false
-                    }
-                )
-            }
-        }
-
-        TextButton(onClick = {
-            coroutineScope.launch {
-                if (
-                    viewModel.addHeartbeatResult(
-                        CreateHeartbeatForm(
-                            userId = UUID.fromString(
-                                removeQuotes(
-                                    decoded.getClaim("userId").toString()
-                                )
-                            ),
-                            timestamp = timestampFull ?: Date(),
-                            pulse = pulse.toIntOrNull() ?: 0,
-                            systolicPressure = systolicPressure.toIntOrNull() ?: 0,
-                            diastolicPressure = diastolicPressure.toIntOrNull() ?: 0,
-                            note = note
-                        )
-                    )
-                ) {
-                    if (fromMain == true) {
-                        navController.navigate("main_screen")
-                    } else {
-                        navController.navigate("all_results_screen/true")
-                    }
-                } else {
-                    snackState.showSnackbar("Nie udało się dodać pomiaru")
-                }
-            }
-        }) {
-            Text(text = "Dodaj pomiar")
         }
     }
+}
+
+@Preview
+@Composable
+fun AddHeartbeatResultScreenPreview() {
+    AddHeartbeatResultScreen(NavHostController(LocalContext.current))
 }

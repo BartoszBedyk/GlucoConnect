@@ -14,26 +14,27 @@ fun parseDeviceModelResponse(response: ByteArray): String {
 
 fun parseClockTimeResponse(response: ByteArray): String {
     val dayMonthYear = ((response[3].toInt() and 0xFF) shl 8) or (response[2].toInt() and 0xFF)
-    val year = 2000 + ((dayMonthYear shr 9) and 0x7F)
+    val year = 1999 + ((dayMonthYear shr 9) and 0x7F)
     val month = (dayMonthYear shr 5) and 0x0F
     val day = dayMonthYear and 0x1F
 
-    val minute = response[4].toInt() and 0x3F
-    val hour = response[5].toInt() and 0x1F
+    val minute = response[4].toInt() and 0x3F  // Minuta to Data_2 (bajt 4)
+    val hour = response[5].toInt() and 0x1F    // Godzina to Data_3 (bajt 5)
+
 
     Log.d("Parsuje", "%02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute))
     return "Date: %02d-%02d-%04d %02d:%02d".format(day, month, year, hour, minute)
 }
 
+
 fun parseMeasurementTimeToDate(frame: ByteArray): String? {
-    val year = 2000 + ((frame[3].toInt() ushr 1) and 0x7F)
-    val month =
-        ((frame[3].toInt() shl 3) or (frame[2].toInt() ushr 5)) and 0x0F
-    val day = frame[2].toInt() and 0x1F
+    val dayMonthYear = ((frame[3].toInt() and 0xFF) shl 8) or (frame[2].toInt() and 0xFF)
+    val year = 1999 + ((dayMonthYear shr 9) and 0x7F)
+    val month = (dayMonthYear shr 5) and 0x0F
+    val day = dayMonthYear and 0x1F
 
-
-    val hour = frame[5].toInt() and 0x1F
-    val minute = frame[4].toInt() and 0x3F
+    val minute = frame[4].toInt() and 0x3F  // Minuta to Data_2 (bajt 4)
+    val hour = frame[5].toInt() and 0x1F    // Godzina to Data_3 (bajt 5)
 
 
     val calendar = Calendar.getInstance()

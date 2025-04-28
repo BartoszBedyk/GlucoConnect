@@ -2,18 +2,25 @@
 
 package pl.example.aplikacja.Screens
 
+import androidx.compose.foundation.layout.Arrangement.Absolute.Center
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -34,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,7 +85,11 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
     )
 
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember { AddGlucoseResultViewModel(context, removeQuotes(decoded.getClaim("userId").toString())) }
+    val viewModel = remember {
+        AddGlucoseResultViewModel(
+            context, removeQuotes(decoded.getClaim("userId").toString())
+        )
+    }
 
 
     val prefUnit by viewModel.prefUnit.collectAsState()
@@ -102,144 +114,158 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
 
     SnackbarHost(hostState = snackState, Modifier)
 
-    Column(Modifier.padding(16.dp)) {
-        TextRowEdit(
-            label = "Poziom glukozy",
-            value = glucoseConcentrationState.value,
-            onValueChange = { glucoseConcentrationState.value = it },
-            fontSize = 20
-        )
+    Column(
+        Modifier.padding(18.dp),
+    ) {
+        OutlinedCard() {
+            Column(Modifier.padding(16.dp)) {
+                TextRowEdit(
+                    label = "Poziom glukozy",
+                    value = glucoseConcentrationState.value,
+                    onValueChange = { glucoseConcentrationState.value = it },
+                    fontSize = 18,
+                    true
+                )
 
-        Text(
-            text = "Jednostka stężenia glukozy",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = 15.sp
-        )
+                Text(
+                    text = "Jednostka stężenia glukozy",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 18.sp
+                )
 
-        unitState?.let {
-            GlucoseUnitDropdownMenu(
-                selectedUnit = it,
-                onUnitSelected = { unitState = it },
-                label = ""
-            )
-        }
-
-        Row(verticalAlignment = CenterVertically) {
-            Text(text = "Data pomiaru")
-            Checkbox(checked = checked, onCheckedChange = { state ->
-                if (state) {
-                    openDialogDate = true
-                    openDateTimePicker = true
+                unitState?.let {
+                    GlucoseUnitDropdownMenu(
+                        selectedUnit = it, onUnitSelected = { unitState = it }, label = ""
+                    )
                 }
-                checked = state
-            })
-        }
 
-        if (checked) {
-            TextRowEdit(
-                label = "Data pomiaru",
-                value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
-                onValueChange = {}, // Pole tylko do odczytu
-                fontSize = 20
-            )
-
-            if (openDialogDate) {
-                val datePickerState = rememberDatePickerState()
-                val confirmEnabled = remember {
-                    derivedStateOf { datePickerState.selectedDateMillis != null }
-                }
-                DatePickerDialog(
-                    onDismissRequest = {
-                        openDialogDate = false
-                        openDateTimePicker = false
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                if (datePickerState.selectedDateMillis != null) {
-                                    timestampDate = Date(datePickerState.selectedDateMillis!!)
-                                }
-                                openDialogDate = false
-                                openDateTimePicker = false
-                                openClockTimePicker = true
-                            },
-                            enabled = confirmEnabled.value
-                        ) {
-                            Text("OK")
+                Row(verticalAlignment = CenterVertically) {
+                    Text(
+                        text = "Data pomiaru",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
+                    Checkbox(checked = checked, onCheckedChange = { state ->
+                        if (state) {
+                            openDialogDate = true
+                            openDateTimePicker = true
                         }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
+                        checked = state
+                    })
+                }
+
+                if (checked) {
+                    TextRowEdit(label = "Data pomiaru",
+                        value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
+                        onValueChange = {},
+                        fontSize = 18,
+                        true
+                    )
+
+                    if (openDialogDate) {
+                        val datePickerState = rememberDatePickerState()
+                        val confirmEnabled = remember {
+                            derivedStateOf { datePickerState.selectedDateMillis != null }
+                        }
+                        DatePickerDialog(onDismissRequest = {
                             openDialogDate = false
                             openDateTimePicker = false
-                            openClockTimePicker = false
+                        }, confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    if (datePickerState.selectedDateMillis != null) {
+                                        timestampDate = Date(datePickerState.selectedDateMillis!!)
+                                    }
+                                    openDialogDate = false
+                                    openDateTimePicker = false
+                                    openClockTimePicker = true
+                                }, enabled = confirmEnabled.value
+                            ) {
+                                Text("OK")
+                            }
+                        }, dismissButton = {
+                            TextButton(onClick = {
+                                openDialogDate = false
+                                openDateTimePicker = false
+                                openClockTimePicker = false
+                            }) {
+                                Text("Anuluj")
+                            }
                         }) {
-                            Text("Anuluj")
+                            DatePicker(
+                                state = datePickerState,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .verticalScroll(rememberScrollState())
+                            )
                         }
                     }
-                ) {
-                    DatePicker(
-                        state = datePickerState,
+                    if (openClockTimePicker) {
+                        CustomTimePicker(timePickerState = timePickerState, onDismiss = {
+                            openClockTimePicker = false
+                        }, onConfirm = {
+                            timestampTime = Pair(timePickerState.hour, timePickerState.minute)
+                            openClockTimePicker = false
+                        })
+                    }
+                }
+                Row(verticalAlignment = CenterVertically) {
+                    Column(
                         modifier = Modifier
                             .padding(16.dp)
-                            .verticalScroll(rememberScrollState())
-                    )
-                }
-            }
-            if (openClockTimePicker) {
-                CustomTimePicker(
-                    timePickerState = timePickerState,
-                    onDismiss = {
-                        openClockTimePicker = false
-                    },
-                    onConfirm = {
-                        timestampTime = Pair(timePickerState.hour, timePickerState.minute)
-                        openClockTimePicker = false
-                    }
-                )
-            }
-        }
+                            .fillMaxWidth(),
+                    ) {
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                navController.navigate("bluetooth_permission_screen/addResult")
+                            },
+                            modifier = Modifier
+                                .padding(16.dp, 4.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            Text(text = "Użyj glukometru")
+                        }
 
-        FloatingActionButton(
-            onClick = {
-                navController.navigate("bluetooth_permission_screen/addResult")
-            },
-            modifier = Modifier
-                .padding(16.dp)
-                .align(androidx.compose.ui.Alignment.CenterHorizontally)
-        ) {
-            Text(text = "Użyj glukometru")
-        }
-
-        TextButton(onClick = {
-            coroutineScope.launch {
-                if (viewModel.addGlucoseResult(
-                        ResearchResultCreate(
-                            userId = UUID.fromString(
-                                removeQuotes(
-                                    decoded.getClaim("userId").toString()
-                                )
-                            ),
-                            sequenceNumber = 1,
-                            glucoseConcentration = glucoseConcentrationState.value.toDoubleOrNull()
-                                ?: 0.0,
-                            unit = unitState.toString(),
-                            timestamp = timestampFull ?: Date()
-                        )
-                    )
-                ) {
-                    if (fromMain == true) {
-                        navController.navigate("main_screen")
-                    } else {
-                        navController.navigate("all_results_screen/false")
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    if (viewModel.addGlucoseResult(
+                                            ResearchResultCreate(
+                                                userId = UUID.fromString(
+                                                    removeQuotes(
+                                                        decoded.getClaim("userId").toString()
+                                                    )
+                                                ),
+                                                sequenceNumber = 1,
+                                                glucoseConcentration = glucoseConcentrationState.value.toDoubleOrNull()
+                                                    ?: 0.0,
+                                                unit = unitState.toString(),
+                                                timestamp = timestampFull ?: Date()
+                                            )
+                                        )
+                                    ) {
+                                        if (fromMain == true) {
+                                            navController.navigate("main_screen")
+                                        } else {
+                                            navController.navigate("all_results_screen/false")
+                                        }
+                                    } else {
+                                        snackState.showSnackbar("Nie udało się dodać pomiaru")
+                                    }
+                                }
+                            }, modifier = Modifier
+                                .padding(16.dp, 4.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Text(text = "Dodaj pomiar")
+                        }
                     }
-                } else {
-                    snackState.showSnackbar("Nie udało się dodać pomiaru")
                 }
+
+
             }
-        }) {
-            Text(text = "Dodaj pomiar")
         }
     }
 }
@@ -277,7 +303,36 @@ fun AddGlucoseResultScreenPreview() {
     AddGlucoseResultScreen(NavHostController(LocalContext.current))
 }
 
-
+@Composable
+fun TextRowEdit(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    fontSize: Int,
+    isNumeric: Boolean
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            modifier = Modifier.padding(4.dp),
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = (fontSize).sp
+        )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(text = value) },
+            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = if (isNumeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions (keyboardType = KeyboardType.Text)
+        )
+    }
+}
 
 
 

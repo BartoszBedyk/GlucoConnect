@@ -45,15 +45,29 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
 
     init {
         isApiAvilible(apiProvider.innerContext)
-        fetchUserData()
-        fetchUnaccepted()
-        fetchAccepted()
+
+        viewModelScope.launch {
+            healthy.collect { isHealthy ->
+                if (isHealthy) {
+                    fetchUserData()
+                    fetchUnaccepted()
+                    fetchAccepted()
+                }else
+                {
+                    fetchUserData()
+                    //fetchUnaccepted()
+                    //fetchAccepted()
+                }
+            }
+        }
+
     }
 
     private fun fetchUserData() {
         viewModelScope.launch {
             try{
                 if (!healthy.value) throw IllegalStateException("API not available")
+                Log.i("UserProfileViewModel", "fetchUserData")
                 _userData.value = userApi.getUserById(id = USER_ID)
             }catch (e: Exception){
                 println(e.message)
@@ -64,7 +78,9 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
     private fun fetchUnaccepted(){
         viewModelScope.launch {
             try{
+                Log.i("UserProfileViewModel", "maybe healthy")
                 if (!healthy.value) throw IllegalStateException("API not available")
+                Log.i("UserProfileViewModel", "fetchUnaccepted")
                 val unAccepted  = observerApi.getObservatorByObservedIdUnAccepted(USER_ID)
                 if (unAccepted != null) {
                     if (unAccepted.isNotEmpty()) {
@@ -94,6 +110,7 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
     private fun fetchAccepted(){
         viewModelScope.launch {
             try{
+                Log.i("UserProfileViewModel", "maybe healthy")
                 if (!healthy.value) throw IllegalStateException("API not available")
             }catch(e : Exception){
                 println(e.message)
@@ -146,18 +163,25 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
         }
     }
 
-    var lastCheckedTime = 0L
-    private fun isApiAvilible(context: Context) {
+    private var lastCheckedTime = 0L
+
+    fun isApiAvilible(context: Context) {
         val now = System.currentTimeMillis()
         if (now - lastCheckedTime < 10_000) return
         lastCheckedTime = now
 
         viewModelScope.launch {
             try {
-                _healthy?.value =
-                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+                val apiAvailable = authenticationApi.isApiAvlible()
+                val networkAvailable = isNetworkAvailable(context)
+
+                Log.d("HealthCheck", "API: $apiAvailable, Network: $networkAvailable")
+
+                _healthy.value = apiAvailable == true && networkAvailable
+                Log.d("HealthCheck", "Healthy: ${_healthy.value}")
             } catch (e: Exception) {
-                _healthy?.value = false
+                Log.e("HealthCheck", "Error while checking health", e)
+                _healthy.value = false
             }
         }
     }

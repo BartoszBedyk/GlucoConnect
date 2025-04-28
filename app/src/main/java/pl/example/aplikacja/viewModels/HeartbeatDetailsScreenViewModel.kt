@@ -38,7 +38,16 @@ class HeartbeatDetailsScreenViewModel(
 
     init {
         isApiAvilible(apiProvider.innerContext)
-        fetchHeartbeatResult()
+        viewModelScope.launch {
+            healthy.collect { isHealthy ->
+                if (isHealthy) {
+                    fetchHeartbeatResult()
+                } else {
+                    fetchHeartbeatResult()
+                }
+
+            }
+        }
     }
 
     private fun fetchHeartbeatResult() {
@@ -76,18 +85,25 @@ class HeartbeatDetailsScreenViewModel(
         return deleted
     }
 
-    var lastCheckedTime = 0L
-    private fun isApiAvilible(context: Context) {
+    private var lastCheckedTime = 0L
+
+    fun isApiAvilible(context: Context) {
         val now = System.currentTimeMillis()
         if (now - lastCheckedTime < 10_000) return
         lastCheckedTime = now
 
         viewModelScope.launch {
             try {
-                _healthy?.value =
-                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+                val apiAvailable = authenticationApi.isApiAvlible()
+                val networkAvailable = isNetworkAvailable(context)
+
+                Log.d("HealthCheck", "API: $apiAvailable, Network: $networkAvailable")
+
+                _healthy.value = apiAvailable == true && networkAvailable
+                Log.d("HealthCheck", "Healthy: ${_healthy.value}")
             } catch (e: Exception) {
-                _healthy?.value = false
+                Log.e("HealthCheck", "Error while checking health", e)
+                _healthy.value = false
             }
         }
     }

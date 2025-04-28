@@ -25,6 +25,8 @@ fun GlucometerAdminScreen(
     Column(
         modifier = Modifier.padding(16.dp).padding(bottom = 80.dp)
     ) {
+        
+        
         Text(text = "Zarządzanie glukometrem", color = MaterialTheme.colorScheme.primary)
 
         Text(text = recivedData.toString())

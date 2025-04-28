@@ -16,10 +16,11 @@ import pl.example.networkmodule.requestData.UserCredentials
 
 class AuthenticationApi(private val ktorClient: KtorClient): AuthenticationApiInterface {
     private val client = ktorClient.client
+    private val adress = ktorClient.baseUrl
 
     override suspend fun login(userCredentials: UserCredentials): String? {
         try {
-            val response = client.post("http://10.0.2.2:8080/login") {
+            val response = client.post("$adress/login") {
                 contentType(ContentType.Application.Json)
                 setBody(userCredentials)
             }
@@ -39,7 +40,7 @@ class AuthenticationApi(private val ktorClient: KtorClient): AuthenticationApiIn
 
     override suspend fun refreshToken(token: String): String? {
         try {
-            val response = client.post("http://10.0.2.2:8080/refresh-token") {
+            val response = client.post("$adress/refresh-token") {
                 contentType(ContentType.Application.Json)
                 header("Authorization", "Bearer $token")
             }
@@ -59,12 +60,13 @@ class AuthenticationApi(private val ktorClient: KtorClient): AuthenticationApiIn
 
     override suspend fun isApiAvlible(): Boolean {
         return try {
-            val response = client.get("http://10.0.2.2:8080/health") {
+            val response = client.get("$adress/health") {
                 timeout {
-                    requestTimeoutMillis = 2000
+                    requestTimeoutMillis = 5000
                 }
                 contentType(ContentType.Application.Json)
             }
+            Log.i("AuthenticationApi", "API availability check response: ${response.status}")
             response.status == HttpStatusCode.OK
         } catch (e: Exception) {
             Log.e("AuthenticationApi", "API availability check failed: ${e.message}")

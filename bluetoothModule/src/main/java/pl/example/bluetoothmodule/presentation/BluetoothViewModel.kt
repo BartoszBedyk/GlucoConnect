@@ -23,8 +23,11 @@ import pl.example.bluetoothmodule.domain.BluetoothController
 import pl.example.bluetoothmodule.domain.BluetoothDevice
 import pl.example.bluetoothmodule.domain.ConnectionResult
 import pl.example.bluetoothmodule.domain.responseManagement
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
+import java.util.TimeZone
 import javax.inject.Inject
 
 @HiltViewModel
@@ -224,23 +227,38 @@ class BluetoothViewModel @Inject constructor(
 
 
     private fun getActualDateTimeCommand(): ByteArray {
-        val date = Date()
+        val now = ZonedDateTime.now(ZoneId.of("Europe/Warsaw"))
 
-        val calendar = Calendar.getInstance().apply { time = date }
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        val month = calendar.get(Calendar.MONTH) + 1 // MONTH is 0-based
-        val year = calendar.get(Calendar.YEAR) - 2000 // Assuming year offset from 2000
+        Log.d("DEBUG", "ZonedDateTime: $now")
 
-        val data1_0 = (day and 0x1F) or ((month and 0x0F) shl 5) or ((year and 0x7F) shl 9)
+        val day = now.dayOfMonth
+        val month = now.monthValue
+        val year = now.year - 2000
+        val hour = now.hour and 0x1F
+        val minute = now.minute and 0x3F
+
+        Log.d("Zonde hour", "Hour: $hour, Minute: $minute")
+        Log.d("Zonde hour", "Day: $day, Month: $month, Year: $year")
+
+        val data1_0 = (day and 0x1F) or
+                ((month and 0x0F) shl 5) or
+                ((year and 0x7F) shl 9)
+
         val data0: Byte = (data1_0 and 0xFF).toByte()
         val data1: Byte = ((data1_0 shr 8) and 0xFF).toByte()
 
-        val data2: Byte = calendar.get(Calendar.MINUTE).toByte()
-
-        val data3: Byte = calendar.get(Calendar.HOUR_OF_DAY).toByte()
-
-        return byteArrayOf(0x51.toByte(), 0x23.toByte(), data0, data1, data2, data3, 0xA3.toByte())
+        return byteArrayOf(
+            0x51.toByte(),
+            0x33.toByte(),
+            data0,
+            data1,
+            minute.toByte(),
+            hour.toByte(),
+            0xA3.toByte()
+        )
     }
+
+
 }
 
 

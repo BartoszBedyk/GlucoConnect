@@ -42,6 +42,7 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
             val id = resultApi.createResearchResult(form)
             if (id != null) {
                 val success = addIntoDatabase(removeQuotes(id))
+                Log.e("LOCALY", "Failed to add into api.")
                 if (!success) {
                     Log.e("LOCALY", "Failed to add data into local database.")
                 }
@@ -74,6 +75,7 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
         try {
             val localResult = convertResearchResultCreateToResearchDB(form)
             researchRepository.insert(localResult)
+            Log.e("LOCALY", "Successfully saved glucose result locally.")
             return true
         } catch (e: Exception) {
             Log.e("LOCALY", "Failed to save glucose result locally: ${e.message}", e)

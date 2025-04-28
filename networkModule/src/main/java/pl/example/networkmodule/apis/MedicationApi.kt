@@ -18,10 +18,11 @@ import pl.example.networkmodule.requestData.CreateMedication
 class MedicationApi(private val ktorClient: KtorClient) : MedicationApiInterface {
     private val client = ktorClient.client
     private val medicationEndpoint: String = "medications"
+    private val adress = ktorClient.baseUrl
 
     override suspend fun createMedication(medication: CreateMedication): Boolean {
         return try {
-            val response = client.post("http://10.0.2.2:8080/$medicationEndpoint") {
+            val response = client.post("$adress/$medicationEndpoint") {
                 contentType(ContentType.Application.Json)
                 setBody(medication)
             }
@@ -34,7 +35,7 @@ class MedicationApi(private val ktorClient: KtorClient) : MedicationApiInterface
     }
 
     override suspend fun readMedication(id: String): MedicationResult? {
-        val response = client.get("http://10.0.2.2:8080/$medicationEndpoint/$id")
+        val response = client.get("$adress/$medicationEndpoint/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 response.body<MedicationResult>()
@@ -49,7 +50,7 @@ class MedicationApi(private val ktorClient: KtorClient) : MedicationApiInterface
     }
 
     override suspend fun getAllMedications(): List<MedicationResult>? {
-        val response = client.get("http://10.0.2.2:8080/$medicationEndpoint/all")
+        val response = client.get("$adress/$medicationEndpoint/all")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 response.body<List<MedicationResult>>()
@@ -65,7 +66,7 @@ class MedicationApi(private val ktorClient: KtorClient) : MedicationApiInterface
 
     override suspend fun deleteMedication(id: String): Boolean {
         return try {
-            val response = client.delete("http://10.0.2.2:8080/$medicationEndpoint/$id")
+            val response = client.delete("$adress/$medicationEndpoint/$id")
             response.status == HttpStatusCode.OK
 
         } catch (e: Exception) {
@@ -78,7 +79,7 @@ class MedicationApi(private val ktorClient: KtorClient) : MedicationApiInterface
 
     override suspend fun getUnsynced(userId: String): List<MedicationResult>? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$medicationEndpoint/$userId/unsynced") {
+            val response = client.get("$adress/$medicationEndpoint/$userId/unsynced") {
                 contentType(ContentType.Application.Json)
             }
 
