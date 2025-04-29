@@ -4,5 +4,6 @@
         <domain includeSubdomains="true">10.0.2.2</domain> <!-- emulator -->
         <domain includeSubdomains="true">localhost</domain> <!-- localhost -->
         <domain includeSubdomains="true">192.168.1.26</domain> <!-- prawdziwy telefon -->
+        <domain includeSubdomains="true">192.168.1.25</domain> <!-- prawdziwy telefon -->
     </domain-config>
 </network-security-config>

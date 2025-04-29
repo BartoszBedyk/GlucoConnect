@@ -1,6 +1,7 @@
 package pl.example.aplikacja.Screens
 
 import MainScreenViewModel
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +55,10 @@ import pl.example.networkmodule.saveToken
 fun MainScreen(navController: NavController, userId: String?) {
     val context = LocalContext.current
 
-    if (getToken(context) == null) navController.navigate("login_screen");
+    if (getToken(context) == null){
+        Log.i("Token", "Brak tokena w MainScreen przejście do login.")
+        navController.navigate("login_screen")
+    };
 
     val decoded: DecodedJWT = JWT.decode(getToken(context))
     val userType = toUserType(decoded.getClaim("userType").asString())
