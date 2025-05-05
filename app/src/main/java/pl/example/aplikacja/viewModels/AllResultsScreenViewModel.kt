@@ -105,6 +105,7 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 if (!healthy.value) throw IllegalStateException("API not available")
 
                 val unsyncedResults = researchRepository.getUnsyncedResearchResults()
+                Log.i("SYNC", "List of unsynced + ${unsyncedResults.size.toString()}")
                 if (unsyncedResults.isNotEmpty()) {
                     convertResearchDBtoResearchResult(unsyncedResults).forEach { result ->
                         try {

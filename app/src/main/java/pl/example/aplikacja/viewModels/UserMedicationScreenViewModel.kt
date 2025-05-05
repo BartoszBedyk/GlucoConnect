@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.databasemodule.database.data.MedicationDB
+import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.databasemodule.database.repository.MedicationRepository
 import pl.example.databasemodule.database.repository.UserMedicationRepository
 import pl.example.networkmodule.apiData.MedicationResult
@@ -37,6 +38,9 @@ class UserMedicationScreenViewModel(
     private val _medication = MutableStateFlow<List<MedicationResult>>(emptyList())
     val medication: MutableStateFlow<List<MedicationResult>> = _medication
 
+    private val _userMedication = MutableStateFlow<List<UserMedicationResult>>(emptyList())
+    val userMedication: MutableStateFlow<List<UserMedicationResult>> = _userMedication
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -48,9 +52,7 @@ class UserMedicationScreenViewModel(
                 if (isHealthy) {
                     fetchDataBase()
                     fetchMedicationResults()
-                }
-                else
-                {
+                } else {
                     fetchMedicationResults()
                 }
             }
@@ -78,12 +80,15 @@ class UserMedicationScreenViewModel(
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 _medication.value = medicationApi.getUnsynced(USER_ID)!!
+                _userMedication.value = userMedications.readTodayUserMedication(USER_ID)!!
+                userMedicationRepository.insertAll(userMedication.value.toUserMedicationDBList())
                 medicationRepository.insertAll(medication.value.toMedicationDBList())
                 medication.value.forEach { medicationResult ->
                     userMedications.markAsSynced(medicationResult.id.toString())
                 }
             } catch (e: Exception) {
-                _medication.value = medicationRepository.getAllMedications().toMedicationResultList()
+                _medication.value =
+                    medicationRepository.getAllMedications().toMedicationResultList()
             }
         }
 
@@ -126,6 +131,22 @@ fun List<MedicationResult>.toMedicationDBList(): List<MedicationDB> {
         )
     }
 }
+
+fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> {
+    return this.map { result ->
+        UserMedicationDB(
+            userId = result.userId,
+            medicationId = result.medicationId,
+            dosage = result.dosage,
+            frequency = result.frequency,
+            startDate = result.startDate,
+            endDate = result.endDate,
+            notes = result.notes,
+            isSynced = true)
+    }
+}
+
+
 
 fun List<MedicationDB>.toMedicationResultList(): List<MedicationResult> {
     return this.map { db ->

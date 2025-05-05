@@ -34,7 +34,9 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Aplikacja">
+            android:theme="@style/Theme.Aplikacja"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,6 +52,19 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+<!--        <service android:name=".MyCredentialProviderService"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"-->
+<!--            android:label="My Credential Provider"-->
+<!--            android:icon="<any drawable icon>"-->
+<!--            android:permission="android.permission.BIND_CREDENTIAL_PROVIDER_SERVICE">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.service.credentials.CredentialProviderService"/>-->
+<!--            </intent-filter>-->
+<!--            <meta-data-->
+<!--                android:name="android.credentials.provider"-->
+<!--                android:resource="@xml/provider"/>-->
+<!--        </service>-->
     </application>
 
 </manifest>

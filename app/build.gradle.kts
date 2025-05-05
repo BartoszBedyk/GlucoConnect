@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.material)
+    implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -85,7 +86,8 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.dotenv.kotlin)
-
+    implementation (libs.androidx.core.splashscreen)
+    //implementation (libs.androidx.credentials)
 
     implementation(libs.hilt.android.v2511)
     kapt(libs.hilt.android.compiler.v2511)

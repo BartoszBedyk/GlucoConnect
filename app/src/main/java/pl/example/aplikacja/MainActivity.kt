@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.window.SplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import com.auth0.jwt.JWT
@@ -28,11 +30,13 @@ import pl.example.networkmodule.saveToken
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen().setKeepOnScreenCondition { false }
+
         super.onCreate(savedInstanceState)
         //clearToken(applicationContext)
         //saveToken(applicationContext, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiJmNjk5MzZkYy0wOTYyLTQ4ZDItYTJjMi1hNWRmNDg1NzM5MTciLCJ1c2VybmFtZSI6Im0ubUB3cC5wbCIsInVzZXJUeXBlIjoiUEFUSUVOVCIsImV4cCI6MTc0MzAwMDI5OH0.V3Y8pwigJJW-nNhQ2vSZfiwczRlTRYOGDbOuvT3g6_o")
         val bluetoothViewModel = ViewModelProvider(this).get(BluetoothViewModel::class.java)
-        val token = getToken(applicationContext)
+        val token = getToken(applicationContext) ?: savedInstanceState?.getString("token")
 
         val userType = if (token != null) {
             val decoded = JWT.decode(token)
@@ -55,6 +59,12 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("token", getToken(applicationContext))
+    }
+
 }
 
 
