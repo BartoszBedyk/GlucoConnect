@@ -8,11 +8,15 @@ import java.util.UUID
 
 @Serializable
 data class ResearchResultUpdate(
-    val sequenceNumber: Int,
     val glucoseConcentration: Double,
     val unit: String,
     @Serializable(with = DateSerializer::class)
     val timestamp: Date,
+    val afterMedication: Boolean,
+    val emptyStomach: Boolean,
+    val notes: String?,
     @Serializable(with = UUIDSerializer::class)
     val id: UUID
 )
+
+

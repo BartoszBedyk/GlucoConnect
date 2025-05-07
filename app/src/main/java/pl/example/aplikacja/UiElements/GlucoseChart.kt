@@ -39,93 +39,111 @@ fun LineChartPreview() {
      val results =listOf(
         ResearchResult(
             id = UUID.fromString(id),
-            sequenceNumber = 1,
             glucoseConcentration = 5.5,
             unit = GlucoseUnitType.MMOL_PER_L,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.randomUUID(),
-            sequenceNumber = 2,
             glucoseConcentration = 4.8,
             unit = GlucoseUnitType.MMOL_PER_L,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.randomUUID(),
-            sequenceNumber = 3,
             glucoseConcentration = 126.1,
             unit = GlucoseUnitType.MG_PER_DL,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.fromString(id),
-            sequenceNumber = 1,
             glucoseConcentration = 5.5,
             unit = GlucoseUnitType.MMOL_PER_L,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.randomUUID(),
-            sequenceNumber = 2,
             glucoseConcentration = 4.8,
             unit = GlucoseUnitType.MMOL_PER_L,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.randomUUID(),
-            sequenceNumber = 3,
             glucoseConcentration = 126.1,
             unit = GlucoseUnitType.MG_PER_DL,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.fromString(id),
-            sequenceNumber = 1,
             glucoseConcentration = 5.5,
             unit = GlucoseUnitType.MMOL_PER_L,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.randomUUID(),
-            sequenceNumber = 2,
             glucoseConcentration = 4.8,
             unit = GlucoseUnitType.MMOL_PER_L,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         ),
         ResearchResult(
             id = UUID.randomUUID(),
-            sequenceNumber = 3,
             glucoseConcentration = 126.1,
             unit = GlucoseUnitType.MG_PER_DL,
             timestamp = Date(),
             userId = userId,
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         )
     )
 

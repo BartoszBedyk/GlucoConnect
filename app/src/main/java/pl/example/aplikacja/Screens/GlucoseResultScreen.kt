@@ -83,7 +83,6 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                 )
 
                 //TextRow(label = "ID pomiaru", value = researchResult?.id.toString())
-                //TextRow(label = "Sequence Number", value = researchResult?.sequenceNumber.toString())
                 TextRow(
                     label = "Stężenie glukozy",
                     value = "${researchResult?.glucoseConcentration} ${

@@ -12,6 +12,7 @@ import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
 import pl.example.aplikacja.convertResearchDBtoResearchResult
 import pl.example.aplikacja.convertUnits
 import pl.example.aplikacja.stringUnitParser
+import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.databasemodule.database.data.PrefUnitDB
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.databasemodule.database.repository.HeartbeatRepository
@@ -84,7 +85,7 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                 _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
                 prefUnitRepository.insert(
                     PrefUnitDB(
-                        userId = USER_ID, glucoseUnit = _prefUnit.value.toString(), isSynced = true
+                        userId = USER_ID, glucoseUnit = _prefUnit.value.toString(), isSynced = true, diabetesType = DiabetesTypeDB.NONE
                     )
                 )
 

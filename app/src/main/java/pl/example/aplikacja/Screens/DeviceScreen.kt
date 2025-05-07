@@ -194,10 +194,12 @@ fun DeviceScreen(
                                                             ).toString()
                                                         )
                                                     ),
-                                                    sequenceNumber = 1,
                                                     glucoseConcentration = parsedData.result,
                                                     unit = parsedData.unit,
-                                                    timestamp = parsedData.date
+                                                    timestamp = parsedData.date,
+                                                    afterMedication = false,
+                                                    emptyStomach = false,
+                                                    notes = ""
                                                 )
                                             )
                                         ) {

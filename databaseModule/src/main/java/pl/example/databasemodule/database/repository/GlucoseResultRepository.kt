@@ -5,24 +5,24 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
-import pl.example.databasemodule.database.data.ResearchResultDB
+import pl.example.databasemodule.database.data.GlucoseResultDB
 import pl.example.databasemodule.database.ResearchResultManager
 import pl.example.networkmodule.apiData.ResearchResult
 
 
 class GlucoseResultRepository(context: Context)  {
     private val database = ResearchResultManager.getDatabase(context)
-    private val dao = database.researchResultDao
+    private val dao = database.glucoseResultDao
 
-    suspend fun insert(researchResult: ResearchResultDB) = withContext(Dispatchers.IO) {
+    suspend fun insert(researchResult: GlucoseResultDB) = withContext(Dispatchers.IO) {
         dao.insert(researchResult)
     }
 
-    suspend fun getAllGlucoseResultsByUserId(userId: String): List<ResearchResultDB> {
+    suspend fun getAllGlucoseResultsByUserId(userId: String): List<GlucoseResultDB> {
         return dao.getResearchResultsForUser(userId)
     }
 
-    suspend fun getResearchResultById(id: String): ResearchResultDB? {
+    suspend fun getResearchResultById(id: String): GlucoseResultDB? {
         return dao.getResearchResultById(id)
     }
 
@@ -31,7 +31,7 @@ class GlucoseResultRepository(context: Context)  {
         return dao.deleteResearchResult(id)
     }
 
-    suspend fun getUnsyncedResearchResults(): List<ResearchResultDB> {
+    suspend fun getUnsyncedResearchResults(): List<GlucoseResultDB> {
         return dao.getUnsyncedResearchResults()
     }
 
@@ -39,21 +39,23 @@ class GlucoseResultRepository(context: Context)  {
         return dao.markAsSynced(id)
     }
 
-    suspend fun getLatestThreeResearchResult(userId: String): List<ResearchResultDB> {
+    suspend fun getLatestThreeResearchResult(userId: String): List<GlucoseResultDB> {
         return dao.getLatestThreeResearchResult(userId)
     }
 
     suspend fun insertAllResults(results: List<ResearchResult>) {
         val dbResults = results.map { result ->
-            ResearchResultDB(
+            GlucoseResultDB(
                 id = result.id,
-                sequenceNumber = result.sequenceNumber,
                 glucoseConcentration = result.glucoseConcentration,
                 unit = stringUnitDBParser(result.unit.toString()),
                 timestamp = result.timestamp,
                 userId = result.userId,
                 deletedOn = result.deletedOn,
                 lastUpdatedOn = result.lastUpdatedOn,
+                afterMedication = result.afterMedication,
+                emptyStomach = result.emptyStomach,
+                notes = result.notes,
                 isSynced = true
             )
         }

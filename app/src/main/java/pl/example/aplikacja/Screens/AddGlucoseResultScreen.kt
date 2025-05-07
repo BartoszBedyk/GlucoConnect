@@ -238,11 +238,13 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                                                         decoded.getClaim("userId").toString()
                                                     )
                                                 ),
-                                                sequenceNumber = 1,
                                                 glucoseConcentration = glucoseConcentrationState.value.toDoubleOrNull()
                                                     ?: 0.0,
                                                 unit = unitState.toString(),
-                                                timestamp = timestampFull ?: Date()
+                                                timestamp = timestampFull ?: Date(),
+                                                afterMedication = false,
+                                                emptyStomach = false,
+                                                notes = ""
                                             )
                                         )
                                     ) {

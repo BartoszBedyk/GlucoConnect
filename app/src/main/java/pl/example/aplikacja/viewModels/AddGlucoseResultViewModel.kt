@@ -12,7 +12,7 @@ import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.stringUnitParser
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
-import pl.example.databasemodule.database.data.ResearchResultDB
+import pl.example.databasemodule.database.data.GlucoseResultDB
 import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
@@ -83,16 +83,18 @@ class AddGlucoseResultViewModel(private val context: Context, private val USER_I
         }
     }
 
-    private fun convertResearchResultCreateToResearchDB(form: ResearchResultCreate): ResearchResultDB {
-        return ResearchResultDB(
+    private fun convertResearchResultCreateToResearchDB(form: ResearchResultCreate): GlucoseResultDB {
+        return GlucoseResultDB(
             id = UUID.randomUUID(),
-            sequenceNumber = form.sequenceNumber,
             glucoseConcentration = form.glucoseConcentration,
             unit = GlucoseUnitTypeDB.valueOf(form.unit),
             timestamp = form.timestamp,
             userId = UUID.fromString(USER_ID),
             deletedOn = null,
             lastUpdatedOn = Date(),
+            afterMedication = form.afterMedication,
+            emptyStomach = form.emptyStomach,
+            notes = form.notes,
             isSynced = false
         )
     }
