@@ -1,6 +1,7 @@
 package pl.example.aplikacja
 
 
+import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
 import pl.example.databasemodule.database.data.HeartbeatDB
 import pl.example.databasemodule.database.data.GlucoseResultDB
@@ -54,6 +55,18 @@ fun formatUserType(unit: UserType): String {
         UserType.OBSERVER -> "Obserwator"
         UserType.PATIENT -> "Pacjent"
     }
+}
+
+fun formatDiabetesType(type: DiabetesTypeDB): String {
+    return when (type) {
+        DiabetesTypeDB.TYPE_1 -> "Typ 1"
+        DiabetesTypeDB.TYPE_2 -> "Typ 2"
+        DiabetesTypeDB.NONE -> "Brak"
+        DiabetesTypeDB.LADA -> "LADA"
+        DiabetesTypeDB.GESTATIONAL -> "Ciążowa"
+        DiabetesTypeDB.MODY -> "MODY"
+    }
+
 }
 
 fun UserType.toRestrictedUserTypeOrNull(): RestrictedUserType? {

@@ -18,11 +18,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pl.example.aplikacja.formatDiabetesType
 import pl.example.aplikacja.formatUnit
 import pl.example.aplikacja.formatUserType
+import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
-import pl.example.networkmodule.apiData.enumTypes.UserType
 
 
 @Composable
@@ -112,6 +113,51 @@ fun UserTypeDropdownMenu(
                     text = { Text(text = formatUserType(type)) },
                     onClick = {
                         onUnitSelected(type)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DiabetesTypeDropdownMenu(
+    selectedDiabetesType: DiabetesTypeDB,
+    onTypeSelected: (DiabetesTypeDB) -> Unit,
+    label: String
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var paddingValue = 8.dp
+
+    if (label.isBlank()) paddingValue = 0.dp
+
+    Row(Modifier.padding(vertical = paddingValue)) {
+        OutlinedTextField(
+            value = formatDiabetesType(selectedDiabetesType),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Rozwiń",
+                    Modifier.clickable { expanded = true }
+                )
+            },
+            modifier = Modifier
+                .clickable { expanded = true }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DiabetesTypeDB.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(text = formatDiabetesType(type)) },
+                    onClick = {
+                        onTypeSelected(type)
                         expanded = false
                     }
                 )

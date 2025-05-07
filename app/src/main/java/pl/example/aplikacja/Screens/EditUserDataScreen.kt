@@ -33,9 +33,11 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.UiElements.DiabetesTypeDropdownMenu
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.EditUserViewModel
+import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
@@ -59,6 +61,7 @@ fun EditUserDataScreen(navController: NavController) {
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var prefUnit by remember { mutableStateOf<GlucoseUnitType?>(null) }
+    var diabetesType by remember { mutableStateOf<DiabetesTypeDB?>(null) }
 
 
     LaunchedEffect(userData.value) {
@@ -66,7 +69,11 @@ fun EditUserDataScreen(navController: NavController) {
             name = it.firstName ?: ""
             lastName = it.lastName ?: ""
             email = it.email ?: ""
-            prefUnit = it.prefUint?.let { pref -> GlucoseUnitType.valueOf(pref.toString()) }
+            diabetesType = it.diabetesType?.let { type -> DiabetesTypeDB.valueOf(type.toString()) }
+            prefUnit = it.prefUint?.let { pref ->
+                GlucoseUnitType.valueOf(pref.toString())
+
+            }
         }
     }
 
@@ -110,18 +117,38 @@ fun EditUserDataScreen(navController: NavController) {
                     fontSize = 18,
                     false
                 )
-
-                Text(
-                    text = "Jednostka stężenia glukozy",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = 18.sp
-                )
                 prefUnit?.let {
+                    Text(
+                        text = "Jednostka stężenia glukozy",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
+
                     GlucoseUnitDropdownMenu(
                         selectedUnit = it, onUnitSelected = { prefUnit = it }, label = ""
                     )
                 }
+
+                diabetesType?.let {
+                    Text(
+                        text = "Typ cukrzycy",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+
+                    DiabetesTypeDropdownMenu(
+                        selectedDiabetesType = it,
+                        onTypeSelected = { diabetesType = it },
+                        label = ""
+                    )
+                }
+
+
+
+
                 ExtendedFloatingActionButton(
                     onClick = {
                         coroutineScope.launch {
@@ -131,7 +158,7 @@ fun EditUserDataScreen(navController: NavController) {
                                             removeQuotes(
                                                 decoded.getClaim("userId").toString()
                                             )
-                                        ), name, lastName, prefUnit.toString()
+                                        ), name, lastName, prefUnit.toString(), diabetesType.toString()
                                     )
                                 )
                             ) {

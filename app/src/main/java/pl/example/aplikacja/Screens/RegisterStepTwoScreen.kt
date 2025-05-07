@@ -26,9 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.UiElements.DiabetesTypeDropdownMenu
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.UiElements.UserTypeDropdownMenu
 import pl.example.aplikacja.viewModels.RegistrationStepTwoScreenViewModel
+import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.apiMethods.ApiProvider
@@ -48,6 +50,7 @@ fun RegisterStepTwoScreen(
     var expanded by remember { mutableStateOf(false) }
     var registerError by remember { mutableStateOf("") }
     var typeState by remember { mutableStateOf<RestrictedUserType>(RestrictedUserType.PATIENT) }
+    var diabetesType by remember { mutableStateOf<DiabetesTypeDB>(DiabetesTypeDB.NONE) }
     val snackState = remember { SnackbarHostState() }
     Box(
         Modifier.fillMaxSize()
@@ -97,6 +100,12 @@ fun RegisterStepTwoScreen(
             selectedUnit = typeState,
             onUnitSelected = { typeState = it },
             label = "Typ użytkownika"
+        )
+
+        DiabetesTypeDropdownMenu(
+            selectedDiabetesType = diabetesType,
+            onTypeSelected = {diabetesType = it},
+            label = "Typ cukrzycy"
         )
 
 

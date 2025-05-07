@@ -85,6 +85,23 @@ class ResultApi(private val ktorClient: KtorClient) : ResultApiInterface {
         }
     }
 
+    override suspend fun getHb1AcResultById(id: String): Double? {
+        val response = client.get("$adress/$resultsEndpoint/hb1ac/$id")
+        return if (response.status == HttpStatusCode.OK) {
+            if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                response.body()
+            } else {
+                println("Unexpected content type: ${response.contentType()}")
+                null
+            }
+        }else
+        {
+            Log.e("ResultApi", "Request failed with status ${response.status}")
+            null
+        }
+
+    }
+
 //    suspend fun getResearchResultsByUserId(userId: String): List<ResearchResult>? {
 //        val response = client.get("http://10.0.2.2:8080/results/user/$userId")
 //        return if (response.status == HttpStatusCode.OK) {
