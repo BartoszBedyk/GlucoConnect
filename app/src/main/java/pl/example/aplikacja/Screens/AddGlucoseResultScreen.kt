@@ -2,7 +2,6 @@
 
 package pl.example.aplikacja.Screens
 
-import androidx.compose.foundation.layout.Arrangement.Absolute.Center
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +13,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -46,16 +43,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
+import pl.example.aplikacja.UiElements.SwitchWithFoodIcon
+import pl.example.aplikacja.UiElements.SwitchWithMedicationIcon
 import pl.example.aplikacja.formatDateTimeWithoutLocale
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.util.Calendar
 import java.util.Date
@@ -64,17 +61,25 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
+
+    //Create Glucose Result data variables
     val glucoseConcentrationState = remember { mutableStateOf("0.0") }
     var unitState by remember { mutableStateOf<GlucoseUnitType?>(null) }
     var timestampDate by remember { mutableStateOf<Date?>(null) }
     var timestampTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-    var checked by remember { mutableStateOf(false) }
+    var foodChecked by remember { mutableStateOf(false) }
+    var medicationChecked by remember { mutableStateOf(false) }
+    var note by remember { mutableStateOf("") }
+
+    //Dialog management variables
+    var takeDateCheckbox by remember { mutableStateOf(false) }
     var openDialogDate by remember { mutableStateOf(false) }
     var openDateTimePicker by remember { mutableStateOf(false) }
     var openClockTimePicker by remember { mutableStateOf(false) }
+
+
     val snackState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     val currentTime = Calendar.getInstance()
 
@@ -84,15 +89,10 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
         is24Hour = true,
     )
 
-    val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember {
-        AddGlucoseResultViewModel(
-            context, removeQuotes(decoded.getClaim("userId").toString())
-        )
-    }
-
+    val viewModel: AddGlucoseResultViewModel = hiltViewModel()
 
     val prefUnit by viewModel.prefUnit.collectAsState()
+
 
 
     LaunchedEffect(prefUnit) {
@@ -134,11 +134,40 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                     fontSize = 18.sp
                 )
 
-                unitState?.let {
+                unitState?.let { unit ->
                     GlucoseUnitDropdownMenu(
-                        selectedUnit = it, onUnitSelected = { unitState = it }, label = ""
+                        selectedUnit = unit, onUnitSelected = { unitState = it }, label = ""
                     )
                 }
+
+                Row(verticalAlignment = CenterVertically) {
+                    Text(
+                        text = "Po posiłku:",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
+                    SwitchWithFoodIcon(foodChecked) { foodChecked = it }
+
+                }
+                Row(verticalAlignment = CenterVertically) {
+                    Text(
+                        text = "Po lekach:",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
+                    SwitchWithMedicationIcon(medicationChecked) { medicationChecked = it }
+                }
+
+                TextRowEdit(
+                    label = "Notatka",
+                    value = note,
+                    onValueChange = { note = it },
+                    fontSize = 18,
+                    false
+                )
+
 
                 Row(verticalAlignment = CenterVertically) {
                     Text(
@@ -147,16 +176,16 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp
                     )
-                    Checkbox(checked = checked, onCheckedChange = { state ->
+                    Checkbox(checked = takeDateCheckbox, onCheckedChange = { state ->
                         if (state) {
                             openDialogDate = true
                             openDateTimePicker = true
                         }
-                        checked = state
+                        takeDateCheckbox = state
                     })
                 }
 
-                if (checked) {
+                if (takeDateCheckbox) {
                     TextRowEdit(label = "Data pomiaru",
                         value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
                         onValueChange = {},
@@ -228,23 +257,24 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                             Text(text = "Użyj glukometru")
                         }
 
+                        //Adds result without bluetooth and navigate to corrct screen
+                        //HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary)
+
                         ExtendedFloatingActionButton(
                             onClick = {
                                 coroutineScope.launch {
                                     if (viewModel.addGlucoseResult(
                                             ResearchResultCreate(
                                                 userId = UUID.fromString(
-                                                    removeQuotes(
-                                                        decoded.getClaim("userId").toString()
-                                                    )
+                                                    viewModel.USER_ID
                                                 ),
                                                 glucoseConcentration = glucoseConcentrationState.value.toDoubleOrNull()
                                                     ?: 0.0,
                                                 unit = unitState.toString(),
                                                 timestamp = timestampFull ?: Date(),
-                                                afterMedication = false,
-                                                emptyStomach = false,
-                                                notes = ""
+                                                afterMedication = medicationChecked,
+                                                emptyStomach = foodChecked,
+                                                notes = note
                                             )
                                         )
                                     ) {
@@ -331,7 +361,9 @@ fun TextRowEdit(
             placeholder = { Text(text = value) },
             maxLines = 1,
             singleLine = true,
-            keyboardOptions = if (isNumeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions (keyboardType = KeyboardType.Text)
+            keyboardOptions = if (isNumeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions(
+                keyboardType = KeyboardType.Text
+            )
         )
     }
 }

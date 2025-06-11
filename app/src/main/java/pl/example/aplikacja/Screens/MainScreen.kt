@@ -1,7 +1,10 @@
 package pl.example.aplikacja.Screens
 
 import MainScreenViewModel
+import android.Manifest
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,17 +49,17 @@ import pl.example.aplikacja.R
 import pl.example.aplikacja.UiElements.GlucoseChart
 import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
+import pl.example.aplikacja.UiElements.LinearIndicatorHb1Ac
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.toUserType
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.getToken
-import pl.example.networkmodule.saveToken
 
 @Composable
 fun MainScreen(navController: NavController, userId: String?) {
     val context = LocalContext.current
 
-    if (getToken(context) == null){
+    if (getToken(context) == null) {
         Log.i("Token", "Brak tokena w MainScreen przejście do login.")
         navController.navigate("login_screen")
     };
@@ -76,6 +80,20 @@ fun MainScreen(navController: NavController, userId: String?) {
     }
 
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val notificationGranted = permissions[Manifest.permission.POST_NOTIFICATIONS] == true
+    }
+
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        )
+    }
+
     val viewModel = remember {
         MainScreenViewModel(
             context,
@@ -87,6 +105,10 @@ fun MainScreen(navController: NavController, userId: String?) {
     val glucoseItems by viewModel.threeGlucoseItems.collectAsState()
     val heartbeatItems by viewModel.heartbeatItems.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val userDiabetesType by viewModel.userDiabetesType.collectAsState()
+    val userHb1AcValue by viewModel.userHb1AcValue.collectAsState()
+
+
 
 
 
@@ -122,6 +144,14 @@ fun MainScreen(navController: NavController, userId: String?) {
                             navController.navigate("glucose_result/$itemId")
                         }
                     }
+                } else {
+                    item {
+                        Text(
+                            text = "Brak danych",
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
 
 
@@ -134,10 +164,27 @@ fun MainScreen(navController: NavController, userId: String?) {
                             navController.navigate("heartbeat_result/$itemId")
                         }
                     }
+                } else {
+                    item {
+                        Text(
+                            text = "Brak danych",
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
+
+                item {
+                    LinearIndicatorHb1Ac(userHb1AcValue, userDiabetesType)
+                }
+
             }
         }
-        if(userType==UserType.PATIENT){
+
+
+
+
+        if (userType == UserType.PATIENT) {
             ExpandableFloatingActionButton(navController)
         }
 

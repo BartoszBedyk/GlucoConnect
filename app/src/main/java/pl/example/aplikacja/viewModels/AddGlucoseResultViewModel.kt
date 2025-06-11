@@ -4,6 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.auth0.jwt.JWT
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,12 +19,17 @@ import pl.example.databasemodule.database.data.GlucoseResultDB
 import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.util.Date
 import java.util.UUID
+import javax.inject.Inject
 
-class AddGlucoseResultViewModel(private val context: Context, private val USER_ID: String) :
+@HiltViewModel
+class AddGlucoseResultViewModel @Inject constructor(@ApplicationContext private val context: Context) :
     ViewModel() {
+
+    val USER_ID: String = removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
 
     private val apiProvider = ApiProvider(context)
     private val researchRepository = GlucoseResultRepository(context)

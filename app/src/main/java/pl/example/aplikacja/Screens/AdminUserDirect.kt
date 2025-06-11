@@ -1,7 +1,6 @@
 package pl.example.aplikacja.Screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,8 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import pl.example.aplikacja.viewModels.AdminUserDirectViewModel
 import pl.example.networkmodule.apiMethods.ApiProvider
 import androidx.lifecycle.viewModelScope
@@ -52,10 +50,12 @@ import java.util.UUID
 
 
 @Composable
-fun AdminUserDirectScreen(userId: String, navController: NavController) {
-    val context = LocalContext.current
-    val apiProvider = remember { ApiProvider(context) }
-    val viewModel = remember { AdminUserDirectViewModel(apiProvider, userId) }
+fun AdminUserDirectScreen(
+    userId: String,
+    navController: NavController,
+    viewModel: AdminUserDirectViewModel = hiltViewModel()
+) {
+
 
     val user = viewModel.userData.collectAsState()
 
@@ -68,9 +68,8 @@ fun AdminUserDirectScreen(userId: String, navController: NavController) {
     var typeState by remember { mutableStateOf<RestrictedUserType?>(null) }
 
 
-
     val userType by viewModel.userType.collectAsState()
-    prefUnit = user.value?.prefUint ?: GlucoseUnitType.MG_PER_DL
+    prefUnit = user.value?.prefUnit ?: GlucoseUnitType.MG_PER_DL
 
     LaunchedEffect(userType) {
         if (typeState == null) {
@@ -81,14 +80,19 @@ fun AdminUserDirectScreen(userId: String, navController: NavController) {
 
     Column(Modifier.padding(16.dp)) {
         Card(Modifier.padding(8.dp)) {
-            Column(Modifier.padding(12.dp))  {
+            Column(Modifier.padding(12.dp)) {
                 TextRow("Imię", user.value?.firstName ?: "Brak", fontSize = 18)
                 TextRow("Nazwisko", user.value?.lastName ?: "Brak", fontSize = 18)
                 TextRow("Email", user.value?.email ?: "Brak", fontSize = 18)
                 TextRow("ID", user.value?.id.toString(), fontSize = 18)
                 TextRow("Jednostka", formatUnit(prefUnit), fontSize = 18)
-                user.value?.type?.let { formatUserType(it) }?.let { TextRow("Typ użytkownika", it, fontSize = 18) }
-                TextRow("Zablokowany", if (user.value?.isBlocked == true) "Zablokowany" else "Odblokowany", fontSize = 18)
+                user.value?.type?.let { formatUserType(it) }
+                    ?.let { TextRow("Typ użytkownika", it, fontSize = 18) }
+                TextRow(
+                    "Zablokowany",
+                    if (user.value?.isBlocked == true) "Zablokowany" else "Odblokowany",
+                    fontSize = 18
+                )
                 Icon(
                     modifier = Modifier.size(32.dp),
                     imageVector = Icons.Default.Lock,
@@ -98,10 +102,15 @@ fun AdminUserDirectScreen(userId: String, navController: NavController) {
 
 
             }
-            }
+        }
 
-        Row(Modifier.padding(16.dp)){
-            ExtendedFloatingActionButton(onClick = { showDialog = true }, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+        Row(Modifier.padding(16.dp)) {
+            ExtendedFloatingActionButton(
+                onClick = { showDialog = true },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            ) {
                 Text("Zmień jednostkę")
             }
 
@@ -110,7 +119,9 @@ fun AdminUserDirectScreen(userId: String, navController: NavController) {
                     viewModel.viewModelScope.launch {
                         viewModel.unblcokUser()
                     }
-                }, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                }, modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)) {
                     Text("Odblokuj")
                 }
             } else {
@@ -118,21 +129,38 @@ fun AdminUserDirectScreen(userId: String, navController: NavController) {
                     viewModel.viewModelScope.launch {
                         viewModel.blockUser()
                     }
-                }, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                }, modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)) {
                     Text("Zablokuj")
                 }
             }
         }
-        Row(Modifier.padding(16.dp)){
-            ExtendedFloatingActionButton(onClick = { showDeleteDialog = true }, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+        Row(Modifier.padding(16.dp)) {
+            ExtendedFloatingActionButton(
+                onClick = { showDeleteDialog = true },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            ) {
                 Text("Usuń użytkownika")
             }
-            ExtendedFloatingActionButton(onClick = { showChangePasswordDialog = true }, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+            ExtendedFloatingActionButton(
+                onClick = { showChangePasswordDialog = true },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            ) {
                 Text("Zmień hasło")
             }
         }
-        Row(Modifier.padding(16.dp)){
-            ExtendedFloatingActionButton(onClick = { showDialogTypeChange = true }, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+        Row(Modifier.padding(16.dp)) {
+            ExtendedFloatingActionButton(
+                onClick = { showDialogTypeChange = true },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            ) {
                 Text("Zmień typ użytkownika")
             }
 
@@ -152,7 +180,10 @@ fun AdminUserDirectScreen(userId: String, navController: NavController) {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Zmień typ jednostki pomiarowej.", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "Zmień typ jednostki pomiarowej.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -204,11 +235,11 @@ fun AdminUserDirectScreen(userId: String, navController: NavController) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                        UserTypeDropdownMenu(
-                            selectedUnit = typeState ?: RestrictedUserType.BRAK,
-                            onUnitSelected = { typeState = it },
-                            label = "Typ użytkownika"
-                        )
+                    UserTypeDropdownMenu(
+                        selectedUnit = typeState ?: RestrictedUserType.BRAK,
+                        onUnitSelected = { typeState = it },
+                        label = "Typ użytkownika"
+                    )
 
 
                     Spacer(modifier = Modifier.height(16.dp))

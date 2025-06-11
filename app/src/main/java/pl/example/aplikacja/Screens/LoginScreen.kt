@@ -22,10 +22,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.material.icons.Icons
-
 import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
-
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButtonDefaults.Icon
@@ -72,7 +70,10 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     val apiProvider = remember { ApiProvider(context) }
     val viewModel = remember { LoginScreenViewModel(apiProvider) }
 
+
     val healthy by viewModel.healthy.collectAsState()
+
+    //Login form data variables
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loginError by remember { mutableStateOf("") }

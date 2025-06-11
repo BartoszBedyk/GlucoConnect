@@ -8,13 +8,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
-import pl.example.networkmodule.apiData.ObserverResult
-import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.UserResult
-import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.requestData.CreateObserver
-import java.math.RoundingMode
+import pl.example.networkmodule.requestData.GenerateGlucoseReport
+import java.util.Date
 
 class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String) : ViewModel() {
 
@@ -37,6 +35,12 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
     val observatorsUnAccepted: MutableStateFlow<List<UserResult>?> = _observatorsUnAccepted
 
     private val authenticationApi = apiProvider.authenticationApi
+
+    private val reportApi = apiProvider.reportApi
+
+    private val _fileName = MutableStateFlow<String?>(null)
+    val fileName: MutableStateFlow<String?> = _fileName
+
 
 
     private val _healthy = MutableStateFlow<Boolean>(false)
@@ -61,6 +65,20 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
             }
         }
 
+    }
+
+    fun generateReport(startDate: Date, endDate: Date) {
+        viewModelScope.launch {
+            try{
+                if (!healthy.value) throw IllegalStateException("API not available")
+                val reportData = GenerateGlucoseReport(USER_ID,startDate, endDate)
+                _fileName.value = reportApi.getReportById(reportData)?.name
+
+            }catch (e: Exception){
+                println(e.message)
+            }
+
+        }
     }
 
     private fun fetchUserData() {

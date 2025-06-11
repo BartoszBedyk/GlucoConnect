@@ -19,6 +19,7 @@ import pl.example.databasemodule.database.repository.HeartbeatRepository
 import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.apiMethods.ApiProvider
@@ -40,8 +41,11 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
     private val _threeGlucoseItems = MutableStateFlow<List<ResearchResult>>(emptyList())
     val threeGlucoseItems: StateFlow<List<ResearchResult>> = _threeGlucoseItems
 
-    private val _userType = MutableStateFlow<UserType>(UserType.PATIENT)
-    val userType: StateFlow<UserType> = _userType
+    private val _userDiabetesType = MutableStateFlow<DiabetesType>(DiabetesType.NONE)
+    val userDiabetesType: StateFlow<DiabetesType> = _userDiabetesType
+
+    private val _userHb1AcValue = MutableStateFlow(0.0f)
+    val userHb1AcValue: StateFlow<Float> = _userHb1AcValue
 
     private val _heartbeatItems = MutableStateFlow<List<HeartbeatResult>>(emptyList())
     val heartbeatItems: StateFlow<List<HeartbeatResult>> = _heartbeatItems
@@ -63,10 +67,12 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
         viewModelScope.launch {
             healthy.collect { isHealthy ->
                 if (isHealthy) {
-                    getUserType()
+                    getUserDiabetesType()
+                    getUserHb1AcValue()
                     fetchItemsAsync()
                 } else {
-                    getUserType()
+                    getUserDiabetesType()
+                    getUserHb1AcValue()
                     fetchItemsAsync()
                 }
             }
@@ -112,11 +118,25 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
     }
 
 
-    fun getUserType() {
+
+
+    private fun getUserDiabetesType() {
         try {
             if (!healthy.value) throw IllegalStateException("API not available")
             viewModelScope.launch {
-                _userType.value = userApi.getUserById(USER_ID)?.type ?: UserType.PATIENT
+                _userDiabetesType.value = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
+            }
+        } catch (e: Exception) {
+            return
+        }
+
+    }
+
+    private fun getUserHb1AcValue() {
+        try {
+            if (!healthy.value) throw IllegalStateException("API not available")
+            viewModelScope.launch {
+                _userHb1AcValue.value = resultApi.getHb1AcResultById(USER_ID) ?: 0.0f
             }
         } catch (e: Exception) {
             return

@@ -47,6 +47,7 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
         )
     }
 
+    //fetch data from server about glucose for actual user
     val researchResult by viewModel.glucoseResult.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 

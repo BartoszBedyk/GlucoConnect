@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GlucoConnect</string>
+    <string name="notification_name_download">Pobieranie raportu</string>
+    <string name="notification_description_download">"Zamówiony raport jest właśnie generowany. Po zakończeniu zostanie on zapisany w folderze Pobrane."</string>
 </resources>

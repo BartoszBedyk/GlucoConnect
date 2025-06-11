@@ -1,19 +1,31 @@
 package pl.example.aplikacja.viewModels
 
+import android.content.Context
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.auth0.jwt.JWT
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.toRestrictedUserTypeOrNull
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.UnitUpdate
+import javax.inject.Inject
 
-class AdminUserDirectViewModel(apiProvider: ApiProvider, private val USER_ID: String) :
+@HiltViewModel
+class AdminUserDirectViewModel @Inject constructor (@ApplicationContext private val context: Context, savedStateHandle: SavedStateHandle) :
     ViewModel() {
 
+    val USER_ID: String = savedStateHandle["userId"] ?: throw IllegalArgumentException("Missing userId")
+
+    private val apiProvider = ApiProvider(context)
     private val userApi = apiProvider.userApi
 
     private val _userData = MutableStateFlow<UserResult?>(null)

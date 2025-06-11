@@ -6,22 +6,26 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 
 class KtorClient(context: Context) {
     private val token = getToken(context)
-    //val baseUrl = "http://192.168.51.197:8080"
-    val baseUrl = "http://10.0.2.2:8080"
+    val baseUrl = "http://192.168.1.25:8080"
+    val context = context
+    //val baseUrl = "http://10.0.2.2:8080"
     val client = HttpClient(OkHttp) {
         defaultRequest {
             url(baseUrl)
             token?.let {
-                headers.append("Authorization", "Bearer ${getToken(context)}")
+                headers[HttpHeaders.Authorization] = "Bearer $it"
             }
         }
         install(HttpTimeout){
@@ -32,6 +36,7 @@ class KtorClient(context: Context) {
 
         install(Logging) {
             logger = Logger.SIMPLE
+            level = LogLevel.ALL
         }
         install(ContentNegotiation) {
             json(Json {

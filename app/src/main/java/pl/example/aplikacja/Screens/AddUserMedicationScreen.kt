@@ -35,16 +35,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.formatDateTimeWithoutTime
-import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddUserMedicationViewModel
 import pl.example.networkmodule.apiData.MedicationResult
-import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 import java.util.Date
 import java.util.UUID
@@ -53,6 +50,7 @@ import java.util.UUID
 @Composable
 fun AddUserMedicationScreen(navController: NavController) {
 
+    //Form data variables
     var dose by remember { mutableStateOf("") }
     var frequency by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
@@ -60,17 +58,16 @@ fun AddUserMedicationScreen(navController: NavController) {
     var endDate by remember { mutableStateOf<Date?>(null) }
     var openStartDateDialog by remember { mutableStateOf(false) }
     var openEndDateDialog by remember { mutableStateOf(false) }
+
+
     val snackState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
 
-    val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember {
-        AddUserMedicationViewModel(
-            context, removeQuotes(decoded.getClaim("userId").toString())
-        )
-    }
+
+    val viewModel : AddUserMedicationViewModel = hiltViewModel()
+
     val medication = viewModel.medications.collectAsState()
     var selectedMedication by remember { mutableStateOf<MedicationResult?>(null) }
 
@@ -241,9 +238,7 @@ fun AddUserMedicationScreen(navController: NavController) {
                             if (viewModel.addUserMedication(
                                     CreateUserMedicationForm(
                                         userId = UUID.fromString(
-                                            removeQuotes(
-                                                decoded.getClaim("userId").toString()
-                                            )
+                                            viewModel.USER_ID
                                         ),
                                         medicationId = selectedMedication!!.id,
                                         dosage = dose,

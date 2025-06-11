@@ -31,6 +31,7 @@ import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.UiElements.UserTypeDropdownMenu
 import pl.example.aplikacja.viewModels.RegistrationStepTwoScreenViewModel
 import pl.example.databasemodule.database.data.DiabetesTypeDB
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.apiMethods.ApiProvider
@@ -50,7 +51,7 @@ fun RegisterStepTwoScreen(
     var expanded by remember { mutableStateOf(false) }
     var registerError by remember { mutableStateOf("") }
     var typeState by remember { mutableStateOf<RestrictedUserType>(RestrictedUserType.PATIENT) }
-    var diabetesType by remember { mutableStateOf<DiabetesTypeDB>(DiabetesTypeDB.NONE) }
+    var diabetesType by remember { mutableStateOf<DiabetesType>(DiabetesType.NONE) }
     val snackState = remember { SnackbarHostState() }
     Box(
         Modifier.fillMaxSize()
@@ -117,7 +118,7 @@ fun RegisterStepTwoScreen(
                     }else
                     {
                         if (viewModel.registerStepTwo(
-                                userId, name, lastName, prefUnit.toString()
+                                userId, name, lastName, prefUnit.toString(), diabetesType.toString()
                             )
                         ) {
                             viewModel.updateType(userId, typeState.toString())

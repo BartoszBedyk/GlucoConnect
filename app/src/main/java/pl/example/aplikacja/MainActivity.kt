@@ -1,31 +1,18 @@
 package pl.example.aplikacja
 
-import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.window.SplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 import pl.example.aplikacja.UiElements.MainApp
 import pl.example.aplikacja.ui.theme.AplikacjaTheme
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 import pl.example.networkmodule.apiData.enumTypes.UserType
-import pl.example.networkmodule.clearToken
 import pl.example.networkmodule.getToken
-import pl.example.networkmodule.saveToken
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

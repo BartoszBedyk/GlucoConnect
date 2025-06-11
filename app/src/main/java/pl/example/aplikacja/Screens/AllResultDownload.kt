@@ -37,6 +37,7 @@ fun AllResultsDownload(navController: NavController) {
     val viewModel: DownloadViewModel =
         viewModel(factory = DownloadViewModelFactory(ApiProvider(context)))
 
+    //download correct data for view and launch loading
     val isLoading by viewModel.isLoading.collectAsState()
     val allResults by viewModel.glucoseResults.collectAsState()
 

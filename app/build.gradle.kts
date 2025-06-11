@@ -32,6 +32,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -50,6 +51,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
 
 
@@ -82,15 +84,20 @@ dependencies {
     implementation(project(":databaseModule"))
 
     implementation(libs.material3)
-    implementation (libs.ehsannarmani.compose.charts)
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation(libs.ehsannarmani.compose.charts)
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.dotenv.kotlin)
-    implementation (libs.androidx.core.splashscreen)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.graphics.shapes)
     //implementation (libs.androidx.credentials)
+
+
 
     implementation(libs.hilt.android.v2511)
     kapt(libs.hilt.android.compiler.v2511)
+    implementation(libs.androidx.hilt.navigation.compose.v110)
+    implementation(libs.androidx.lifecycle.viewmodel.compose.v270)
 }
 kapt {
     correctErrorTypes = true

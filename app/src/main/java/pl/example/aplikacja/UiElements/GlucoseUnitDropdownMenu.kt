@@ -22,6 +22,7 @@ import pl.example.aplikacja.formatDiabetesType
 import pl.example.aplikacja.formatUnit
 import pl.example.aplikacja.formatUserType
 import pl.example.databasemodule.database.data.DiabetesTypeDB
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 
@@ -123,8 +124,8 @@ fun UserTypeDropdownMenu(
 
 @Composable
 fun DiabetesTypeDropdownMenu(
-    selectedDiabetesType: DiabetesTypeDB,
-    onTypeSelected: (DiabetesTypeDB) -> Unit,
+    selectedDiabetesType: DiabetesType,
+    onTypeSelected: (DiabetesType) -> Unit,
     label: String
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -153,7 +154,7 @@ fun DiabetesTypeDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DiabetesTypeDB.entries.forEach { type ->
+            DiabetesType.entries.forEach { type ->
                 DropdownMenuItem(
                     text = { Text(text = formatDiabetesType(type)) },
                     onClick = {

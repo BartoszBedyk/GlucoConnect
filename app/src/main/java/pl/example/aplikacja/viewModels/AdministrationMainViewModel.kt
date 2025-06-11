@@ -4,14 +4,19 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiMethods.ApiProvider
+import javax.inject.Inject
 
-class AdministrationMainViewModel(apiProvider: ApiProvider) : ViewModel() {
+@HiltViewModel
+class AdministrationMainViewModel @Inject constructor (@ApplicationContext private val context: Context) : ViewModel() {
+    val apiProvider = ApiProvider(context)
     val userApi = apiProvider.userApi
 
     private val _users = MutableStateFlow<List<UserResult>>(emptyList())

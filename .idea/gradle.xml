@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/bluetoothModule" />
             <option value="$PROJECT_DIR$/databaseModule" />
             <option value="$PROJECT_DIR$/networkModule" />
+            <option value="$PROJECT_DIR$/sensorModule" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

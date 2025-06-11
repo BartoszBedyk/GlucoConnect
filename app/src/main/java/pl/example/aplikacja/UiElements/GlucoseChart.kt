@@ -2,8 +2,6 @@ package pl.example.aplikacja.UiElements
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.aspectRatio
-
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -24,12 +22,12 @@ import ir.ehsannarmani.compose_charts.models.HorizontalIndicatorProperties
 import ir.ehsannarmani.compose_charts.models.Line
 import ir.ehsannarmani.compose_charts.models.LineProperties
 import ir.ehsannarmani.compose_charts.models.PopupProperties
-import ir.ehsannarmani.compose_charts.models.StrokeStyle
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import java.util.Date
 import java.util.UUID
+
 
 @Preview
 @Composable
@@ -148,6 +146,7 @@ fun LineChartPreview() {
     )
 
     GlucoseChart(glucoseData = results)
+    //NewGlucoseChart()
 }
 @Composable
 fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
@@ -242,7 +241,8 @@ fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
     )
 
     LineChart(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .aspectRatio(16 / 9f)
             .padding(16.dp)
             .wrapContentHeight(),
@@ -330,7 +330,8 @@ fun GlucoseChart(glucoseData: List<ResearchResult>) {
     )
 
     LineChart(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .aspectRatio(16 / 9f)
             .padding(16.dp)
             .wrapContentHeight(),
@@ -378,3 +379,149 @@ fun GlucoseChart(glucoseData: List<ResearchResult>) {
         )
     )
 }
+
+
+
+//@Composable
+//fun NewGlucoseChart(){
+//
+//    val cartesian: Cartesian = AnyChart.line()
+//    cartesian.animation(true)
+//    cartesian.padding(10.0, 20.0, 5.0, 20.0)
+//    cartesian.crosshair().enabled(true)
+//    cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
+//    cartesian.title("Poziom glukozy we krwi")
+//    cartesian.yAxis(0).title("Glukoza (mg/dL)")
+//    cartesian.xAxis(0).title("Czas")
+//
+//
+//    val userId = UUID.randomUUID()
+//    val id = UUID.randomUUID().toString()
+//    val results =listOf(
+//        ResearchResult(
+//            id = UUID.fromString(id),
+//            glucoseConcentration = 5.5,
+//            unit = GlucoseUnitType.MMOL_PER_L,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.randomUUID(),
+//            glucoseConcentration = 4.8,
+//            unit = GlucoseUnitType.MMOL_PER_L,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.randomUUID(),
+//            glucoseConcentration = 126.1,
+//            unit = GlucoseUnitType.MG_PER_DL,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.fromString(id),
+//            glucoseConcentration = 5.5,
+//            unit = GlucoseUnitType.MMOL_PER_L,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.randomUUID(),
+//            glucoseConcentration = 4.8,
+//            unit = GlucoseUnitType.MMOL_PER_L,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.randomUUID(),
+//            glucoseConcentration = 126.1,
+//            unit = GlucoseUnitType.MG_PER_DL,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.fromString(id),
+//            glucoseConcentration = 5.5,
+//            unit = GlucoseUnitType.MMOL_PER_L,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.randomUUID(),
+//            glucoseConcentration = 4.8,
+//            unit = GlucoseUnitType.MMOL_PER_L,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        ),
+//        ResearchResult(
+//            id = UUID.randomUUID(),
+//            glucoseConcentration = 126.1,
+//            unit = GlucoseUnitType.MG_PER_DL,
+//            timestamp = Date(),
+//            userId = userId,
+//            deletedOn = null,
+//            lastUpdatedOn = Date(),
+//            afterMedication = false,
+//            emptyStomach = false,
+//            notes = ""
+//        )
+//    )
+//    val seriesData = results.map {
+//
+//
+//        ValueDataEntry(formatDateTimeWithoutLocale(it.timestamp), it.glucoseConcentration.toDouble())
+//    }
+//
+//
+//    val series = cartesian.line(seriesData)
+//    series.name("Glukoza")
+//    series.hovered().markers().enabled(true)
+//    series.hovered().markers()
+//        .type(MarkerType.CIRCLE)
+//        .size(4.0)
+//
+//    cartesian.legend().enabled(false)
+//}
+
+

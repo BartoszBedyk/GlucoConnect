@@ -9,6 +9,7 @@ import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.UserMedicationResult
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.apiData.enumTypes.UserType
@@ -65,6 +66,18 @@ fun formatDiabetesType(type: DiabetesTypeDB): String {
         DiabetesTypeDB.LADA -> "LADA"
         DiabetesTypeDB.GESTATIONAL -> "Ciążowa"
         DiabetesTypeDB.MODY -> "MODY"
+    }
+
+}
+
+fun formatDiabetesType(type: DiabetesType): String {
+    return when (type) {
+        DiabetesType.TYPE_1 -> "Typ 1"
+        DiabetesType.TYPE_2 -> "Typ 2"
+        DiabetesType.NONE -> "Brak"
+        DiabetesType.LADA -> "LADA"
+        DiabetesType.GESTATIONAL -> "Ciążowa"
+        DiabetesType.MODY -> "MODY"
     }
 
 }

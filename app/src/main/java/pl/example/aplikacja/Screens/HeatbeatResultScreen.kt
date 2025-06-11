@@ -27,6 +27,8 @@ fun HeartbeatResultScreen(id: String, navController: NavController) {
     val viewModel =
         remember {HeartbeatDetailsScreenViewModel(context, id)}
 
+
+    //fetch data from server about heartbeats for actual user
     val heartbeatResult by viewModel.heartbeatResult.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -118,6 +120,8 @@ fun HeartbeatResultScreen(id: String, navController: NavController) {
         }
     }
 }
+
+//Funtion for evaluation of medical data (blood pressure)
 
 fun evaluateBloodPressure(
     systolicPressure: Int,

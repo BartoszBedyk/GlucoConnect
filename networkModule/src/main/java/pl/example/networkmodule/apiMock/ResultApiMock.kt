@@ -231,4 +231,8 @@ class ResultApiMock: ResultApiInterface {
             )
         )
     }
+
+    override suspend fun getHb1AcResultById(id: String): Float? {
+        return 6.0f
+    }
 }

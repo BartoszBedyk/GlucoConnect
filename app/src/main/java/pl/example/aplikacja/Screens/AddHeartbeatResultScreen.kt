@@ -22,18 +22,17 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
@@ -41,7 +40,6 @@ import kotlinx.coroutines.launch
 import pl.example.aplikacja.formatDateTimeWithoutLocale
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddHeartbeatViewModel
-import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.CreateHeartbeatForm
 import java.util.Calendar
@@ -52,6 +50,8 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
+
+    //form data variables
     var systolicPressure by remember { mutableStateOf("0") }
     var diastolicPressure by remember { mutableStateOf("0") }
     var pulse by remember { mutableStateOf("0") }
@@ -59,13 +59,14 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
 
     var timestampDate by remember { mutableStateOf<Date?>(null) }
     var timestampTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-    var checked by remember { mutableStateOf(false) }
+    var timeDateCheckbox by remember { mutableStateOf(false) }
     var openDialogDate by remember { mutableStateOf(false) }
     var openDateTimePicker by remember { mutableStateOf(false) }
     var openClockTimePicker by remember { mutableStateOf(false) }
+
+
     val snackState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     val currentTime = Calendar.getInstance()
 
@@ -75,10 +76,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
         is24Hour = true,
     )
 
-    val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember {
-        AddHeartbeatViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))
-    }
+    val viewModel : AddHeartbeatViewModel = hiltViewModel()
 
     val timestampFull by remember {
         derivedStateOf {
@@ -137,16 +135,16 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp
                     )
-                    Checkbox(checked = checked, onCheckedChange = { state ->
+                    Checkbox(checked = timeDateCheckbox, onCheckedChange = { state ->
                         if (state) {
                             openDialogDate = true
                             openDateTimePicker = true
                         }
-                        checked = state
+                        timeDateCheckbox = state
                     })
                 }
 
-                if (checked) {
+                if (timeDateCheckbox) {
                     TextRowEdit(
                         label = "Data pomiaru",
                         value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
@@ -226,9 +224,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                                         viewModel.addHeartbeatResult(
                                             CreateHeartbeatForm(
                                                 userId = UUID.fromString(
-                                                    removeQuotes(
-                                                        decoded.getClaim("userId").toString()
-                                                    )
+                                                    viewModel.USER_ID
                                                 ),
                                                 timestamp = timestampFull ?: Date(),
                                                 pulse = pulse.toIntOrNull() ?: 0,

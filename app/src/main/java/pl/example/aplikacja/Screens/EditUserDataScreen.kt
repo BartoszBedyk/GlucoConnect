@@ -37,7 +37,7 @@ import pl.example.aplikacja.UiElements.DiabetesTypeDropdownMenu
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.EditUserViewModel
-import pl.example.databasemodule.database.data.DiabetesTypeDB
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
@@ -46,31 +46,33 @@ import java.util.UUID
 
 @Composable
 fun EditUserDataScreen(navController: NavController) {
+
     val context = LocalContext.current
     val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
     val viewModel: EditUserViewModel = remember {
         EditUserViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
     }
-    val userData = viewModel.userData.collectAsState()
 
+    //Download user data form backend
+    val userData = viewModel.userData.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
-
+    //Edit form data variables
     var name by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var prefUnit by remember { mutableStateOf<GlucoseUnitType?>(null) }
-    var diabetesType by remember { mutableStateOf<DiabetesTypeDB?>(null) }
+    var diabetesType by remember { mutableStateOf<DiabetesType?>(null) }
 
 
     LaunchedEffect(userData.value) {
         userData.value?.let {
             name = it.firstName ?: ""
             lastName = it.lastName ?: ""
-            email = it.email ?: ""
-            diabetesType = it.diabetesType?.let { type -> DiabetesTypeDB.valueOf(type.toString()) }
-            prefUnit = it.prefUint?.let { pref ->
+            email = it.email
+            diabetesType = it.diabetesType?.let { type -> DiabetesType.valueOf(type.toString()) }
+            prefUnit = it.prefUnit?.let { pref ->
                 GlucoseUnitType.valueOf(pref.toString())
 
             }
@@ -148,7 +150,7 @@ fun EditUserDataScreen(navController: NavController) {
 
 
 
-
+                //Try to edit data in api and navigate to correct screen
                 ExtendedFloatingActionButton(
                     onClick = {
                         coroutineScope.launch {

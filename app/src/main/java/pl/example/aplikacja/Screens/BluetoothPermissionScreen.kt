@@ -138,7 +138,7 @@ fun BluetoothPermission(
                     bluetoothViewModel.lastMeasurement.value
                 },
                 bluetoothViewModel = bluetoothViewModel,
-                title = "Podłącz się z glukometrem",
+                title = "Połącz się z glukometrem",
                 navController = navController,
                 destination = destination
             )

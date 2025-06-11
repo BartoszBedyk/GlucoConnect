@@ -1,6 +1,5 @@
 package pl.example.aplikacja.Screens
 
-import android.os.Handler
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
@@ -25,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
-import kotlinx.coroutines.delay
 import pl.example.aplikacja.UiElements.GlucoseChart
 import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
@@ -149,12 +146,21 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                             item {
                                 GlucoseChart(glucoseResults.reversed().take(14))
                             }
-                        }
-                        items(glucoseResults) { item ->
-                            Row(Modifier.animateItem()) {
-                                ItemView(item) { itemId ->
-                                    navController.navigate("glucose_result/$itemId")
+
+                            items(glucoseResults) { item ->
+                                Row(Modifier.animateItem()) {
+                                    ItemView(item) { itemId ->
+                                        navController.navigate("glucose_result/$itemId")
+                                    }
                                 }
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    text = "Brak danych",
+                                    modifier = Modifier.padding(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                     }
@@ -170,12 +176,21 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                             item {
                                 HeartbeatChart(heartbeatResult.reversed().take(14))
                             }
-                        }
-                        items(heartbeatResult) { item ->
-                            Row(Modifier.animateItem()) {
-                                ItemView(item) { itemId ->
-                                    navController.navigate("heartbeat_result/$itemId")
+
+                            items(heartbeatResult) { item ->
+                                Row(Modifier.animateItem()) {
+                                    ItemView(item) { itemId ->
+                                        navController.navigate("heartbeat_result/$itemId")
+                                    }
                                 }
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    text = "Brak danych",
+                                    modifier = Modifier.padding(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                     }
@@ -254,7 +269,9 @@ fun SelectedScreenBottomImage(position: Boolean) {
                 text = if (it) "Glukoza" else "Ciśnienie",
                 fontSize = 6.sp,
                 color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.align(if (it) Alignment.TopStart else Alignment.TopEnd).padding(horizontal = 4.dp)
+                modifier = Modifier
+                    .align(if (it) Alignment.TopStart else Alignment.TopEnd)
+                    .padding(horizontal = 4.dp)
             )
         }
         //}

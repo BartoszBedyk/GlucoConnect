@@ -247,8 +247,9 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
                 AdministrationMainScreen(navController)
             }
             composable("admin_user_direct/{userId}") { backStackEntry ->
-                val userId = backStackEntry.arguments?.getString("userId") ?: ""
-                AdminUserDirectScreen(userId,navController)
+                AdminUserDirectScreen(
+                    backStackEntry.arguments?.getString("userId") ?: "",
+                    navController)
             }
             composable("observer_main_screen") {
                 ObserverMainScreen(navController)

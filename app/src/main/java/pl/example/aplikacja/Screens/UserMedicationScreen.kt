@@ -12,8 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -52,6 +50,7 @@ fun UserMedicationScreen(navController: NavController?) {
             context, removeQuotes(decoded.getClaim("userId").toString())
         )
     }
+    //download medications for specyfic time
     val medications = viewModel.medicationResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 

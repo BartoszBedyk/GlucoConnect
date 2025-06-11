@@ -1,6 +1,8 @@
 package pl.example.aplikacja.Screens
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -11,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,11 +45,14 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.MainActivity
 import pl.example.aplikacja.formatUnit
+import pl.example.aplikacja.notificationManager.InnerNotificationManager
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.UserProfileViewModel
 import pl.example.networkmodule.apiData.UserResult
@@ -55,6 +60,9 @@ import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.clearToken
 import pl.example.networkmodule.getToken
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +75,11 @@ fun UserProfileScreen(navController: NavController) {
     val viewModel: UserProfileViewModel = remember {
         UserProfileViewModel(apiProvider, id)
     }
-    var showDialog by remember { mutableStateOf(false) }
+    val innerNotificationManager : InnerNotificationManager = remember {
+        InnerNotificationManager(context)
+    }
+
+    var showUserCodeDialog by remember { mutableStateOf(false) }
     var showDialogObserver by remember { mutableStateOf(false) }
     var showDialogObservator by remember { mutableStateOf(false) }
     var showAcceptDialog by remember { mutableStateOf(false) }
@@ -80,6 +92,7 @@ fun UserProfileScreen(navController: NavController) {
         val userData = viewModel.userData.collectAsState()
         val observed = viewModel.observed.collectAsState()
         val obseredUser = viewModel.observedUser.collectAsState()
+        val fileName = viewModel.fileName.collectAsState()
 
         val accepted = viewModel.observatorsAccepted.collectAsState()
         val unAccepted = viewModel.observatorsUnAccepted.collectAsState()
@@ -88,7 +101,7 @@ fun UserProfileScreen(navController: NavController) {
         Log.e("Accepted", accepted.value?.size.toString())
         val fontSize = 20
         val coroutineScope = rememberCoroutineScope()
-        val prefUnit = userData.value?.prefUint?.let { formatUnit(it) }
+        val prefUnit = userData.value?.prefUnit?.let { formatUnit(it) }
         val clipboardManager = LocalClipboardManager.current
 
         Box(Modifier.fillMaxSize()) {
@@ -101,6 +114,15 @@ fun UserProfileScreen(navController: NavController) {
                 fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
                 color = MaterialTheme.colorScheme.primary
             )
+        }
+
+
+        LaunchedEffect(fileName.value) {
+            fileName.value?.let {
+                innerNotificationManager.createDownloadNotification(
+                    it
+                )
+            }
         }
 
 
@@ -126,9 +148,9 @@ fun UserProfileScreen(navController: NavController) {
                 )
             }
 
-            if (showDialog) {
+            if (showUserCodeDialog) {
                 Dialog(
-                    onDismissRequest = { showDialog = false },
+                    onDismissRequest = { showUserCodeDialog = false },
                 ) {
                     val code = id.take(5) + id.takeLast(5)
                     Card(
@@ -189,12 +211,12 @@ fun UserProfileScreen(navController: NavController) {
                                             observed.value!!.id.toString()
                                         )
                                         if(obseredUser.value != null){
-                                            showDialog = false
+                                            showUserCodeDialog = false
                                             showDialogObserver = false
                                             showDialogObservator = true
                                             navController.navigate("main_screen")
                                         }
-                                        showDialog = false
+                                        showUserCodeDialog = false
                                         showDialogObserver = false
                                         showDialogObservator = true
 
@@ -249,7 +271,7 @@ fun UserProfileScreen(navController: NavController) {
                 Column() {
                     if (userData.value?.type == UserType.PATIENT) {
                         ExtendedFloatingActionButton(
-                            onClick = { showDialog = true },
+                            onClick = { showUserCodeDialog = true },
                             icon = { Icon(Icons.Filled.Person, "Udostępnij kod profilu.") },
                             text = { Text(text = "Udostępnij profil") },
                             modifier = Modifier.padding(16.dp)
@@ -331,7 +353,7 @@ fun UserProfileScreen(navController: NavController) {
                                                     userData.value?.id.toString()
                                                 )
                                             }
-                                            showDialog = false
+                                            showUserCodeDialog = false
                                             showAcceptDialog = false
                                         }
                                     ) {
@@ -383,6 +405,30 @@ fun UserProfileScreen(navController: NavController) {
                             },
                             icon = { Icon(Icons.Filled.Close, contentDescription = "Przycisk do logoutu") },
                             text = { Text(text = "Wyloguj się") },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                if (ActivityCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.POST_NOTIFICATIONS
+                                    ) != PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    ActivityCompat.requestPermissions(
+                                        context as MainActivity,
+                                        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                                        1
+                                    )
+                                }else{
+                                    viewModel.generateReport(Date.from(Instant.now().minus(20, ChronoUnit.DAYS)), Date.from(Instant.now()))
+                                    Log.i("FILE", fileName.value.toString())
+                                }
+
+
+                            },
+                            icon = { Icon(Icons.Filled.Close, contentDescription = "Przycisk do logoutu") },
+                            text = { Text(text = "Generuj raport") },
                             modifier = Modifier.weight(1f)
                         )
                     }

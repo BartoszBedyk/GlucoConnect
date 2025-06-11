@@ -144,9 +144,9 @@ fun checkPassword(password: String, passwordRepeat: String): String? {
     }
     if (password.length < 8 || passwordRepeat.length < 8) {
         return "Hasła muszą mieć więcej niż 8 znaków"
-
     }
-    if (!password.all { it.isLetterOrDigit() } || !passwordRepeat.all { it.isLetterOrDigit() }) {
+    if (!(password.any { it.isLetter() } && password.any { it.isDigit() }) ||
+        !(passwordRepeat.any { it.isLetter() } && passwordRepeat.any { it.isDigit() })) {
         return "Hasła muszą zawierać litery i cyfry"
     }
     if (password != passwordRepeat) {
@@ -155,9 +155,7 @@ fun checkPassword(password: String, passwordRepeat: String): String? {
     if (!password.any { it.isUpperCase() } || !passwordRepeat.any { it.isUpperCase() }) {
         return "Hasła muszą zawierać co najmniej jedną wielką literę"
     }
-    if (!password.any { it.isDigit() } || !passwordRepeat.any { it.isDigit() }) {
-        return "Hasła muszą zawierać co najmniej jedną cyfrę"
-    }
     return null
 }
+
 
