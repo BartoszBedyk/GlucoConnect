@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import pl.example.aplikacja.viewModels.AdministrationMainViewModel
 import pl.example.networkmodule.apiData.UserResult
@@ -24,12 +24,7 @@ import pl.example.networkmodule.apiMethods.ApiProvider
 @Composable
 fun AdministrationMainScreen(navController: NavController) {
 
-    val context = LocalContext.current
-    val apiProvider = remember { ApiProvider(context) }
-
-    val viewModel = remember {
-        AdministrationMainViewModel(apiProvider)
-    }
+    val viewModel : AdministrationMainViewModel = hiltViewModel()
 
     val users = viewModel.users.collectAsState()
 

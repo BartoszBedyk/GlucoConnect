@@ -11,7 +11,6 @@ import java.util.UUID
 data class ResearchResult(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val sequenceNumber: Int,
     var glucoseConcentration: Double,
     var unit: GlucoseUnitType,
     @Serializable(with = DateSerializer::class)
@@ -21,5 +20,8 @@ data class ResearchResult(
     @Serializable(with = DateSerializer::class)
     val deletedOn: Date?,
     @Serializable(with = DateSerializer::class)
-    val lastUpdatedOn: Date?
+    val lastUpdatedOn: Date?,
+    val afterMedication: Boolean,
+    val emptyStomach: Boolean,
+    val notes: String?
 )

@@ -2,7 +2,9 @@ package pl.example.databasemodule.database.Dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import pl.example.databasemodule.database.data.MedicationDB
 import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.networkmodule.apiData.UserMedicationResult
 
@@ -10,6 +12,9 @@ import pl.example.networkmodule.apiData.UserMedicationResult
 interface UserMedicationDao {
     @Insert
     suspend fun insert(userMedicationResult: UserMedicationDB)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(userMedicationResult: List<UserMedicationDB>)
 
     @Query("SELECT * FROM user_medication WHERE user_id = :userId")
     suspend fun getMedicationsForUser(userId: String): List<UserMedicationDB>

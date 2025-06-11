@@ -14,8 +14,8 @@ class RegistrationStepTwoScreenViewModel(private val apiProvider: ApiProvider) :
     private val userApi = apiProvider.userApi
     private val authenticationApi = apiProvider.authenticationApi
 
-    suspend fun registerStepTwo(id: String, name: String, lastName: String, prefUnit: String): Boolean {
-        val updateData = UpdateUserNullForm(UUID.fromString(id), name, lastName, prefUnit)
+    suspend fun registerStepTwo(id: String, name: String, lastName: String, prefUnit: String, diabetesType: String): Boolean {
+        val updateData = UpdateUserNullForm(UUID.fromString(id), name, lastName, prefUnit, diabetesType)
         return userApi.giveUserNulls(updateData)
     }
 

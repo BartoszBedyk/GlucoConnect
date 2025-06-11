@@ -12,13 +12,15 @@ class ResultApiMock: ResultApiInterface {
     override suspend fun getResearchResultsById(id: String): ResearchResult? {
         return ResearchResult(
             id = UUID.fromString(id),
-            sequenceNumber = 1,
             glucoseConcentration = 25.5,
             unit = GlucoseUnitType.MMOL_PER_L,
             timestamp = Date(),
             userId = UUID.randomUUID(),
             deletedOn = null,
-            lastUpdatedOn = Date()
+            lastUpdatedOn = Date(),
+            afterMedication = false,
+            emptyStomach = false,
+            notes = ""
         )
     }
 
@@ -26,23 +28,27 @@ class ResultApiMock: ResultApiInterface {
         return listOf(
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 1,
                 glucoseConcentration = 5.5,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = UUID.randomUUID(),
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 2,
                 glucoseConcentration = 6.2,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = UUID.randomUUID(),
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             )
         )
     }
@@ -52,33 +58,39 @@ class ResultApiMock: ResultApiInterface {
         return listOf(
             ResearchResult(
                 id = UUID.fromString(id),
-                sequenceNumber = 1,
                 glucoseConcentration = 5.5,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 2,
                 glucoseConcentration = 4.8,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 3,
                 glucoseConcentration = 126.1,
                 unit = GlucoseUnitType.MG_PER_DL,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             )
         )
     }
@@ -108,94 +120,119 @@ class ResultApiMock: ResultApiInterface {
         return listOf(
             ResearchResult(
                 id = UUID.fromString(id),
-                sequenceNumber = 1,
                 glucoseConcentration = 5.5,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 2,
                 glucoseConcentration = 4.8,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 3,
                 glucoseConcentration = 126.1,
                 unit = GlucoseUnitType.MG_PER_DL,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
+
             ),
             ResearchResult(
                 id = UUID.fromString(id),
-                sequenceNumber = 1,
                 glucoseConcentration = 5.5,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 2,
                 glucoseConcentration = 4.8,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 3,
                 glucoseConcentration = 126.1,
                 unit = GlucoseUnitType.MG_PER_DL,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
+
             ),
             ResearchResult(
                 id = UUID.fromString(id),
-                sequenceNumber = 1,
                 glucoseConcentration = 5.5,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 2,
                 glucoseConcentration = 4.8,
                 unit = GlucoseUnitType.MMOL_PER_L,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
             ),
             ResearchResult(
                 id = UUID.randomUUID(),
-                sequenceNumber = 3,
                 glucoseConcentration = 126.1,
                 unit = GlucoseUnitType.MG_PER_DL,
                 timestamp = Date(),
                 userId = userId,
                 deletedOn = null,
-                lastUpdatedOn = Date()
+                lastUpdatedOn = Date(),
+                afterMedication = false,
+                emptyStomach = false,
+                notes = ""
+
             )
         )
+    }
+
+    override suspend fun getHb1AcResultById(id: String): Float? {
+        return 6.0f
     }
 }

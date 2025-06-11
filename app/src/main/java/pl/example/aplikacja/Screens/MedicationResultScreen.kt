@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
@@ -48,6 +47,8 @@ fun MedicationResultScreen(itemId: String, navController: NavController) {
         )
     }
     val viewModelScope = remember { viewModel.viewModelScope }
+
+    //fetch data from server about medications for actual user
 
     val userMedication by viewModel.userMedication.collectAsState()
     val medication by viewModel.medication.collectAsState()

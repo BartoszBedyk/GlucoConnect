@@ -7,13 +7,10 @@ import androidx.room.PrimaryKey
 import java.util.Date
 import java.util.UUID
 
-@Entity(tableName = "research_results")
-data class ResearchResultDB(
+@Entity(tableName = "glucose_results")
+data class GlucoseResultDB(
     @PrimaryKey(autoGenerate = false)
     val id: UUID,
-
-    @ColumnInfo(name = "sequence_number")
-    val sequenceNumber: Int,
 
     @ColumnInfo(name = "glucose_concentration")
     var glucoseConcentration: Double,
@@ -32,6 +29,15 @@ data class ResearchResultDB(
 
     @ColumnInfo(name = "last_updated_on")
     val lastUpdatedOn: Date?,
+
+    @ColumnInfo(name = "after_medication")
+    val afterMedication: Boolean,
+
+    @ColumnInfo(name = "empty_stomach")
+    val emptyStomach: Boolean,
+
+    @ColumnInfo(name = "notes")
+    val notes: String?,
 
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false

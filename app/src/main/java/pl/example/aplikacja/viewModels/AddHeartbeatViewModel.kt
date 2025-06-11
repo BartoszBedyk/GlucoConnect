@@ -3,6 +3,10 @@ package pl.example.aplikacja.viewModels
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.auth0.jwt.JWT
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import pl.example.aplikacja.removeQuotes
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.requestData.CreateHeartbeatForm
 
@@ -10,13 +14,19 @@ import pl.example.networkmodule.requestData.CreateHeartbeatForm
 import pl.example.databasemodule.database.data.HeartbeatDB
 import pl.example.databasemodule.database.repository.HeartbeatRepository
 import pl.example.networkmodule.apiData.HeartbeatResult
+import pl.example.networkmodule.getToken
 
 import java.util.Date
 import java.util.UUID
+import javax.inject.Inject
 
-class AddHeartbeatViewModel(
-    context: Context, private val USER_ID: String
+@HiltViewModel
+class AddHeartbeatViewModel @Inject constructor(
+
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    val USER_ID: String = removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
 
     private val apiProvider = ApiProvider(context)
     private val heartbeatRepository = HeartbeatRepository(context)
@@ -73,7 +83,7 @@ class AddHeartbeatViewModel(
     private fun convertToHeartbeatDB(apiResult: HeartbeatResult): HeartbeatDB {
         return HeartbeatDB(
             id = apiResult.id,
-            userId = apiResult.userId ,
+            userId = apiResult.userId,
             timestamp = apiResult.timestamp,
             systolicPressure = apiResult.systolicPressure,
             diastolicPressure = apiResult.diastolicPressure,

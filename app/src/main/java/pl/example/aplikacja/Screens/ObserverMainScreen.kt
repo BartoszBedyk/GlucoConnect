@@ -13,16 +13,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,11 +45,10 @@ fun ObserverMainScreen(navController: NavController) {
         )
     }
 
-
+    //Download data from server about observed users
     val isLoading by viewModel.isLoading.collectAsState()
     val unAccepted by viewModel.observedUnaccepted.collectAsState()
     val acceptedUsers by viewModel.observedAcceptedUser.collectAsState()
-    val snackState = remember { SnackbarHostState() }
 
     Box(Modifier.fillMaxSize()) {
         if (isLoading) {

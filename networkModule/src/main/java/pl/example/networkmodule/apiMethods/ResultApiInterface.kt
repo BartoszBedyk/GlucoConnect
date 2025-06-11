@@ -14,4 +14,5 @@ interface ResultApiInterface {
     suspend fun deleteResearchResult(id: String): Boolean
     suspend fun safeDeleteResearchResult(id: String): Boolean
     suspend fun getResultsByUserId(id: String): List<ResearchResult>?
+    suspend fun getHb1AcResultById(id: String): Float?
 }

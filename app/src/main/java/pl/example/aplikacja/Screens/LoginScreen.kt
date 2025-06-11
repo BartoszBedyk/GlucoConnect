@@ -7,16 +7,26 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.Log
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,9 +38,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +53,7 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.MainActivity
+import pl.example.aplikacja.R
 import pl.example.aplikacja.viewModels.LoginScreenViewModel
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.clearToken
@@ -56,35 +70,42 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     val apiProvider = remember { ApiProvider(context) }
     val viewModel = remember { LoginScreenViewModel(apiProvider) }
 
+
     val healthy by viewModel.healthy.collectAsState()
+
+    //Login form data variables
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loginError by remember { mutableStateOf("") }
-    var blocked by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(false) }
 
 
     LaunchedEffect(Unit) {
         val currentToken = getToken(context)
+        Log.i("Token", "Current token: $currentToken")
         if (currentToken != null) {
+            Log.i("Token", "Token istnieje.")
             val decoded: DecodedJWT = JWT.decode(currentToken)
             val expiration = decoded.expiresAt
             val now = Date()
             if (expiration != null && now.before(expiration)) {
-                Log.i("Token_Login_Screen", "Token jest ważny")
+                Log.i("Token", "Token jest ważny")
                 navController.navigate("main_screen")
             } else {
                 val refreshedToken = viewModel.refreshToken(context)
                 if (refreshedToken != null) {
-                    Log.i("Token_Login_Screen", "Token jest odświerzony.")
+                    Log.i("Token", "Token jest odświerzony.")
                     clearToken(context)
                     saveToken(context, refreshedToken)
                     navController.navigate("main_screen")
                 } else {
-                    Log.i("Token_Login_Screen", "Token wygasł i nie można go odświeżyć")
+                    Log.i("Token", "Token wygasł i nie można go odświeżyć")
                     clearToken(context)
                     navController.navigate("login_screen")
                 }
             }
+        }else{
+            Log.i("Token", "Brak tokena w LoginScreen")
         }
     }
 
@@ -118,23 +139,18 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(text = "Hasło") },
-            placeholder = { Text(text = "Wpisz hasło") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.padding(vertical = 8.dp)
+        PasswordTextField(
+            password = password,
+            onPasswordChange = { password = it }
         )
 
         Button(
             onClick = {
-                if (!blocked) {
-                    blocked = true
                     loginError = ""
+                    loading = true
                     coroutineScope.launch {
                         if (isNetworkAvailable(context) && healthy == true) {
+                            Log.i("LoginScreen", "Network is available")
                             val token = viewModel.login(login, password, context)
                             if (token != null) {
                                 saveToken(context, token)
@@ -146,16 +162,15 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
                                 loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
                             }
                         } else {
+                            //saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiI1NjI1MWVhNi0zYTU3LTRmYjQtOGQ3Ni1kMWQwODg0M2Y5YTMiLCJ1c2VybmFtZSI6ImZzLmZzQHdwLnBsIiwidXNlclR5cGUiOiJQQVRJRU5UIiwiZXhwIjoxNzQ0NzIwMjcxfQ.WuCwX23OwRtAnQUs8zz2n2U8oui1IVx8gXMwI9qeL9w")
                             loginError =
-                                "Brak połączenia z Internetem. Sprawdź połączenie i spróbuj ponownie."
+                                "Brak połączenia z serwerem. Sprawdź połączenie i spróbuj ponownie."
                         }
-                        blocked = false
+                        loading = false
                     }
-                }
-            },
-            enabled = !blocked
+                },
         ) {
-            Text(text = if (blocked) "Logowanie..." else "Zaloguj")
+            Text(text = if (loading) "Logowanie..." else "Zaloguj")
         }
 
 
@@ -224,6 +239,36 @@ fun isNetworkAvailable(context: Context, healthy: Boolean): Boolean {
         @Suppress("DEPRECATION")
         return networkInfo.isConnected
     }
+}
+
+
+@Composable
+fun PasswordTextField(
+    password: String,
+    onPasswordChange: (String) -> Unit
+) {
+    var showPassword by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = password,
+        onValueChange = onPasswordChange,
+        label = { Text("Hasło") },
+        placeholder = { Text("Wpisz hasło") },
+        singleLine = true,
+        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        trailingIcon = {
+            androidx.compose.material3.Icon(
+                painter = painterResource(id = if (showPassword) R.drawable.baseline_visibility_24 else R.drawable.baseline_visibility_off_24),
+                contentDescription = "Widoczność hasła",
+                modifier = Modifier.clickable { showPassword = !showPassword }
+            )
+
+
+        },
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+    )
 }
 
 

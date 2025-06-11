@@ -70,14 +70,9 @@ fun RegistrationScreen(navController: NavHostController){
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(text = "Hasło") },
-            placeholder = { Text(text = "Wpisz hasło") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.padding(vertical = 8.dp)
+        PasswordTextField(
+            password = password,
+            onPasswordChange = { password = it }
         )
 
         OutlinedTextField(
@@ -90,11 +85,7 @@ fun RegistrationScreen(navController: NavHostController){
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
-            Text(text = "Rejestrując się wyrażasz zgodę na umowę licencyjną", modifier = Modifier.padding(vertical = 8.dp)
-                .clickable {
-                    navController.navigate("licence_screen/licencyjna")
-                }
-            )
+
 
 
         Button(
@@ -129,8 +120,20 @@ fun RegistrationScreen(navController: NavHostController){
                 color = androidx.compose.ui.graphics.Color.Red
             )
         }
-    }
 
+
+    }
+    Box(
+        Modifier.padding(vertical = 8.dp).fillMaxSize(), contentAlignment = Alignment.BottomCenter
+    ){
+        Text(text = "Rejestrując się wyrażasz zgodę na umowę licencyjną", modifier = Modifier.padding(vertical = 8.dp)
+            .align(Alignment.BottomCenter)
+            .clickable {
+                navController.navigate("licence_screen/licencyjna")
+            },
+
+            )
+    }
 
 
 }
@@ -141,9 +144,9 @@ fun checkPassword(password: String, passwordRepeat: String): String? {
     }
     if (password.length < 8 || passwordRepeat.length < 8) {
         return "Hasła muszą mieć więcej niż 8 znaków"
-
     }
-    if (!password.all { it.isLetterOrDigit() } || !passwordRepeat.all { it.isLetterOrDigit() }) {
+    if (!(password.any { it.isLetter() } && password.any { it.isDigit() }) ||
+        !(passwordRepeat.any { it.isLetter() } && passwordRepeat.any { it.isDigit() })) {
         return "Hasła muszą zawierać litery i cyfry"
     }
     if (password != passwordRepeat) {
@@ -152,9 +155,7 @@ fun checkPassword(password: String, passwordRepeat: String): String? {
     if (!password.any { it.isUpperCase() } || !passwordRepeat.any { it.isUpperCase() }) {
         return "Hasła muszą zawierać co najmniej jedną wielką literę"
     }
-    if (!password.any { it.isDigit() } || !passwordRepeat.any { it.isDigit() }) {
-        return "Hasła muszą zawierać co najmniej jedną cyfrę"
-    }
     return null
 }
+
 

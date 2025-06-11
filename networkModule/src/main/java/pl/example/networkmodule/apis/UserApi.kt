@@ -25,13 +25,14 @@ import pl.example.networkmodule.requestData.UserCreateWIthType
 class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     private val client = ktorClient.client
     private val usersEndpoint: String = "user"
+    private val adress = ktorClient.baseUrl
 
     override suspend fun createUser(form: CreateUserForm): String? {
 
         Log.d("CreateUserDebug", Json.encodeToString(form))
 
         try {
-            val response = client.post("http://10.0.2.2:8080/createUser") {
+            val response = client.post("$adress/createUser") {
                 contentType(ContentType.Application.Json)
                 setBody(form)
 
@@ -51,7 +52,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun createUserWithType(form: UserCreateWIthType): Boolean {
         return try {
-            val response = client.post("http://10.0.2.2:8080/createUser/withType") {
+            val response = client.post("$adress/createUser/withType") {
                 contentType(ContentType.Application.Json)
                 setBody(form)
             }
@@ -64,7 +65,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun deleteUser(id: String): Boolean {
         return try {
-            val response = client.delete("http://10.0.2.2:8080/$usersEndpoint/$id")
+            val response = client.delete("$adress/$usersEndpoint/$id")
             response.status == HttpStatusCode.OK
         } catch (e: Exception) {
             Log.e("UserApi", "Request failed with status ${e.message}")
@@ -74,7 +75,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun resetPassword(id: String, newPassword: String): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$usersEndpoint/$id/$newPassword/reset-password")
+            val response = client.put("$adress/$usersEndpoint/$id/$newPassword/reset-password")
             response.status == HttpStatusCode.OK
         } catch (e: Exception) {
             Log.e("UserApi", "Request failed with status ${e.message}")
@@ -86,7 +87,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun getUserById(id: String): UserResult? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$usersEndpoint/$id")
+            val response = client.get("$adress/$usersEndpoint/$id")
             if (response.status == HttpStatusCode.OK) {
                 if (response.contentType()?.match(ContentType.Application.Json) == true) {
                     response.body<UserResult>()
@@ -106,7 +107,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun blockUser(id: String): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$usersEndpoint/block/$id")
+            val response = client.put("$adress/$usersEndpoint/block/$id")
             response.status == HttpStatusCode.OK
         } catch (e: Exception) {
             Log.e("UserApi", "Request failed with status ${e.message}")
@@ -116,7 +117,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun unblockUser(id: String): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$usersEndpoint/unblock/$id")
+            val response = client.put("$adress/$usersEndpoint/unblock/$id")
             response.status == HttpStatusCode.OK
         } catch (e: Exception) {
             Log.e("UserApi", "Request failed with status ${e.message}")
@@ -126,7 +127,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun unitUpdate(form: UnitUpdate): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$usersEndpoint/unitUpdate") {
+            val response = client.put("$adress/$usersEndpoint/unitUpdate") {
                 contentType(ContentType.Application.Json)
                 setBody(form)
             }
@@ -139,7 +140,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun updateUserNulls(form: UpdateUserNullForm): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$usersEndpoint/updateNulls") {
+            val response = client.put("$adress/$usersEndpoint/updateNulls") {
                 contentType(ContentType.Application.Json)
                 setBody(form)
             }
@@ -152,7 +153,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun giveUserNulls(form: UpdateUserNullForm): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/createUser/updateNulls") {
+            val response = client.put("$adress/createUser/updateNulls") {
                 contentType(ContentType.Application.Json)
                 setBody(form)
             }
@@ -164,7 +165,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     }
 
     override suspend fun getUserUnitById(id: String): GlucoseUnitType? {
-        val response = client.get("http://10.0.2.2:8080/$usersEndpoint/unit/$id")
+        val response = client.get("$adress/$usersEndpoint/unit/$id")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 response.body<GlucoseUnitType>()
@@ -177,7 +178,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     }
 
     override suspend fun getAllUsers(): List<UserResult>? {
-        val response = client.get("http://10.0.2.2:8080/$usersEndpoint/all")
+        val response = client.get("$adress/$usersEndpoint/all")
         return if (response.status == HttpStatusCode.OK) {
             if (response.contentType()?.match(ContentType.Application.Json) == true) {
                 response.body<List<UserResult>>()
@@ -193,7 +194,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun observe(partOne: String, partTwo: String): UserResult? {
         return try {
-            val response = client.get("http://10.0.2.2:8080/$usersEndpoint/observe/$partOne/$partTwo")
+            val response = client.get("$adress/$usersEndpoint/observe/$partOne/$partTwo")
             if (response.status == HttpStatusCode.OK) {
                 if (response.contentType()?.match(ContentType.Application.Json) == true) {
                     response.body<UserResult>()
@@ -213,7 +214,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun changeUserType(id: String, type: String): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/$usersEndpoint/$id/type/$type}")
+            val response = client.put("$adress/$usersEndpoint/$id/type/$type}")
             if (response.status == HttpStatusCode.OK) {
                 true
             } else {
@@ -227,7 +228,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun giveUserType(id: String, type: String): Boolean {
         return try {
-            val response = client.put("http://10.0.2.2:8080/createUser/$id/type/$type")
+            val response = client.put("$adress/createUser/$id/type/$type")
             if (response.status == HttpStatusCode.OK) {
                 true
             } else {

@@ -1,6 +1,7 @@
 package pl.example.aplikacja.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.databasemodule.database.data.MedicationDB
+import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.databasemodule.database.repository.MedicationRepository
 import pl.example.databasemodule.database.repository.UserMedicationRepository
 import pl.example.networkmodule.apiData.MedicationResult
@@ -36,21 +38,34 @@ class UserMedicationScreenViewModel(
     private val _medication = MutableStateFlow<List<MedicationResult>>(emptyList())
     val medication: MutableStateFlow<List<MedicationResult>> = _medication
 
+    private val _userMedication = MutableStateFlow<List<UserMedicationResult>>(emptyList())
+    val userMedication: MutableStateFlow<List<UserMedicationResult>> = _userMedication
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
         isApiAvilible(apiProvider.innerContext)
-        fetchDataBase()
-        fetchMedicationResults()
+
+        viewModelScope.launch {
+            healthy.collect { isHealthy ->
+                if (isHealthy) {
+                    fetchDataBase()
+                    fetchMedicationResults()
+                } else {
+                    fetchMedicationResults()
+                }
+            }
+        }
     }
 
-    private fun fetchMedicationResults() {
 
+    private fun fetchMedicationResults() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
+                Log.i("UserMedicationScreenViewModel", "fetchMedicationResults")
                 _medicationResults.value = userMedications.readTodayUserMedication(USER_ID)!!
             } catch (e: Exception) {
                 _medicationResults.value = userMedicationRepository.getTodayUserMedication(USER_ID)
@@ -65,29 +80,39 @@ class UserMedicationScreenViewModel(
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 _medication.value = medicationApi.getUnsynced(USER_ID)!!
+                _userMedication.value = userMedications.readTodayUserMedication(USER_ID)!!
+                userMedicationRepository.insertAll(userMedication.value.toUserMedicationDBList())
                 medicationRepository.insertAll(medication.value.toMedicationDBList())
                 medication.value.forEach { medicationResult ->
                     userMedications.markAsSynced(medicationResult.id.toString())
                 }
             } catch (e: Exception) {
-                _medication.value = medicationRepository.getAllMedications().toMedicationResultList()
+                _medication.value =
+                    medicationRepository.getAllMedications().toMedicationResultList()
             }
         }
 
     }
 
-    var lastCheckedTime = 0L
-    private fun isApiAvilible(context: Context) {
+    private var lastCheckedTime = 0L
+
+    fun isApiAvilible(context: Context) {
         val now = System.currentTimeMillis()
         if (now - lastCheckedTime < 10_000) return
         lastCheckedTime = now
 
         viewModelScope.launch {
             try {
-                _healthy?.value =
-                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+                val apiAvailable = authenticationApi.isApiAvlible()
+                val networkAvailable = isNetworkAvailable(context)
+
+                Log.d("HealthCheck", "API: $apiAvailable, Network: $networkAvailable")
+
+                _healthy.value = apiAvailable == true && networkAvailable
+                Log.d("HealthCheck", "Healthy: ${_healthy.value}")
             } catch (e: Exception) {
-                _healthy?.value = false
+                Log.e("HealthCheck", "Error while checking health", e)
+                _healthy.value = false
             }
         }
     }
@@ -106,6 +131,22 @@ fun List<MedicationResult>.toMedicationDBList(): List<MedicationDB> {
         )
     }
 }
+
+fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> {
+    return this.map { result ->
+        UserMedicationDB(
+            userId = result.userId,
+            medicationId = result.medicationId,
+            dosage = result.dosage,
+            frequency = result.frequency,
+            startDate = result.startDate,
+            endDate = result.endDate,
+            notes = result.notes,
+            isSynced = true)
+    }
+}
+
+
 
 fun List<MedicationDB>.toMedicationResultList(): List<MedicationResult> {
     return this.map { db ->

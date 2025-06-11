@@ -17,11 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import pl.example.aplikacja.formatDiabetesType
 import pl.example.aplikacja.formatUnit
 import pl.example.aplikacja.formatUserType
+import pl.example.databasemodule.database.data.DiabetesTypeDB
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
-import pl.example.networkmodule.apiData.enumTypes.UserType
 
 
 @Composable
@@ -33,14 +36,14 @@ fun GlucoseUnitDropdownMenu(
     var expanded by remember { mutableStateOf(false) }
     var paddingValue = 8.dp
 
-    if(label.isBlank()) paddingValue = 0.dp
+    if (label.isBlank()) paddingValue = 0.dp
 
     Row(Modifier.padding(vertical = paddingValue)) {
         OutlinedTextField(
             value = formatUnit(selectedUnit),
             onValueChange = {},
             readOnly = true,
-            label = { Text(label) },
+            label = { Text(text = label, fontSize = 18.sp) },
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
@@ -58,7 +61,12 @@ fun GlucoseUnitDropdownMenu(
         ) {
             GlucoseUnitType.entries.forEach { unit ->
                 DropdownMenuItem(
-                    text = { Text(text = formatUnit(unit)) },
+                    text = {
+                        Text(
+                            text = formatUnit(unit),
+                            fontSize = 16.sp
+                        )
+                    },
                     onClick = {
                         onUnitSelected(unit)
                         expanded = false
@@ -78,7 +86,7 @@ fun UserTypeDropdownMenu(
     var expanded by remember { mutableStateOf(false) }
     var paddingValue = 8.dp
 
-    if(label.isBlank()) paddingValue = 0.dp
+    if (label.isBlank()) paddingValue = 0.dp
 
     Row(Modifier.padding(vertical = paddingValue)) {
         OutlinedTextField(
@@ -106,6 +114,51 @@ fun UserTypeDropdownMenu(
                     text = { Text(text = formatUserType(type)) },
                     onClick = {
                         onUnitSelected(type)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DiabetesTypeDropdownMenu(
+    selectedDiabetesType: DiabetesType,
+    onTypeSelected: (DiabetesType) -> Unit,
+    label: String
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var paddingValue = 8.dp
+
+    if (label.isBlank()) paddingValue = 0.dp
+
+    Row(Modifier.padding(vertical = paddingValue)) {
+        OutlinedTextField(
+            value = formatDiabetesType(selectedDiabetesType),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Rozwiń",
+                    Modifier.clickable { expanded = true }
+                )
+            },
+            modifier = Modifier
+                .clickable { expanded = true }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DiabetesType.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(text = formatDiabetesType(type)) },
+                    onClick = {
+                        onTypeSelected(type)
                         expanded = false
                     }
                 )

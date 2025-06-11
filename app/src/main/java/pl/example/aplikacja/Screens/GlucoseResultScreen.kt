@@ -47,6 +47,7 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
         )
     }
 
+    //fetch data from server about glucose for actual user
     val researchResult by viewModel.glucoseResult.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -83,7 +84,6 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                 )
 
                 //TextRow(label = "ID pomiaru", value = researchResult?.id.toString())
-                //TextRow(label = "Sequence Number", value = researchResult?.sequenceNumber.toString())
                 TextRow(
                     label = "Stężenie glukozy",
                     value = "${researchResult?.glucoseConcentration} ${

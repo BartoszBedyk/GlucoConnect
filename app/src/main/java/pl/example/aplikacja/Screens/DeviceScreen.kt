@@ -9,6 +9,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,11 +18,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,23 +38,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import pl.example.aplikacja.UiElements.SwitchWithFoodIcon
+import pl.example.aplikacja.UiElements.SwitchWithMedicationIcon
+import pl.example.aplikacja.formatDateTimeSpecificLocale
 import pl.example.aplikacja.parseMeasurement
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
 import pl.example.bluetoothmodule.presentation.BluetoothUiState
+import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
-import java.util.Date
 import java.util.UUID
 
 @Composable
@@ -74,8 +84,14 @@ fun DeviceScreen(
     val result = ""
 
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel =
-        AddGlucoseResultViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))
+    val viewModel: AddGlucoseResultViewModel = hiltViewModel()
+
+    val glucoseConcentrationState = remember { mutableStateOf("0.0") }
+    var unitState by remember { mutableStateOf<GlucoseUnitType?>(null) }
+    var foodChecked by remember { mutableStateOf(false) }
+    var medicationChecked by remember { mutableStateOf(false) }
+    var note by remember { mutableStateOf("") }
+
 
 
     LaunchedEffect(Unit) {
@@ -83,8 +99,9 @@ fun DeviceScreen(
     }
 
     Column {
-        if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
-            context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+        if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
+                Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             Column {
                 Text(text = "Aplikacja nie posiada uprawnień do podłączenia urządzeń Bluetooth")
@@ -108,7 +125,8 @@ fun DeviceScreen(
                 )
 
                 BluetoothDeviceList(
-                    state.pairedDevices, state.scannedDevices,
+                    state.pairedDevices,
+                    state.scannedDevices,
                     onClick = onDeviceClick,
                     Modifier
                         .fillMaxWidth()
@@ -119,80 +137,153 @@ fun DeviceScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Button(onClick = onStartScan) {
-                        Text(text = "Start scan")
-                    }
-                    Button(onClick = onStopScan) {
-                        Text(text = "Stop scan")
-                    }
+//                    Button(onClick = onStartScan) {
+//                        Text(text = "Start scan")
+//                    }
+//                    Button(onClick = onStopScan) {
+//                        Text(text = "Stop scan")
+//                    }
                 }
                 if (destination == "addResult") {
+
+
                     Box {
                         LaunchedEffect(Unit) {
+                            bluetoothViewModel.startScan()
+                            bluetoothViewModel.loadingBluetooth
                             bluetoothViewModel.readLastMeasurement()
                         }
 
-                        ElevatedButton(
-                            onClick = {
-                                Log.d("DOWNLOAD_TIME", "Button clicked")
-                                coroutineScope.launch {
-                                    bluetoothViewModel.readLastMeasurement()
-                                }
-                            },
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .align(Alignment.BottomCenter)
-                        ) {
-                            Text(text = "Pobierz pomiar")
+                        if (state.isConnecting) {
+                            TopBluetoothPanel(isLoading = true)
                         }
+
+//                        ElevatedButton(
+//                            onClick = {
+//                                Log.d("DOWNLOAD_TIME", "Button clicked")
+//                                coroutineScope.launch {
+//                                    bluetoothViewModel.readLastMeasurement()
+//                                }
+//                            }, modifier = Modifier
+//                                .padding(16.dp)
+//                                .align(Alignment.BottomCenter)
+//                        ) {
+//                            Text(text = "Pobierz pomiar")
+//                        }
 
 
                     }
                     if (measurmentData.isNotBlank()) {
 
                         Card(
-                            Modifier
+                            modifier = Modifier
                                 .padding(16.dp)
-                                .align(Alignment.CenterHorizontally)) {
-                            TextRow(
-                                label = "Ostatni pomiar",
-                                value = parseMeasurement(measurmentData)?.date
-                                    .toString()
-                            )
-                            TextRow(
-                                label = "Poziom glukozy",
-                                value = parseMeasurement(measurmentData)?.result.toString()
-                            )
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                parseMeasurement(measurmentData)?.date?.let {
+                                    formatDateTimeSpecificLocale(
+                                        it
+                                    )
+                                }?.let {
+                                    Row(verticalAlignment = CenterVertically) {
+                                        Text(
+                                            text = "Data pomiaru: ",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = 18.sp
+                                        )
+                                        Text(
+                                            text = it,
+                                            fontSize = 18.sp,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
 
-                            TextButton(onClick = {
-                                coroutineScope.launch {
-                                    val parsedData = parseMeasurement(measurmentData)
-                                    if (parsedData != null) {
-                                        if (viewModel.addGlucoseResult(
-                                                ResearchResultCreate(
-                                                    userId = UUID.fromString(
-                                                        removeQuotes(
-                                                            decoded.getClaim(
-                                                                "userId"
-                                                            ).toString()
-                                                        )
-                                                    ),
-                                                    sequenceNumber = 1,
-                                                    glucoseConcentration = parsedData.result,
-                                                    unit = parsedData.unit,
-                                                    timestamp = parsedData.date
-                                                )
-                                            )
-                                        ) {
-                                            navController.navigate("main_screen")
-                                        } else {
-//
-                                        }
                                     }
                                 }
-                            }) {
-                                Text(text = "Dodaj pomiar")
+
+
+                                Row(verticalAlignment = CenterVertically) {
+                                    Text(
+                                        text = "Poziom glukozy: ",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 18.sp
+                                    )
+                                    Text(
+                                        text = parseMeasurement(measurmentData)?.result.toString(),
+                                        fontSize = 18.sp,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+
+                                }
+
+                                Row(verticalAlignment = CenterVertically) {
+                                    Text(
+                                        text = "Po posiłku:",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 18.sp
+                                    )
+                                    SwitchWithFoodIcon(foodChecked) { foodChecked = it }
+
+                                }
+                                Row(verticalAlignment = CenterVertically) {
+                                    Text(
+                                        text = "Po lekach:",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 18.sp
+                                    )
+                                    SwitchWithMedicationIcon(medicationChecked) {
+                                        medicationChecked = it
+                                    }
+                                }
+
+                                TextRowEdit(
+                                    label = "Notatka",
+                                    value = note,
+                                    onValueChange = { note = it },
+                                    fontSize = 18,
+                                    false
+                                )
+
+
+                                TextButton(onClick = {
+                                    coroutineScope.launch {
+                                        val parsedData = parseMeasurement(measurmentData)
+                                        if (parsedData != null) {
+                                            if (viewModel.addGlucoseResult(
+                                                    ResearchResultCreate(
+                                                        userId = UUID.fromString(
+                                                            viewModel.USER_ID
+                                                        ),
+                                                        glucoseConcentration = parsedData.result,
+                                                        unit = parsedData.unit,
+                                                        timestamp = parsedData.date,
+                                                        afterMedication = medicationChecked,
+                                                        emptyStomach = foodChecked,
+                                                        notes = note
+                                                    )
+                                                )
+                                            ) {
+                                                navController.navigate("main_screen")
+                                            } else {
+//
+                                            }
+                                        }
+                                    }
+                                }) {
+                                    Text(text = "Dodaj pomiar")
+                                }
                             }
+
 
                         }
 
@@ -225,6 +316,34 @@ fun BluetoothDeviceList(
     onClick: (android.bluetooth.BluetoothDevice) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+
+    val sortedPairedDevicesList = mutableListOf<android.bluetooth.BluetoothDevice>()
+    val gluco = pairedDevices.find { it.name == "Glucomaxx Connect" }
+    if (gluco != null) {
+        sortedPairedDevicesList.remove(gluco)
+        sortedPairedDevicesList.add(0, gluco)
+    }
+    pairedDevices.forEach {
+        if (it.name != "Glucomaxx Connect") {
+            sortedPairedDevicesList.add(it)
+        }
+    }
+
+
+    val sortedScannedDevicesList = mutableListOf<android.bluetooth.BluetoothDevice>()
+    val glucometer = scannedDevices.find { it.name == "Glucomaxx Connect" }
+    if (glucometer != null) {
+        sortedScannedDevicesList.remove(glucometer)
+        sortedScannedDevicesList.add(0, glucometer)
+    }
+    scannedDevices.forEach {
+        if (it.name != "Glucomaxx Connect") {
+            sortedScannedDevicesList.add(it)
+        }
+    }
+
+
     LazyColumn(modifier = modifier) {
         item {
             Text(
@@ -234,7 +353,7 @@ fun BluetoothDeviceList(
                 modifier = Modifier.padding(16.dp)
             )
         }
-        items(pairedDevices) { device ->
+        items(sortedPairedDevicesList.take(5)) { device ->
             Text(text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -252,12 +371,44 @@ fun BluetoothDeviceList(
                 modifier = Modifier.padding(16.dp)
             )
         }
-        items(scannedDevices) { device ->
+        items(sortedScannedDevicesList) { device ->
             Text(text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(device) }
                     .padding(16.dp))
         }
+    }
+}
+
+@Preview(
+    name = "Standard",
+    group = "First",
+    device = "spec:width=1080px,height=2400px",
+    showSystemUi = true
+)
+@Composable
+fun TopBluetoothPanel(isLoading: Boolean = true, title: String = "Łączenie z urządzeniem") {
+    if (!isLoading) return
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.primary),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.CenterVertically),
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(32.dp)
+        )
+
     }
 }

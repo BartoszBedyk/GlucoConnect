@@ -21,10 +21,14 @@ fun GlucometerAdminScreen(
     bluetoothViewModel: BluetoothViewModel,
     navController: NavController
 ) {
+
+    //Implements and uses BluetoothViewModel functionalities to manage glucometer
     val recivedData by bluetoothViewModel.lastMeasurement.collectAsState()
     Column(
         modifier = Modifier.padding(16.dp).padding(bottom = 80.dp)
     ) {
+        
+        
         Text(text = "Zarządzanie glukometrem", color = MaterialTheme.colorScheme.primary)
 
         Text(text = recivedData.toString())

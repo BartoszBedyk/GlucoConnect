@@ -161,7 +161,7 @@ class MyBleManager(context: Context) : BleManager(context) {
         val rawDate = (data.getByte(3)?.toInt() ?: 0) or ((data.getByte(4)?.toInt() ?: 0) shl 8)
         val rawTime = data.getByte(5)?.toInt() ?: 0
 
-        val year = 2000 + (rawDate shr 9)
+        val year = 1999 + (rawDate shr 9)
         val month = (rawDate shr 5) and 0x0F
         val day = rawDate and 0x1F
 

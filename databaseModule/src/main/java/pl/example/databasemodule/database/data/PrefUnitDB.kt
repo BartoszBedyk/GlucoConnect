@@ -15,5 +15,9 @@ data class PrefUnitDB(
     val glucoseUnit: String,
 
     @ColumnInfo(name = "is_synced")
-    val isSynced: Boolean
+    val isSynced: Boolean,
+
+    @ColumnInfo(name = "diabetes_type")
+    val diabetesType: DiabetesTypeDB
+
 )

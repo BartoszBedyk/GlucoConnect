@@ -1,9 +1,9 @@
 package pl.example.networkmodule.apiMock
 
 import pl.example.networkmodule.apiData.UserResult
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.UserType
-import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.apiMethods.UserApiInterface
 import pl.example.networkmodule.requestData.CreateUserForm
 import pl.example.networkmodule.requestData.UnitUpdate
@@ -26,7 +26,8 @@ class UserApiMock : UserApiInterface {
                     password = "password123",
                     type = UserType.ADMIN,
                     isBlocked = false,
-                    prefUint = GlucoseUnitType.MMOL_PER_L
+                    prefUnit = GlucoseUnitType.MMOL_PER_L,
+                    diabetesType = DiabetesType.NONE
                 ),
                 UserResult(
                     id = UUID.randomUUID(),
@@ -36,7 +37,8 @@ class UserApiMock : UserApiInterface {
                     password = "password456",
                     type = UserType.PATIENT,
                     isBlocked = true,
-                    prefUint = GlucoseUnitType.MG_PER_DL
+                    prefUnit = GlucoseUnitType.MG_PER_DL,
+                    diabetesType = DiabetesType.NONE
                 )
             )
         )
@@ -51,7 +53,8 @@ class UserApiMock : UserApiInterface {
             password = form.password,
             type = UserType.PATIENT,
             isBlocked = false,
-            prefUint = null
+            prefUnit = null,
+            diabetesType = DiabetesType.NONE
         )
         mockUsers.add(newUser)
         return "746004a6-bcdf-4991-bb65-42d3f388d65c"
@@ -66,7 +69,8 @@ class UserApiMock : UserApiInterface {
             password = form.password,
             type = UserType.PATIENT,
             isBlocked = false,
-            prefUint = null
+            prefUnit = null,
+            diabetesType = DiabetesType.NONE
         )
         mockUsers.add(newUser)
         return true
@@ -81,7 +85,8 @@ class UserApiMock : UserApiInterface {
             password = "5435654",
             type = UserType.OBSERVER,
             isBlocked = false,
-            prefUint = GlucoseUnitType.MMOL_PER_L
+            prefUnit = GlucoseUnitType.MMOL_PER_L,
+            diabetesType = DiabetesType.NONE
         )
         mockUsers.find { it.id.toString() == id }
         return newUser;
@@ -101,7 +106,7 @@ class UserApiMock : UserApiInterface {
 
     override suspend fun unitUpdate(form: UnitUpdate): Boolean {
         val user = mockUsers.find { it.id == form.id }
-        user?.prefUint = form.newUnit
+        user?.prefUnit = form.newUnit
         return user != null
     }
 
@@ -110,7 +115,7 @@ class UserApiMock : UserApiInterface {
         user?.apply {
             firstName = form.firstName ?: firstName
             lastName = form.lastName ?: lastName
-            prefUint = (form.prefUint ?: GlucoseUnitType.MG_PER_DL) as GlucoseUnitType?
+            prefUnit = (form.prefUnit ?: GlucoseUnitType.MG_PER_DL) as GlucoseUnitType?
         }
         return true
     }
@@ -120,7 +125,7 @@ class UserApiMock : UserApiInterface {
     }
 
     override suspend fun getUserUnitById(id: String): GlucoseUnitType? {
-        return mockUsers.find { it.id.toString() == id }?.prefUint ?: GlucoseUnitType.MG_PER_DL
+        return mockUsers.find { it.id.toString() == id }?.prefUnit ?: GlucoseUnitType.MG_PER_DL
     }
 
     override suspend fun getAllUsers(): List<UserResult>?{

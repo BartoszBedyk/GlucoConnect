@@ -58,8 +58,18 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
 
     init {
         isApiAvilible(apiProvider.innerContext)
-        syncDatabases()
-        fetchItemsAsync()
+
+        viewModelScope.launch {
+            healthy.collect { isHealthy ->
+                if (isHealthy) {
+                    syncDatabases()
+                    fetchItemsAsync()
+                } else {
+                    fetchItemsAsync()
+                }
+            }
+        }
+
     }
 
     private fun fetchItemsAsync() {
@@ -95,6 +105,7 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 if (!healthy.value) throw IllegalStateException("API not available")
 
                 val unsyncedResults = researchRepository.getUnsyncedResearchResults()
+                Log.i("SYNC", "List of unsynced + ${unsyncedResults.size.toString()}")
                 if (unsyncedResults.isNotEmpty()) {
                     convertResearchDBtoResearchResult(unsyncedResults).forEach { result ->
                         try {
@@ -111,18 +122,25 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
         }
     }
 
-    var lastCheckedTime = 0L
-    private fun isApiAvilible(context: Context) {
+    private var lastCheckedTime = 0L
+
+    fun isApiAvilible(context: Context) {
         val now = System.currentTimeMillis()
         if (now - lastCheckedTime < 10_000) return
         lastCheckedTime = now
 
         viewModelScope.launch {
             try {
-                _healthy?.value =
-                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+                val apiAvailable = authenticationApi.isApiAvlible()
+                val networkAvailable = isNetworkAvailable(context)
+
+                Log.d("HealthCheck", "API: $apiAvailable, Network: $networkAvailable")
+
+                _healthy.value = apiAvailable == true && networkAvailable
+                Log.d("HealthCheck", "Healthy: ${_healthy.value}")
             } catch (e: Exception) {
-                _healthy?.value = false
+                Log.e("HealthCheck", "Error while checking health", e)
+                _healthy.value = false
             }
         }
     }

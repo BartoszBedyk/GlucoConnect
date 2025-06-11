@@ -14,6 +14,10 @@ class UserMedicationRepository(context: Context){
         return dao.insert(userMedicationResult)
     }
 
+    suspend fun insertAll(userMedicationResults: List<UserMedicationDB>) {
+        return dao.insertAll(userMedicationResults)
+    }
+
      suspend fun getMedicationsForUser(userId: String): List<UserMedicationDB> {
          return dao.getMedicationsForUser(userId)
     }

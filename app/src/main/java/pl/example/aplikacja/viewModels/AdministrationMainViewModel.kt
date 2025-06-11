@@ -1,16 +1,22 @@
 package pl.example.aplikacja.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiMethods.ApiProvider
+import javax.inject.Inject
 
-class AdministrationMainViewModel(apiProvider: ApiProvider) : ViewModel() {
+@HiltViewModel
+class AdministrationMainViewModel @Inject constructor (@ApplicationContext private val context: Context) : ViewModel() {
+    val apiProvider = ApiProvider(context)
     val userApi = apiProvider.userApi
 
     private val _users = MutableStateFlow<List<UserResult>>(emptyList())
@@ -23,42 +29,55 @@ class AdministrationMainViewModel(apiProvider: ApiProvider) : ViewModel() {
     val healthy: StateFlow<Boolean> = _healthy
 
 
-    init{
+    init {
         isApiAvilible(apiProvider.innerContext)
-        fetchUsers()
+
+
+        viewModelScope.launch {
+            healthy.collect { isHealthy ->
+                if (isHealthy) {
+                    fetchUsers()
+                }
+            }
+        }
     }
 
-    private fun fetchUsers(){
+    private fun fetchUsers() {
         viewModelScope.launch {
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 _users.value = userApi.getAllUsers() ?: emptyList()
-            }catch (
+            } catch (
                 e: Exception
-            ){
+            ) {
                 _users.value = emptyList()
             }
         }
     }
 
 
-    var lastCheckedTime = 0L
-    private fun isApiAvilible(context: Context) {
+    private var lastCheckedTime = 0L
+
+    fun isApiAvilible(context: Context) {
         val now = System.currentTimeMillis()
         if (now - lastCheckedTime < 10_000) return
         lastCheckedTime = now
 
         viewModelScope.launch {
             try {
-                _healthy?.value =
-                    authenticationApi.isApiAvlible() == true && isNetworkAvailable(context)
+                val apiAvailable = authenticationApi.isApiAvlible()
+                val networkAvailable = isNetworkAvailable(context)
+
+                Log.d("HealthCheck", "API: $apiAvailable, Network: $networkAvailable")
+
+                _healthy.value = apiAvailable == true && networkAvailable
+                Log.d("HealthCheck", "Healthy: ${_healthy.value}")
             } catch (e: Exception) {
-                _healthy?.value = false
+                Log.e("HealthCheck", "Error while checking health", e)
+                _healthy.value = false
             }
         }
     }
-
-
 
 
 }

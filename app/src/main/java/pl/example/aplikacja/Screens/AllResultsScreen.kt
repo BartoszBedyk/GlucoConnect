@@ -1,12 +1,16 @@
 package pl.example.aplikacja.Screens
 
 import android.util.Log
-import androidx.compose.foundation.border
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,8 +22,6 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,9 +31,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
@@ -40,12 +47,10 @@ import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
 import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.AllResultsScreenViewModel
-import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 
 @Preview(
-    name = "Standard", group = "First",
-    device = "id:pixel_8"
+    name = "Standard", group = "First", device = "id:pixel_8"
 )
 @Composable
 fun AllResultsScreenPreview() {
@@ -56,14 +61,18 @@ fun AllResultsScreenPreview() {
 @Composable
 fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
     val context = LocalContext.current
-    var screenType : Boolean? = null
+    var screenType: Boolean? = null
     if (type != null) {
         screenType = !type
     }
 
     Log.d("SCREEN_ALL", "screenType: $screenType")
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember { AllResultsScreenViewModel(context, removeQuotes(decoded.getClaim("userId").toString()))  }
+    val viewModel = remember {
+        AllResultsScreenViewModel(
+            context, removeQuotes(decoded.getClaim("userId").toString())
+        )
+    }
 
     val isLoading by viewModel.isLoading.collectAsState()
     val glucoseResults by viewModel.glucoseResults.collectAsState()
@@ -73,13 +82,12 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
     Log.d("ALL", "glucoseResultsData: $glucoseResultsData")
 
     var checked by remember { mutableStateOf(screenType ?: true) }
-
+    var totalDrag by remember { mutableStateOf(0f) }
 
     Box(Modifier.fillMaxSize()) {
         if (isLoading) {
             Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
             ) {
                 Column {
                     CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
@@ -91,23 +99,37 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                 }
             }
         } else {
-            Column(Modifier.fillMaxSize()) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures(onDragEnd = {
+                            if (totalDrag > 100f) {
+                                checked = true
+                            } else if (totalDrag < -100f) {
+                                checked = false
+                            }
+                            totalDrag = 0f
+                        }) { change, dragAmount ->
+                            totalDrag += dragAmount
+                        }
+                    }) {
                 Box(Modifier.align(Alignment.CenterHorizontally)) {
-                    Switch(
-                        checked = checked,
-                        onCheckedChange = {
-                            checked = it
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.primary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                            uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                            uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                        ),
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.TopCenter)
-                    )
+//                    Switch(
+//                        checked = checked,
+//                        onCheckedChange = {
+//                            checked = it
+//                        },
+//                        colors = SwitchDefaults.colors(
+//                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+//                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+//                            uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
+//                            uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+//                        ),
+//                        modifier = Modifier
+//                            .padding(16.dp)
+//                            .align(Alignment.TopCenter)
+//                    )
                 }
 
 
@@ -124,12 +146,21 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                             item {
                                 GlucoseChart(glucoseResults.reversed().take(14))
                             }
-                        }
-                        items(glucoseResults) { item ->
-                            Row(Modifier.animateItem()) {
-                                ItemView(item) { itemId ->
-                                    navController.navigate("glucose_result/$itemId")
+
+                            items(glucoseResults) { item ->
+                                Row(Modifier.animateItem()) {
+                                    ItemView(item) { itemId ->
+                                        navController.navigate("glucose_result/$itemId")
+                                    }
                                 }
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    text = "Brak danych",
+                                    modifier = Modifier.padding(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                     }
@@ -145,12 +176,21 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                             item {
                                 HeartbeatChart(heartbeatResult.reversed().take(14))
                             }
-                        }
-                        items(heartbeatResult) { item ->
-                            Row(Modifier.animateItem()) {
-                                ItemView(item) { itemId ->
-                                    navController.navigate("heartbeat_result/$itemId")
+
+                            items(heartbeatResult) { item ->
+                                Row(Modifier.animateItem()) {
+                                    ItemView(item) { itemId ->
+                                        navController.navigate("heartbeat_result/$itemId")
+                                    }
                                 }
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    text = "Brak danych",
+                                    modifier = Modifier.padding(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                     }
@@ -176,5 +216,68 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
             Icon(Icons.Filled.Add, "Przycisk do dodawania wyników")
         }
     }
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(8.dp)
+        ) {
+            SelectedScreenBottomImage(checked)
+        }
+
+    }
+
 }
+
+@Preview
+@Composable
+fun SelectedScreenBottomImagePreview() {
+    SelectedScreenBottomImage(true)
+}
+
+@Composable
+fun SelectedScreenBottomImage(position: Boolean) {
+    //Column(verticalArrangement = Arrangement.Top) {
+
+    AnimatedContent(position, label = "") {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .background(
+                    Brush.linearGradient(
+                        colors = if (it) {
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                Color.Transparent,
+                                Color.Transparent,
+                                Color.Transparent
+                            )
+                        } else {
+                            listOf(
+                                Color.Transparent,
+                                Color.Transparent,
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.primary
+                            )
+                        }, start = Offset.Zero, end = Offset.Infinite
+                    )
+                )
+        ) {
+            Text(
+                text = if (it) "Glukoza" else "Ciśnienie",
+                fontSize = 6.sp,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .align(if (it) Alignment.TopStart else Alignment.TopEnd)
+                    .padding(horizontal = 4.dp)
+            )
+        }
+        //}
+    }
+}
+
+
+
 

@@ -1,29 +1,29 @@
 package pl.example.aplikacja
 
 
+import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
 import pl.example.databasemodule.database.data.HeartbeatDB
-import pl.example.databasemodule.database.data.ResearchResultDB
+import pl.example.databasemodule.database.data.GlucoseResultDB
 import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.UserMedicationResult
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
-import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.math.RoundingMode
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
-import java.util.UUID
-import java.util.regex.Pattern
 
 fun formatDateTimeSpecificLocale(date: Date): String {
     val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale("pl", "PL"))
+    //Log.i("GlucometerDate", "without format $date")
+    //Log.i("GlucometerDate", "with format ${dateFormat.format(date)}")
     return dateFormat.format(date)
 }
 
@@ -56,6 +56,30 @@ fun formatUserType(unit: UserType): String {
         UserType.OBSERVER -> "Obserwator"
         UserType.PATIENT -> "Pacjent"
     }
+}
+
+fun formatDiabetesType(type: DiabetesTypeDB): String {
+    return when (type) {
+        DiabetesTypeDB.TYPE_1 -> "Typ 1"
+        DiabetesTypeDB.TYPE_2 -> "Typ 2"
+        DiabetesTypeDB.NONE -> "Brak"
+        DiabetesTypeDB.LADA -> "LADA"
+        DiabetesTypeDB.GESTATIONAL -> "Ciążowa"
+        DiabetesTypeDB.MODY -> "MODY"
+    }
+
+}
+
+fun formatDiabetesType(type: DiabetesType): String {
+    return when (type) {
+        DiabetesType.TYPE_1 -> "Typ 1"
+        DiabetesType.TYPE_2 -> "Typ 2"
+        DiabetesType.NONE -> "Brak"
+        DiabetesType.LADA -> "LADA"
+        DiabetesType.GESTATIONAL -> "Ciążowa"
+        DiabetesType.MODY -> "MODY"
+    }
+
 }
 
 fun UserType.toRestrictedUserTypeOrNull(): RestrictedUserType? {
@@ -109,32 +133,36 @@ fun stringUnitParser(string: String?): GlucoseUnitType {
 
 
 
-fun convertResearchDBtoResearchResult(researchResultDB: ResearchResultDB): ResearchResult {
+fun convertResearchDBtoResearchResult(glucoseResultDB: GlucoseResultDB): ResearchResult {
     val dbResult =  ResearchResult(
-        id = researchResultDB.id,
-        sequenceNumber = researchResultDB.sequenceNumber,
-        glucoseConcentration = researchResultDB.glucoseConcentration,
-        unit = convertGlucoseUnitType(researchResultDB.unit),
-        timestamp = researchResultDB.timestamp,
-        userId = researchResultDB.userId,
-        deletedOn = researchResultDB.deletedOn,
-        lastUpdatedOn = researchResultDB.lastUpdatedOn
+        id = glucoseResultDB.id,
+        glucoseConcentration = glucoseResultDB.glucoseConcentration,
+        unit = convertGlucoseUnitType(glucoseResultDB.unit),
+        timestamp = glucoseResultDB.timestamp,
+        userId = glucoseResultDB.userId,
+        deletedOn = glucoseResultDB.deletedOn,
+        lastUpdatedOn = glucoseResultDB.lastUpdatedOn,
+        afterMedication = glucoseResultDB.afterMedication,
+        emptyStomach = glucoseResultDB.emptyStomach,
+        notes = glucoseResultDB.notes
     )
     return dbResult
 
 
 }
 
-fun convertResearchResultToResearchDB(researchResultDB: ResearchResult): ResearchResultDB {
-    val dbResult =  ResearchResultDB(
+fun convertResearchResultToResearchDB(researchResultDB: ResearchResult): GlucoseResultDB {
+    val dbResult =  GlucoseResultDB(
         id = researchResultDB.id,
-        sequenceNumber = researchResultDB.sequenceNumber,
         glucoseConcentration = researchResultDB.glucoseConcentration,
         unit = convertGlucoseUnitType(researchResultDB.unit),
         timestamp = researchResultDB.timestamp,
         userId = researchResultDB.userId,
         deletedOn = researchResultDB.deletedOn,
-        lastUpdatedOn = researchResultDB.lastUpdatedOn
+        lastUpdatedOn = researchResultDB.lastUpdatedOn,
+        afterMedication = researchResultDB.afterMedication,
+        emptyStomach = researchResultDB.emptyStomach,
+        notes = researchResultDB.notes
     )
     return dbResult
 
@@ -157,17 +185,19 @@ private fun convertGlucoseUnitType(dbUnit: GlucoseUnitType): GlucoseUnitTypeDB {
     }
 }
 
-fun convertResearchDBtoResearchResult(researchResultDB: List<ResearchResultDB>): List<ResearchResult> {
-    return researchResultDB.map { dbResult ->
+fun convertResearchDBtoResearchResult(glucoseResultDB: List<GlucoseResultDB>): List<ResearchResult> {
+    return glucoseResultDB.map { dbResult ->
         ResearchResult(
             id = dbResult.id,
-            sequenceNumber = dbResult.sequenceNumber,
             glucoseConcentration = dbResult.glucoseConcentration,
             unit = convertGlucoseUnitType(dbResult.unit),
             timestamp = dbResult.timestamp,
             userId = dbResult.userId,
             deletedOn = dbResult.deletedOn,
-            lastUpdatedOn = dbResult.lastUpdatedOn
+            lastUpdatedOn = dbResult.lastUpdatedOn,
+            afterMedication = dbResult.afterMedication,
+            emptyStomach = dbResult.emptyStomach,
+            notes = dbResult.notes
         )
     }
 }

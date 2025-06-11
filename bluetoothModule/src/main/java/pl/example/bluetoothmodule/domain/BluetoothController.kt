@@ -30,6 +30,8 @@ interface BluetoothController {
     fun connectToGattDevice(device: BluetoothDevice): Flow<ConnectionResult>
     fun closeConnection()
 
+    //fun autoConnectToPreferredDevice(): Flow<ConnectionResult>?
+
     //Functionalities
     fun sendCommand(gatt: BluetoothGatt, byteArray: ByteArray)
 
