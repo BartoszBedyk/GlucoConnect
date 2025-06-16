@@ -94,6 +94,30 @@ class UserMedicationApi(private val ktorClient: KtorClient) : UserMedicationApiI
         }
     }
 
+    override suspend fun getUserMedicationHistory(userId: String): List<UserMedicationResult>? {
+        return try {
+            val response = client.get("$adress/$usersMedicationEndpoint/history/$userId") {
+                contentType(ContentType.Application.Json)
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                    response.body()
+                } else {
+                    Log.e("UserMedicationApi", "Unexpected content type: ${response.contentType()}")
+                    null
+                }
+            } else {
+                Log.e("UserMedicationApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserMedicationApi", "Request failed with exception: ${e.message}")
+            null
+        }
+    }
+
+
     override suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult? {
         return try {
             val response = client.get("$adress/$usersMedicationEndpoint/user/$userId/$medicationId")

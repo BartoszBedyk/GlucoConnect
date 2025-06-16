@@ -60,20 +60,22 @@ class ReportApi(private val ktorClient: KtorClient) : ReportApiInterface {
             null
         }
     }
+
+     private fun savePdfToDownloads(context: Context, pdfBytes: ByteArray, fileName: String) {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+
+        val resolver = context.contentResolver
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            ?: throw IOException("Nie udało się utworzyć pliku w MediaStore")
+
+        resolver.openOutputStream(uri).use { outputStream ->
+            outputStream?.write(pdfBytes)
+        }
+    }
 }
 
-suspend fun savePdfToDownloads(context: Context, pdfBytes: ByteArray, fileName: String) {
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-        put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-    }
 
-    val resolver = context.contentResolver
-    val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-        ?: throw IOException("Nie udało się utworzyć pliku w MediaStore")
-
-    resolver.openOutputStream(uri).use { outputStream ->
-        outputStream?.write(pdfBytes)
-    }
-}

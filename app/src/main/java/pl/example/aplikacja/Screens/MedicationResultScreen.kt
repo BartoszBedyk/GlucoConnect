@@ -53,8 +53,11 @@ fun MedicationResultScreen(itemId: String, navController: NavController) {
     val userMedication by viewModel.userMedication.collectAsState()
     val medication by viewModel.medication.collectAsState()
 
-    Column(Modifier.fillMaxWidth()) {
-        Card {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    )  {
             userMedication?.let {
                 MedicationItem(it)
             }
@@ -86,7 +89,7 @@ fun MedicationResultScreen(itemId: String, navController: NavController) {
             }
         }
     }
-}
+
 
 
 

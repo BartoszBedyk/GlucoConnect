@@ -83,7 +83,6 @@ fun DeviceScreen(
     Log.i("SCREEN2", "measurmentData2: $measurmentData2")
     val result = ""
 
-    val decoded: DecodedJWT = JWT.decode(getToken(context))
     val viewModel: AddGlucoseResultViewModel = hiltViewModel()
 
     val glucoseConcentrationState = remember { mutableStateOf("0.0") }

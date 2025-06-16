@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.networkmodule.apiData.UserResult
+import pl.example.networkmodule.apiData.enumTypes.ReportPattern
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.requestData.CreateObserver
 import pl.example.networkmodule.requestData.GenerateGlucoseReport
@@ -71,7 +72,7 @@ class UserProfileViewModel(apiProvider: ApiProvider, private val USER_ID: String
         viewModelScope.launch {
             try{
                 if (!healthy.value) throw IllegalStateException("API not available")
-                val reportData = GenerateGlucoseReport(USER_ID,startDate, endDate)
+                val reportData = GenerateGlucoseReport(USER_ID,startDate, endDate, ReportPattern.STANDARD_GLUCOSE)
                 _fileName.value = reportApi.getReportById(reportData)?.name
 
             }catch (e: Exception){

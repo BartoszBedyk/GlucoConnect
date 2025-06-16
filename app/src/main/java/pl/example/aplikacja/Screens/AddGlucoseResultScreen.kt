@@ -111,11 +111,14 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
             } else null
         }
     }
+    val scrollState = rememberScrollState()
 
     SnackbarHost(hostState = snackState, Modifier)
-
+    LaunchedEffect(takeDateCheckbox, openDateTimePicker) {
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
     Column(
-        Modifier.padding(18.dp),
+        Modifier.padding(18.dp).verticalScroll(scrollState),
     ) {
         OutlinedCard() {
             Column(Modifier.padding(16.dp)) {

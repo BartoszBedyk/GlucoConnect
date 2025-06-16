@@ -475,14 +475,31 @@ fun UserProfileScreen(navController: NavController) {
                 )
             }
 
-            ExtendedFloatingActionButton(
-                onClick = { navController.navigate("bluetooth_permission_screen/glucometer") },
-                icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
-                text = { Text(text = "Bluetooth") },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            )
+            Row(  modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.BottomCenter),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),){
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        clearToken(context)
+                        restartApp(context)
+                    },
+                    icon = { Icon(Icons.Filled.Close, contentDescription = "Przycisk do logoutu") },
+                    text = { Text(text = "Wyloguj się") },
+                    modifier = Modifier.weight(1f)
+                )
+
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate("bluetooth_permission_screen/glucometer") },
+                    icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
+                    text = { Text(text = "Bluetooth") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+
         }
     }
 

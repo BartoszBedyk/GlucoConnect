@@ -1,7 +1,5 @@
 package pl.example.aplikacja.Screens
 
-import android.graphics.drawable.GradientDrawable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll

@@ -13,5 +13,5 @@ interface UserMedicationApiInterface {
     suspend fun readUserMedicationByID(umId: String): List<UserMedicationResult>?
     suspend fun markAsSynced(userId: String): Boolean
     suspend fun getUserMedicationId(id: String, medicationId: String): String?
-
+    suspend fun getUserMedicationHistory(userId: String): List<UserMedicationResult>?
 }

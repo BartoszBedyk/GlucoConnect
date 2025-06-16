@@ -44,10 +44,10 @@ interface UserMedicationDao {
         m.strength
     FROM user_medication um
     INNER JOIN medications m ON um.medication_id = m.id
-    WHERE um.user_id = :userId
-    AND (um.start_date IS NULL OR um.start_date <= DATE('now'))
-    AND (um.end_date IS NULL OR um.end_date >= DATE('now'))
+ WHERE um.user_id = :userId 
+AND (um.start_date IS NULL OR um.start_date <= :now) 
+AND (um.end_date IS NULL OR um.end_date >= :now)
 """)
-    suspend fun getCurrentMedicationsForUser(userId: String): List<UserMedicationResult>
+    suspend fun getCurrentMedicationsForUser(userId: String, now: Long = System.currentTimeMillis()): List<UserMedicationResult>
 
 }

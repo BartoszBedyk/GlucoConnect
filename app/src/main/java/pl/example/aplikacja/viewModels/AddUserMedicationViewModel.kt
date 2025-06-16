@@ -39,8 +39,13 @@ class AddUserMedicationViewModel @Inject constructor(@ApplicationContext private
     }
 
     private fun fetchMedications(){
+
         viewModelScope.launch {
-            _medications.value = medicationApi.getAllMedications() ?: emptyList()
+            try{
+                _medications.value = medicationApi.getAllMedications() ?: emptyList()
+            }catch (e: Exception){
+                Log.e("API", "Failed to fetch medications: ${e.message}", e)
+            }
         }
     }
 
