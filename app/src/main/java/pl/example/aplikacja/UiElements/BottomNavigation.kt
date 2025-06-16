@@ -40,6 +40,7 @@ import pl.example.aplikacja.Screens.GlucometerAdminScreen
 import pl.example.aplikacja.Screens.HeartbeatResultScreen
 import pl.example.aplikacja.Screens.LicenceScreen
 import pl.example.aplikacja.Screens.MainScreen
+import pl.example.aplikacja.Screens.MedicationHistoryScreen
 import pl.example.aplikacja.Screens.MedicationResultScreen
 import pl.example.aplikacja.Screens.ObserverMainScreen
 import pl.example.aplikacja.Screens.RegisterStepTwoScreen
@@ -97,30 +98,30 @@ data class BottomNavigationItem(
 
 )
 
-@Composable
-fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "login_screen") {
-        composable("main_screen") {
-            Log.d("Navigation", "Navigated to Home Screen")
-            MainScreen(navController, null)
-        }
-//        composable("login_screen") {
-//            Log.d("Navigation", "Navigated to Login Screen")
-//            LoginScreen(navBarViewModel, navController)
+//@Composable
+//fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
+//    val navController = rememberNavController()
+//    NavHost(navController = navController, startDestination = "login_screen") {
+//        composable("main_screen") {
+//            Log.d("Navigation", "Navigated to Home Screen")
+//            MainScreen(navController, null)
 //        }
-        composable("bluetooth_permission_screen") {
-            Log.d("Navigation", "Navigated to permission Screen")
-            BluetoothPermission(
-                bluetoothViewModel,
-                navBarViewModel,
-                onDeviceConnected = {},
-                navController,
-                destination = "bluetooth"
-            )
-        }
-    }
-}
+////        composable("login_screen") {
+////            Log.d("Navigation", "Navigated to Login Screen")
+////            LoginScreen(navBarViewModel, navController)
+////        }
+//        composable("bluetooth_permission_screen") {
+//            Log.d("Navigation", "Navigated to permission Screen")
+//            BluetoothPermission(
+//                bluetoothViewModel,
+//                navBarViewModel,
+//                onDeviceConnected = {},
+//                navController,
+//                destination = "bluetooth"
+//            )
+//        }
+//    }
+//}
 
 @Composable
 fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
@@ -141,7 +142,7 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
         "registration_screen",
         "register_step_two_screen",
         "register_step_two_screen/{userId}",
-        //"download_results",
+        "download_results",
         "licence_screen",
         "observer_main"
     ).contains(currentDestination)
@@ -260,6 +261,9 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             }
             composable("main_screen/{userId}") {
                 MainScreen(navController, userId)
+            }
+            composable("medication_history_screen") {
+                MedicationHistoryScreen(navController)
             }
 
 

@@ -254,7 +254,8 @@ fun ExpandableFloatingActionButton(navController: NavController) {
             FloatingActionButton(
                 onClick = { isExpanded = !isExpanded },
                 shape = Shapes().medium,
-                elevation = FloatingActionButtonDefaults.elevation(0.dp)
+                modifier = Modifier,
+                elevation = FloatingActionButtonDefaults.elevation(4.dp)
             ) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Filled.Close else Icons.Filled.Add,

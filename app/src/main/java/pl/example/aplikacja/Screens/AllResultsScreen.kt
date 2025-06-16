@@ -211,7 +211,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            elevation = FloatingActionButtonDefaults.elevation(8.dp)
+            elevation = FloatingActionButtonDefaults.elevation(4.dp)
         ) {
             Icon(Icons.Filled.Add, "Przycisk do dodawania wyników")
         }

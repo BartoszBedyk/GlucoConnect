@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -62,9 +64,6 @@ fun AddUserMedicationScreen(navController: NavController) {
 
     val snackState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-
 
     val viewModel : AddUserMedicationViewModel = hiltViewModel()
 
@@ -75,9 +74,13 @@ fun AddUserMedicationScreen(navController: NavController) {
     val endDatePickerState = rememberDatePickerState(initialSelectedDateMillis = endDate?.time)
 
     SnackbarHost(hostState = snackState, Modifier)
+    val scrollState = rememberScrollState()
 
+    LaunchedEffect(openStartDateDialog, openEndDateDialog) {
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
     Column(
-        Modifier.padding(18.dp),
+        Modifier.padding(18.dp).verticalScroll(scrollState),
     ) {
         OutlinedCard() {
             Column(Modifier.padding(16.dp)) {

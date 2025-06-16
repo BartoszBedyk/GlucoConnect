@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
@@ -50,9 +51,7 @@ fun EditUserDataScreen(navController: NavController) {
     val context = LocalContext.current
     val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
-    val viewModel: EditUserViewModel = remember {
-        EditUserViewModel(apiProvider, removeQuotes(decoded.getClaim("userId").toString()))
-    }
+    val viewModel : EditUserViewModel = hiltViewModel()
 
     //Download user data form backend
     val userData = viewModel.userData.collectAsState()

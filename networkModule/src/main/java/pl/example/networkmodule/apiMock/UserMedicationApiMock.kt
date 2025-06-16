@@ -147,4 +147,8 @@ class UserMedicationApiMock : UserMedicationApiInterface {
         return null
 
     }
+
+    override suspend fun getUserMedicationHistory(userId: String): List<UserMedicationResult>? {
+        return null
+    }
 }
