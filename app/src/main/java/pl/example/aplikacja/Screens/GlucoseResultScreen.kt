@@ -28,9 +28,9 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeSpecificLocale
-import pl.example.aplikacja.formatUnit
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
+import pl.example.aplikacja.mappters.formatUnit
+import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.viewModels.GlucoseDetailsScreenViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.getToken

@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeSpecificLocale
+import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
 import pl.example.aplikacja.viewModels.HeartbeatDetailsScreenViewModel
 
 @Composable

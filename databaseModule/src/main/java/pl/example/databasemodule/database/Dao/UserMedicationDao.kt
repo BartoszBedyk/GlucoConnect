@@ -50,4 +50,27 @@ AND (um.end_date IS NULL OR um.end_date >= :now)
 """)
     suspend fun getCurrentMedicationsForUser(userId: String, now: Long = System.currentTimeMillis()): List<UserMedicationResult>
 
+    @Query("""
+SELECT 
+  um.user_id AS userId, 
+        um.medication_id AS medicationId, 
+        um.dosage, 
+        um.frequency, 
+        um.start_date AS startDate, 
+        um.end_date AS endDate, 
+        um.notes,
+        m.name AS medicationName,
+        m.description,
+        m.manufacturer,
+        m.form,
+        m.strength
+FROM user_medication AS um
+INNER JOIN medications m ON um.medication_id = m.id
+WHERE user_id = :userId
+ORDER BY 
+    CASE WHEN end_date IS NULL THEN 1 ELSE 0 END, 
+    end_date ASC
+""")
+    suspend fun getUserMedicationHistory(userId: String): List<UserMedicationResult>
+
 }

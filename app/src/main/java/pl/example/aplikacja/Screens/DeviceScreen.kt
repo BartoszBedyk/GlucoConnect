@@ -46,18 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.SwitchWithFoodIcon
 import pl.example.aplikacja.UiElements.SwitchWithMedicationIcon
-import pl.example.aplikacja.formatDateTimeSpecificLocale
-import pl.example.aplikacja.parseMeasurement
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
+import pl.example.aplikacja.mappters.parseMeasurement
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
 import pl.example.bluetoothmodule.presentation.BluetoothUiState
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.util.UUID
 
