@@ -40,4 +40,9 @@ class UserMedicationRepository(context: Context){
     suspend fun getTodayUserMedication(userId: String): List<UserMedicationResult>{
         return dao.getCurrentMedicationsForUser(userId)
     }
+
+    suspend fun getUserMedicationHistory(userId: String): List<UserMedicationResult>{
+        return dao.getUserMedicationHistory(userId)
+
+    }
 }

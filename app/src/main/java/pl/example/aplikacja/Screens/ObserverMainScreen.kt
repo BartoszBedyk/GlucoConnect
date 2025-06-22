@@ -30,7 +30,7 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.UiElements.ItemView
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.viewModels.ObserverMainScreenViewModel
 import pl.example.networkmodule.getToken
 

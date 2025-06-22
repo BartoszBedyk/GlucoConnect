@@ -36,8 +36,9 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.R
-import pl.example.aplikacja.formatDateTimeWithoutTime
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.UiElements.UserMedicationSwapItem
+import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
+import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.viewModels.UserMedicationScreenViewModel
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.getToken
@@ -80,9 +81,7 @@ fun UserMedicationScreen(navController: NavController?) {
 
                 LazyColumn {
                     items(medications.value) { medication ->
-                        MedicationItem(medication) { itemId ->
-                            navController?.navigate("medication_result/$itemId")
-                        }
+                        UserMedicationSwapItem(medication, modifier = Modifier, {},{}, { itemId -> navController?.navigate("medication_result/$itemId")})
                         HorizontalDivider(
                             thickness = 1.dp,
                             modifier = Modifier.padding(horizontal = 16.dp)

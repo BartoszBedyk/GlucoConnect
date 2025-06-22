@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
+import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.mappters.toUserMedicationDBList
 import pl.example.databasemodule.database.data.MedicationDB
-import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.databasemodule.database.repository.MedicationRepository
 import pl.example.databasemodule.database.repository.UserMedicationRepository
 import pl.example.networkmodule.apiData.MedicationResult
@@ -23,7 +24,7 @@ class UserMedicationScreenViewModel(
 
     val apiProvider = ApiProvider(context)
     val medicationApi = apiProvider.medicationApi
-    val userMedications = apiProvider.userMedicationApi
+    val userMedicationsApi = apiProvider.userMedicationApi
     val userMedicationRepository = UserMedicationRepository(context)
     val medicationRepository = MedicationRepository(context)
     private val authenticationApi = apiProvider.authenticationApi
@@ -66,7 +67,7 @@ class UserMedicationScreenViewModel(
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 Log.i("UserMedicationScreenViewModel", "fetchMedicationResults")
-                _medicationResults.value = userMedications.readTodayUserMedication(USER_ID)!!
+                _medicationResults.value = userMedicationsApi.readTodayUserMedication(USER_ID)!!
             } catch (e: Exception) {
                 _medicationResults.value = userMedicationRepository.getTodayUserMedication(USER_ID)
             } finally {
@@ -80,11 +81,11 @@ class UserMedicationScreenViewModel(
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 _medication.value = medicationApi.getUnsynced(USER_ID)!!
-                _userMedication.value = userMedications.readTodayUserMedication(USER_ID)!!
+                _userMedication.value = userMedicationsApi.readTodayUserMedication(USER_ID)!!
                 userMedicationRepository.insertAll(userMedication.value.toUserMedicationDBList())
                 medicationRepository.insertAll(medication.value.toMedicationDBList())
                 medication.value.forEach { medicationResult ->
-                    userMedications.markAsSynced(medicationResult.id.toString())
+                    userMedicationsApi.markAsSynced(medicationResult.id.toString())
                 }
             } catch (e: Exception) {
                 _medication.value =
@@ -92,6 +93,40 @@ class UserMedicationScreenViewModel(
             }
         }
 
+    }
+
+    suspend fun deleteUserMedicationById() : Boolean {
+        try{
+            if(getUserMedicationIDByID() != null){
+                Log.d("UM API", "User medication ID: ${getUserMedicationIDByID()}")
+                val success = userMedicationsApi.deleteUserMedication(removeQuotes(getUserMedicationIDByID()!!))
+                if(success){
+                    userMedicationRepository.deleteMedication(getUserMedicationIDByID()!!)
+                    Log.d("UM API", "User medication deleted successfully")
+                    return true
+                }
+                else
+                    return false
+            }
+            else
+                return false
+        }
+        catch (e: Exception){
+            Log.e("MedicationDetailsScreenViewModel", "Error deleting user medication: ${e.message}")
+            return false
+        }
+    }
+
+    private suspend fun getUserMedicationIDByID(): String? {
+        try{
+//            val id = userMedicationsApi.getUserMedicationId(USER_ID, MEDICATION_ID)
+//            Log.e("UM API", "ID: $id")
+//            return id
+        }
+        catch (e: Exception){
+            Log.e("MedicationDetailsScreenViewModel", "Error fetching user medication ID: ${e.message}")
+        }
+        return null
     }
 
     private var lastCheckedTime = 0L
@@ -132,19 +167,7 @@ fun List<MedicationResult>.toMedicationDBList(): List<MedicationDB> {
     }
 }
 
-fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> {
-    return this.map { result ->
-        UserMedicationDB(
-            userId = result.userId,
-            medicationId = result.medicationId,
-            dosage = result.dosage,
-            frequency = result.frequency,
-            startDate = result.startDate,
-            endDate = result.endDate,
-            notes = result.notes,
-            isSynced = true)
-    }
-}
+
 
 
 

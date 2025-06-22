@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
-import pl.example.aplikacja.convertResearchDBtoResearchResult
+import pl.example.aplikacja.mappters.toResearchResult
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
@@ -61,7 +61,7 @@ class GlucoseDetailsScreenViewModel(
                 val result = glucoseResultRepository.getResearchResultById(RESULT_ID)
                 _prefUnit.value = GlucoseUnitType.MG_PER_DL
                 if (result != null) {
-                    _glucoseResult.value = convertResearchDBtoResearchResult(result)
+                    _glucoseResult.value = result.toResearchResult()
                 }
             } finally {
 

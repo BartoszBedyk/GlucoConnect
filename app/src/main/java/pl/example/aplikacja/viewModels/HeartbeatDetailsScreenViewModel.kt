@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
-import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
-import pl.example.aplikacja.convertResearchDBtoResearchResult
+import pl.example.aplikacja.mappters.toHeartbeatResult
+
 import pl.example.databasemodule.database.repository.HeartbeatRepository
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiMethods.ApiProvider
@@ -63,7 +63,7 @@ class HeartbeatDetailsScreenViewModel(
                 Log.e("GlucoseDetails", "podejmie pobranie z bazy")
                 val result = heartbeatResultRepository.getHeartbeatResultById(RESULT_ID)
                 Log.e("GlucoseDetails", "podejmie pobranie z bazy ${result?.systolicPressure}")
-                _heartbeatResult.value = result?.let { convertHeartBeatDBtoHeartbeatResult(it) }
+                _heartbeatResult.value = result?.toHeartbeatResult()
             } finally {
                 _isLoading.value = false
             }
