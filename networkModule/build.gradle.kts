@@ -50,5 +50,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:2.3.5")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
     implementation("com.auth0:java-jwt:4.4.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
 
 }

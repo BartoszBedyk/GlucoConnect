@@ -18,10 +18,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pl.example.aplikacja.formatDiabetesType
-import pl.example.aplikacja.formatUnit
-import pl.example.aplikacja.formatUserType
-import pl.example.databasemodule.database.data.DiabetesTypeDB
+import pl.example.aplikacja.mappters.formatDiabetesType
+import pl.example.aplikacja.mappters.formatUnit
+import pl.example.aplikacja.mappters.formatUserType
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType

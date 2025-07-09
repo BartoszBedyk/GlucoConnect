@@ -34,13 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeWithoutLocale
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeWithoutLocale
 import pl.example.aplikacja.viewModels.AddHeartbeatViewModel
-import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.CreateHeartbeatForm
 import java.util.Calendar
 import java.util.Date

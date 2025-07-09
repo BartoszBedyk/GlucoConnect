@@ -50,8 +50,9 @@ import pl.example.aplikacja.UiElements.GlucoseChart
 import pl.example.aplikacja.UiElements.HeartbeatChart
 import pl.example.aplikacja.UiElements.ItemView
 import pl.example.aplikacja.UiElements.LinearIndicatorHb1Ac
-import pl.example.aplikacja.removeQuotes
-import pl.example.aplikacja.toUserType
+import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.mappters.toUserType
+
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.getToken
 

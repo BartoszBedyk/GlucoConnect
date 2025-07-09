@@ -9,10 +9,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.Screens.isNetworkAvailable
-import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
-import pl.example.aplikacja.convertResearchDBtoResearchResult
-import pl.example.aplikacja.convertUnits
-import pl.example.aplikacja.stringUnitParser
+import pl.example.aplikacja.mappters.convertUnits
+import pl.example.aplikacja.mappters.stringUnitParser
+import pl.example.aplikacja.mappters.toHeartbeatResultList
+import pl.example.aplikacja.mappters.toResearchResult
+import pl.example.aplikacja.mappters.toResearchResultList
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.databasemodule.database.repository.HeartbeatRepository
 import pl.example.databasemodule.database.repository.PrefUnitRepository
@@ -85,13 +86,11 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 researchRepository.insertAllResults(results)
             } catch (e: Exception) {
                 _prefUnit.value = stringUnitParser(prefUnitRepository.getUnitByUserId(USER_ID))
-                _glucoseResults.value = convertResearchDBtoResearchResult(
-                    researchRepository.getAllGlucoseResultsByUserId(USER_ID)
-                )
+                _glucoseResults.value =
+                    researchRepository.getAllGlucoseResultsByUserId(USER_ID).toResearchResultList()
+
                 _glucoseResults.value = convertUnits(_glucoseResults.value, prefUnit.value)
-                _heartbeatResult.value = convertHeartBeatDBtoHeartbeatResult(
-                    heartbeatsRepository.getHeartbeatResultsForUser(USER_ID)
-                )
+                _heartbeatResult.value = heartbeatsRepository.getHeartbeatResultsForUser(USER_ID).toHeartbeatResultList()
             } finally {
                 _isLoading.value = false
             }
@@ -107,12 +106,13 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 val unsyncedResults = researchRepository.getUnsyncedResearchResults()
                 Log.i("SYNC", "List of unsynced + ${unsyncedResults.size.toString()}")
                 if (unsyncedResults.isNotEmpty()) {
-                    convertResearchDBtoResearchResult(unsyncedResults).forEach { result ->
+                    unsyncedResults.forEach { result ->
                         try {
-                            resultApi.syncResult(result)
+                            resultApi.syncResult(result.toResearchResult())
                             researchRepository.markAsSynced(result.id.toString())
                         } catch (e: Exception) {
                             Log.e("SYNC", "Failed to sync result: $result", e)
+
                         }
                     }
                 }

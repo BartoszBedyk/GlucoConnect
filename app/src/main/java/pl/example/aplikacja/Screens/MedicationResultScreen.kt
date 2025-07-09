@@ -28,8 +28,9 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeWithoutTime
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
+import pl.example.aplikacja.mappters.removeQuotes
+
 import pl.example.aplikacja.viewModels.MedicationDetailsScreenViewModel
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.getToken

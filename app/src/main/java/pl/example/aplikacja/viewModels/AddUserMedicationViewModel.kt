@@ -8,14 +8,12 @@ import com.auth0.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.convertMedicationFormToMedicationDB
-import pl.example.aplikacja.convertMedicationResultToMedicationDB
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.mappters.toUserMedicationDB
+import pl.example.aplikacja.mappters.toUserMedicationDBList
 import pl.example.databasemodule.database.repository.UserMedicationRepository
 import pl.example.networkmodule.apiData.MedicationResult
-import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
@@ -73,7 +71,7 @@ class AddUserMedicationViewModel @Inject constructor(@ApplicationContext private
             val medicationResult = userMedicationApi.readUserMedicationByID(id)
             Log.d("LOCALY", "Fetched user medication: $medicationResult")
             if (medicationResult != null) {
-                val converted = convertMedicationResultToMedicationDB(medicationResult.first())
+                val converted = medicationResult.toUserMedicationDBList().first()
                 userMedicationRepository.insert(converted)
                 return true
             }
@@ -86,7 +84,7 @@ class AddUserMedicationViewModel @Inject constructor(@ApplicationContext private
 
     private suspend fun saveMedicationLocally(form: CreateUserMedicationForm): Boolean {
         return try {
-            val localMedication = convertMedicationFormToMedicationDB(form)
+            val localMedication = form.toUserMedicationDB()
             userMedicationRepository.insert(localMedication)
             Log.d("LOCALY", "User medication saved locally: $localMedication")
             true

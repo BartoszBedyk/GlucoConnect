@@ -6,7 +6,7 @@
         <domain includeSubdomains="true">192.168.1.26</domain> <!-- prawdziwy telefon -->
         <domain includeSubdomains="true">192.168.1.25</domain> <!-- prawdziwy telefon -->
         <trust-anchors>
-            <certificates src="@raw/ktor_cert"/>
+            <certificates src="@raw/ktor_local"/>
         </trust-anchors>
     </domain-config>
 </network-security-config>

@@ -49,8 +49,7 @@ import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.UiElements.SwitchWithFoodIcon
 import pl.example.aplikacja.UiElements.SwitchWithMedicationIcon
-import pl.example.aplikacja.formatDateTimeWithoutLocale
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeWithoutLocale
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.requestData.ResearchResultCreate

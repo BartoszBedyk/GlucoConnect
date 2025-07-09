@@ -46,14 +46,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.MainActivity
-import pl.example.aplikacja.formatUnit
+import pl.example.aplikacja.mappters.formatUnit
+import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.notificationManager.InnerNotificationManager
-import pl.example.aplikacja.removeQuotes
 import pl.example.aplikacja.viewModels.UserProfileViewModel
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.UserType
@@ -69,12 +70,10 @@ import java.util.Date
 fun UserProfileScreen(navController: NavController) {
 
     val context = LocalContext.current
-    val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
-    val id = removeQuotes(decoded.getClaim("userId").toString())
-    val viewModel: UserProfileViewModel = remember {
-        UserProfileViewModel(apiProvider, id)
-    }
+
+    val viewModel: UserProfileViewModel = hiltViewModel()
+
     val innerNotificationManager : InnerNotificationManager = remember {
         InnerNotificationManager(context)
     }
@@ -93,7 +92,7 @@ fun UserProfileScreen(navController: NavController) {
         val observed = viewModel.observed.collectAsState()
         val obseredUser = viewModel.observedUser.collectAsState()
         val fileName = viewModel.fileName.collectAsState()
-
+        val id = userData.value?.id.toString()
         val accepted = viewModel.observatorsAccepted.collectAsState()
         val unAccepted = viewModel.observatorsUnAccepted.collectAsState()
 

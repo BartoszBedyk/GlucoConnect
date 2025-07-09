@@ -10,19 +10,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.convertResearchResultToResearchDB
-import pl.example.aplikacja.removeQuotes
-import pl.example.aplikacja.stringUnitParser
+import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.mappters.stringUnitParser
+import pl.example.aplikacja.mappters.toGlucoseResultDB
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
-import pl.example.databasemodule.database.data.GlucoseUnitTypeDB
-import pl.example.databasemodule.database.data.GlucoseResultDB
 import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.ResearchResultCreate
-import java.util.Date
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,7 +64,7 @@ class AddGlucoseResultViewModel @Inject constructor(@ApplicationContext private 
         return try {
             val researchResult = resultApi.getResearchResultsById(id)
             if (researchResult != null) {
-                val converted = convertResearchResultToResearchDB(researchResult)
+                val converted = researchResult.toGlucoseResultDB()
                 researchRepository.insert(converted)
                 return true
             }
@@ -81,7 +77,7 @@ class AddGlucoseResultViewModel @Inject constructor(@ApplicationContext private 
 
     private suspend fun saveLocally(form: ResearchResultCreate): Boolean {
         try {
-            val localResult = convertResearchResultCreateToResearchDB(form)
+            val localResult = form.toGlucoseResultDB(USER_ID)
             researchRepository.insert(localResult)
             Log.e("LOCALY", "Successfully saved glucose result locally.")
             return true
@@ -91,21 +87,7 @@ class AddGlucoseResultViewModel @Inject constructor(@ApplicationContext private 
         }
     }
 
-    private fun convertResearchResultCreateToResearchDB(form: ResearchResultCreate): GlucoseResultDB {
-        return GlucoseResultDB(
-            id = UUID.randomUUID(),
-            glucoseConcentration = form.glucoseConcentration,
-            unit = GlucoseUnitTypeDB.valueOf(form.unit),
-            timestamp = form.timestamp,
-            userId = UUID.fromString(USER_ID),
-            deletedOn = null,
-            lastUpdatedOn = Date(),
-            afterMedication = form.afterMedication,
-            emptyStomach = form.emptyStomach,
-            notes = form.notes,
-            isSynced = false
-        )
-    }
+
 
 
     private fun fetchUnit() {

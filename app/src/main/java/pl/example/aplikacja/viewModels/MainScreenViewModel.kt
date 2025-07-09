@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.example.aplikacja.Screens.isNetworkAvailable
-import pl.example.aplikacja.convertHeartBeatDBtoHeartbeatResult
-import pl.example.aplikacja.convertResearchDBtoResearchResult
-import pl.example.aplikacja.convertUnits
-import pl.example.aplikacja.stringUnitParser
+import pl.example.aplikacja.mappters.convertUnits
+import pl.example.aplikacja.mappters.stringUnitParser
+import pl.example.aplikacja.mappters.toHeartbeatResultList
+import pl.example.aplikacja.mappters.toResearchResult
 import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.databasemodule.database.data.PrefUnitDB
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
@@ -21,7 +21,6 @@ import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.apiMethods.ApiProvider
 
 class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewModel() {
@@ -91,7 +90,10 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                 _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
                 prefUnitRepository.insert(
                     PrefUnitDB(
-                        userId = USER_ID, glucoseUnit = _prefUnit.value.toString(), isSynced = true, diabetesType = DiabetesTypeDB.NONE
+                        userId = USER_ID,
+                        glucoseUnit = _prefUnit.value.toString(),
+                        isSynced = true,
+                        diabetesType = DiabetesTypeDB.NONE
                     )
                 )
 
@@ -107,9 +109,9 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                         heartbeatRepository.getThreeHeartbeatById(USER_ID) ?: emptyList()
                     _prefUnit.value = stringUnitParser(prefUnitRepository.getUnitByUserId(USER_ID))
                     _threeGlucoseItems.value = convertUnits(
-                        localResults.map { convertResearchDBtoResearchResult(it) }, prefUnit.value
+                        localResults.map { it.toResearchResult() }, prefUnit.value
                     )
-                    _heartbeatItems.value = convertHeartBeatDBtoHeartbeatResult(localHeartbeats)
+                    _heartbeatItems.value = localHeartbeats.toHeartbeatResultList()
                 }
             } finally {
                 _isLoading.value = false
@@ -118,13 +120,12 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
     }
 
 
-
-
     private fun getUserDiabetesType() {
         try {
             if (!healthy.value) throw IllegalStateException("API not available")
             viewModelScope.launch {
-                _userDiabetesType.value = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
+                _userDiabetesType.value =
+                    userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
             }
         } catch (e: Exception) {
             return

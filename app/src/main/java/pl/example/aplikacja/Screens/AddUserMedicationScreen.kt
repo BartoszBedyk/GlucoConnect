@@ -41,7 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeWithoutTime
+import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
 import pl.example.aplikacja.viewModels.AddUserMedicationViewModel
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
