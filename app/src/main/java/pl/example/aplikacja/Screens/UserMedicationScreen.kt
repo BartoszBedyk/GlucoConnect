@@ -2,7 +2,6 @@ package pl.example.aplikacja.Screens
 
 import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -25,36 +23,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.R
 import pl.example.aplikacja.UiElements.UserMedicationSwapItem
 import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
-import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.viewModels.UserMedicationScreenViewModel
 import pl.example.networkmodule.apiData.UserMedicationResult
-import pl.example.networkmodule.getToken
 
 @Composable
 fun UserMedicationScreen(navController: NavController?) {
 
     val context = LocalContext.current
+    val viewModel: UserMedicationScreenViewModel = hiltViewModel()
 
-
-    val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember {
-        UserMedicationScreenViewModel(
-            context, removeQuotes(decoded.getClaim("userId").toString())
-        )
-    }
     //download medications for specyfic time
     val medications = viewModel.medicationResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -75,65 +63,65 @@ fun UserMedicationScreen(navController: NavController?) {
                 }
             }
         } else {
+            Box(Modifier.fillMaxSize()) {
 
-            Column(Modifier.fillMaxSize()) {
-
-
-                LazyColumn {
-                    items(medications.value) { medication ->
-                        UserMedicationSwapItem(medication, modifier = Modifier, {},{}, { itemId -> navController?.navigate("medication_result/$itemId")})
-                        HorizontalDivider(
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-                }
-            }
-
-            if(isNetworkAvailable(context)) {
-                Box(contentAlignment = Alignment.BottomEnd) {
-                    Column(
-                        verticalArrangement = Arrangement.Bottom,
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-
-
-
-                        FloatingActionButton(
-                            onClick = {
-                                navController?.navigate("add_user_medication_screen")
-                            },
-                            shape = Shapes().medium,
-                            modifier = Modifier
-                                .padding(vertical = 8.dp, horizontal = 16.dp),
-                            elevation = FloatingActionButtonDefaults.elevation(4.dp)
-                        ) {
-                            Icon(Icons.Filled.Add, "Przycisk do dodawania leków")
-                        }
-                        FloatingActionButton(
-                            onClick = {
-                                navController?.navigate("medication_history_screen")
-                            },
-                            shape = Shapes().medium,
-                            modifier = Modifier
-                                .padding(vertical = 8.dp, horizontal = 16.dp),
-                            elevation = FloatingActionButtonDefaults.elevation(4.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_history_24),
-                                contentDescription = "Przycisk do historii"
+                Column(Modifier.fillMaxSize()) {
+                    LazyColumn {
+                        items(medications.value) { medication ->
+                            UserMedicationSwapItem(
+                                medication,
+                                modifier = Modifier,
+                                {},
+                                {},
+                                { itemId -> navController?.navigate("medication_result/$itemId") })
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                modifier = Modifier.padding(horizontal = 16.dp)
                             )
                         }
                     }
                 }
+
+                Column(
+                    Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.Bottom
+                ) {
+                    FloatingActionButton(
+                        onClick = {
+                            navController?.navigate("medication_history_screen")
+                        },
+                        shape = Shapes().medium,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 16.dp),
+                        elevation = FloatingActionButtonDefaults.elevation(4.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_history_24),
+                            contentDescription = "Przycisk do historii"
+                        )
+                    }
+
+                    FloatingActionButton(
+                        onClick = {
+                            navController?.navigate("add_user_medication_screen")
+                        },
+                        shape = Shapes().medium,
+                        modifier = Modifier
+                            .padding(bottom = 16.dp, top = 4.dp, start = 16.dp, end = 16.dp),
+                        elevation = FloatingActionButtonDefaults.elevation(4.dp)
+                    ) {
+                        Icon(Icons.Filled.Add, "Przycisk do dodawania leków")
+                    }
+                }
+
             }
+
 
         }
     }
-
-
 }
+
 
 @Composable
 fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Unit) {
@@ -142,8 +130,8 @@ fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Un
             .padding(16.dp)
             .fillMaxWidth()
             .clickable {
-            onItemClick(medication.medicationId.toString())
-        }
+                onItemClick(medication.medicationId.toString())
+            }
     ) {
         Log.d("MedicationItem", "medication: $medication")
 

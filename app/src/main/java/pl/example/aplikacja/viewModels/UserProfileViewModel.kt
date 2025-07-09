@@ -19,6 +19,7 @@ import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.CreateObserver
 import pl.example.networkmodule.requestData.GenerateGlucoseReport
 import java.util.Date
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -82,7 +83,7 @@ class UserProfileViewModel @Inject constructor (@ApplicationContext private val 
         viewModelScope.launch {
             try{
                 if (!healthy.value) throw IllegalStateException("API not available")
-                val reportData = GenerateGlucoseReport(USER_ID,startDate, endDate, ReportPattern.STANDARD_GLUCOSE)
+                val reportData = GenerateGlucoseReport(UUID.fromString(USER_ID), startDate, endDate, ReportPattern.STANDARD_GLUCOSE)
                 _fileName.value = reportApi.getReportById(reportData)?.name
 
             }catch (e: Exception){

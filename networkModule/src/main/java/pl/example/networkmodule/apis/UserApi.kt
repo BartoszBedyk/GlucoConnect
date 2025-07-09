@@ -13,11 +13,11 @@ import io.ktor.http.contentType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import pl.example.networkmodule.KtorClient
-import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.UserApiInterface
-import pl.example.networkmodule.requestData.CreateUserForm
+import pl.example.networkmodule.requestData.CreateUserStepOneForm
+import pl.example.networkmodule.requestData.CreateUserStepTwoForm
 import pl.example.networkmodule.requestData.UnitUpdate
 import pl.example.networkmodule.requestData.UpdateUserNullForm
 import pl.example.networkmodule.requestData.UserCreateWIthType
@@ -27,12 +27,12 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     private val usersEndpoint: String = "user"
     private val adress = ktorClient.baseUrl
 
-    override suspend fun createUser(form: CreateUserForm): String? {
+    override suspend fun createUserStepOne(form: CreateUserStepOneForm): String? {
 
         Log.d("CreateUserDebug", Json.encodeToString(form))
 
         try {
-            val response = client.post("$adress/createUser") {
+            val response = client.post("$adress/createUserStepOne") {
                 contentType(ContentType.Application.Json)
                 setBody(form)
 
@@ -47,6 +47,23 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
         } catch (e: Exception) {
             Log.e("AuthenticationApi", "Request failed with status ${e.message}")
             return null
+        }
+    }
+
+    override suspend fun createUserStepTwo(form: CreateUserStepTwoForm): Boolean {
+        Log.d("CreateUserDebug", Json.encodeToString(form))
+
+        return try {
+            val response = client.put("$adress/createUserStepTwo") {
+                contentType(ContentType.Application.Json)
+                setBody(form)
+
+            }
+            response.status == HttpStatusCode.OK || response.status == HttpStatusCode.Created
+
+        } catch (e: Exception) {
+            Log.e("AuthenticationApi", "Request failed with status ${e.message}")
+            false
         }
     }
 
@@ -82,7 +99,6 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
             false
         }
     }
-
 
 
     override suspend fun getUserById(id: String): UserResult? {
@@ -218,7 +234,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
             if (response.status == HttpStatusCode.OK) {
                 true
             } else {
-              false
+                false
             }
         } catch (e: Exception) {
             Log.e("UserApi", "Error during request: ${e.message}", e)
@@ -228,7 +244,7 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
 
     override suspend fun giveUserType(id: String, type: String): Boolean {
         return try {
-            val response = client.put("$adress/createUser/$id/type/$type")
+            val response = client.put("$adress/$usersEndpoint/$id/type/$type")
             if (response.status == HttpStatusCode.OK) {
                 true
             } else {

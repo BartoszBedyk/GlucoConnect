@@ -134,15 +134,14 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
     }
 
     private fun getUserHb1AcValue() {
-        try {
-            if (!healthy.value) throw IllegalStateException("API not available")
-            viewModelScope.launch {
+        viewModelScope.launch {
+            try {
+                if (!healthy.value) throw IllegalStateException("API not available")
                 _userHb1AcValue.value = resultApi.getHb1AcResultById(USER_ID) ?: 0.0f
+            } catch (e: Exception) {
+                _userHb1AcValue.value = researchRepository.getUserGbA1cById(USER_ID)
             }
-        } catch (e: Exception) {
-            return
         }
-
     }
 
 

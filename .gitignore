@@ -16,3 +16,7 @@
 local.properties
 /.env
 /app/src/main/res/raw/ktor_cert.crt
+/app/src/main/res/raw/ktor.crt
+/networkModule/src/main/res/raw/ktor.crt
+*.crt
+*.p12

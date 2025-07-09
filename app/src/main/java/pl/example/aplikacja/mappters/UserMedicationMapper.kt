@@ -38,18 +38,7 @@ fun CreateUserMedicationForm.toUserMedicationDB(): UserMedicationDB {
 
 
 fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> {
-    return this.map { result ->
-        UserMedicationDB(
-            userId = result.userId,
-            medicationId = result.medicationId,
-            dosage = result.dosage,
-            frequency = result.frequency,
-            startDate = result.startDate,
-            endDate = result.endDate,
-            notes = result.notes,
-            isSynced = true
-        )
-    }
+    return this.map { it.toUserMedicationDB() }
 }
 
 fun MedicationDB?.toMedicationResult(): MedicationResult? {

@@ -60,23 +60,15 @@ private fun GlucoseUnitType.toGlucoseUnitTypeDB(): GlucoseUnitTypeDB {
 }
 
 fun List<GlucoseResultDB>.toResearchResultList(): List<ResearchResult> {
-    return this.map { dbResult ->
-        ResearchResult(
-            id = dbResult.id,
-            glucoseConcentration = dbResult.glucoseConcentration,
-            unit = dbResult.unit.toGlucoseUnitType(),
-            timestamp = dbResult.timestamp,
-            userId = dbResult.userId,
-            deletedOn = dbResult.deletedOn,
-            lastUpdatedOn = dbResult.lastUpdatedOn,
-            afterMedication = dbResult.afterMedication,
-            emptyStomach = dbResult.emptyStomach,
-            notes = dbResult.notes
-        )
-    }
+    return this.map { it.toResearchResult() }
 }
 
- fun ResearchResultCreate.toGlucoseResultDB(USER_ID: String): GlucoseResultDB {
+fun List<ResearchResult>.toGlucoseResultDBList(): List<GlucoseResultDB> {
+    return this.map { it.toGlucoseResultDB() }
+}
+
+
+fun ResearchResultCreate.toGlucoseResultDB(USER_ID: String): GlucoseResultDB {
     return this.let {
         GlucoseResultDB(
             id = UUID.randomUUID(),
@@ -89,7 +81,8 @@ fun List<GlucoseResultDB>.toResearchResultList(): List<ResearchResult> {
             afterMedication = it.afterMedication,
             emptyStomach = it.emptyStomach,
             notes = it.notes,
-            isSynced = false)
+            isSynced = false
+        )
     }
 
 }

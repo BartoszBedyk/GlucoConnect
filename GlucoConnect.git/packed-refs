@@ -1,0 +1,21 @@
+# pack-refs with: peeled fully-peeled sorted 
+5609c93da2852162965d24c5e933138bfaa15633 refs/heads/adminModule-v1
+66f2abd12ffe0e75e0f31a9c94bb976b12151a55 refs/heads/bluetoothImpl
+e3ac934f3477e1f164e0c42ff237ad6b09bd4449 refs/heads/bluetoothScanRemaster
+88fa6018aeb053207734e4eb78c2f8991e1d658a refs/heads/databaseImpl
+83a0bd48cd9a1cf6954dadcb7b8cbb9e9c4ece08 refs/heads/lastScreens
+5dde7da291d1d7263d4df41d88c43eb389f3bd44 refs/heads/loginScreens
+27321786b4e4e3f17d890676e3278c181fb701f4 refs/heads/master
+6558723900ab0e0b0386e7c1e96c40c50cbfc242 refs/heads/post_prod_v1
+19e70b8c06070083bfbfa6c6205a517327446353 refs/heads/post_prod_v2
+007ddd97461e891d25ead160e6ecfbcf1e6ff82d refs/heads/post_prod_v3
+e3ac934f3477e1f164e0c42ff237ad6b09bd4449 refs/pull/1/head
+19e70b8c06070083bfbfa6c6205a517327446353 refs/pull/10/head
+5dde7da291d1d7263d4df41d88c43eb389f3bd44 refs/pull/2/head
+83a0bd48cd9a1cf6954dadcb7b8cbb9e9c4ece08 refs/pull/3/head
+88fa6018aeb053207734e4eb78c2f8991e1d658a refs/pull/4/head
+5609c93da2852162965d24c5e933138bfaa15633 refs/pull/5/head
+a0a12a15a5abb88a4f270f2e951e22e928a02ebd refs/pull/6/head
+6558723900ab0e0b0386e7c1e96c40c50cbfc242 refs/pull/7/head
+e9820e4e596879877625d8f92880f418c7898161 refs/pull/8/head
+3d763870e29c1bd53f6ba346c913c44c36d4ea33 refs/pull/9/head
