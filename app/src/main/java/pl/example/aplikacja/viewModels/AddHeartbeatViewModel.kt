@@ -1,22 +1,19 @@
 package pl.example.aplikacja.viewModels
 
+
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.auth0.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import pl.example.aplikacja.removeQuotes
-import pl.example.networkmodule.apiMethods.ApiProvider
-import pl.example.networkmodule.requestData.CreateHeartbeatForm
-
-
+import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.mappters.toHeartbeatResultDB
 import pl.example.databasemodule.database.data.HeartbeatDB
 import pl.example.databasemodule.database.repository.HeartbeatRepository
-import pl.example.networkmodule.apiData.HeartbeatResult
+import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
-
-import java.util.Date
+import pl.example.networkmodule.requestData.CreateHeartbeatForm
 import java.util.UUID
 import javax.inject.Inject
 
@@ -37,11 +34,9 @@ class AddHeartbeatViewModel @Inject constructor(
         Log.d("AddHeartbeatViewModel", "addHeartbeatResult: $form")
         try {
             val id = heartbeatApi.createHeartbeat(form)
-            if (id != null) {
-                val success = saveToLocalDatabase((id.toString()))
-                if (!success) {
-                    Log.e("LOCAL", "Failed to save data into local database.")
-                }
+            val success = saveToLocalDatabase((id.toString()))
+            if (!success) {
+                Log.e("LOCAL", "Failed to save data into local database.")
             }
             return saveLocally(form)
         } catch (e: Exception) {
@@ -55,7 +50,7 @@ class AddHeartbeatViewModel @Inject constructor(
         return try {
             val heartbeatResult = heartbeatApi.getHeartBeat(id)
             if (heartbeatResult != null) {
-                val converted = convertToHeartbeatDB(heartbeatResult)
+                val converted = heartbeatResult.toHeartbeatResultDB()
                 heartbeatRepository.insert(converted)
                 return true
             }
@@ -80,18 +75,6 @@ class AddHeartbeatViewModel @Inject constructor(
         }
     }
 
-    private fun convertToHeartbeatDB(apiResult: HeartbeatResult): HeartbeatDB {
-        return HeartbeatDB(
-            id = apiResult.id,
-            userId = apiResult.userId,
-            timestamp = apiResult.timestamp,
-            systolicPressure = apiResult.systolicPressure,
-            diastolicPressure = apiResult.diastolicPressure,
-            pulse = apiResult.pulse,
-            note = apiResult.note,
-            isSynced = true
-        )
-    }
 
     private fun convertFormToHeartbeatDB(form: CreateHeartbeatForm): HeartbeatDB {
         Log.e("PARSER", "convertFormToHeartbeatDB: $form")

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,9 +29,9 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeSpecificLocale
-import pl.example.aplikacja.formatUnit
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
+import pl.example.aplikacja.mappters.formatUnit
+import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.viewModels.GlucoseDetailsScreenViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.getToken
@@ -49,6 +50,7 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
 
     //fetch data from server about glucose for actual user
     val researchResult by viewModel.glucoseResult.collectAsState()
+    val diabetesType by viewModel.diabetesType.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     val viewModelScope = remember { viewModel.viewModelScope }
@@ -143,27 +145,38 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                 if (researchResult != null) {
                     Column {
                         Text(
-                            text = "Analiza dla stanu na czczo",
+                            text = "Analiza pomiaru",
                             style = MaterialTheme.typography.headlineSmall,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         Text(
-                            evaluateGlucoseResultNoFood(
+                            evaluateGlucoseResult(
                                 researchResult!!.unit,
-                                researchResult!!.glucoseConcentration
+                                researchResult!!.glucoseConcentration,
+                                researchResult!!.afterMedication,
+                                researchResult!!.emptyStomach
                             )
                         )
+
+                        HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+
                         Text(
-                            text = "Analiza dla stanu po posiłku",
+                            text = "Analiza pomiaru z uwzględnieniem cukrzycy",
                             style = MaterialTheme.typography.headlineSmall,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         Text(
-                            evaluateGlucoseResultAfterMeal(
+                            evaluateGlucoseWithDiabetesType(
                                 researchResult!!.unit,
-                                researchResult!!.glucoseConcentration
+                                researchResult!!.glucoseConcentration,
+                                researchResult!!.afterMedication,
+                                researchResult!!.emptyStomach,
+                                diabetesType!!
                             )
                         )
+
+
+
                     }
                 }
             }
@@ -174,51 +187,107 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
 }
 
 @Composable
-fun evaluateGlucoseResultNoFood(unit: GlucoseUnitType, glucoseConcentration: Double): String {
-    return when (unit) {
-        GlucoseUnitType.MG_PER_DL -> {
-            when {
-                glucoseConcentration < 70 -> "Poziom glukozy poniżej normy (hipoglikemia)"
-                glucoseConcentration in 70.0..99.9 -> "Prawidłowy poziom glukozy na czczo"
-                glucoseConcentration in 100.0..125.9 -> "Podwyższony poziom glukozy – stan przedcukrzycowy"
-                glucoseConcentration >= 126 -> "Poziom glukozy wskazuje na cukrzycę (jeśli pomiar był na czczo)"
-                else -> "Nieprawidłowa wartość pomiaru"
-            }
-        }
+fun evaluateGlucoseResult(
+    unit: GlucoseUnitType,
+    glucoseConcentration: Double,
+    afterMedication: Boolean,
+    emptyStomach: Boolean
+): String {
+    val concentrationMgDl = when (unit) {
+        GlucoseUnitType.MG_PER_DL -> glucoseConcentration
+        GlucoseUnitType.MMOL_PER_L -> glucoseConcentration * 18.0182
+    }
 
-        GlucoseUnitType.MMOL_PER_L -> {
-            when {
-                glucoseConcentration < 3.9 -> "Poziom glukozy poniżej normy (hipoglikemia)"
-                glucoseConcentration in 3.9..5.5 -> "Prawidłowy poziom glukozy na czczo"
-                glucoseConcentration in 5.6..6.9 -> "Podwyższony poziom glukozy – stan przedcukrzycowy"
-                glucoseConcentration >= 7.0 -> "Poziom glukozy wskazuje na cukrzycę (jeśli pomiar był na czczo)"
-                else -> "Nieprawidłowa wartość pomiaru"
-            }
+    return if (emptyStomach) {
+        // Ocena na czczo
+        when {
+            concentrationMgDl < 70 -> "Hipoglikemia (poziom glukozy poniżej normy)"
+            concentrationMgDl in 70.0..99.9 -> "Prawidłowy poziom glukozy na czczo"
+            concentrationMgDl in 100.0..125.9 -> "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
+            concentrationMgDl >= 126 -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
+            else -> "Nieprawidłowa wartość pomiaru"
         }
+    } else {
+        // Ocena po posiłku (2h po)
+        when {
+            concentrationMgDl < 140 -> "Prawidłowy poziom glukozy po posiłku"
+            concentrationMgDl in 140.0..199.9 -> "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
+            concentrationMgDl >= 200 -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
+            else -> "Nieprawidłowa wartość pomiaru"
+        }
+    }.let { baseMessage ->
+        val medsInfo = if (afterMedication) {
+            "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę, interpretuj ostrożnie."
+        } else {
+            ""
+        }
+        listOf(baseMessage, medsInfo).filter { it.isNotBlank() }.joinToString(" ")
     }
 }
 
-fun evaluateGlucoseResultAfterMeal(unit: GlucoseUnitType, glucoseConcentration: Double): String {
-    return when (unit) {
-        GlucoseUnitType.MG_PER_DL -> {
-            when {
-                glucoseConcentration < 140 -> "Prawidłowy poziom glukozy po posiłku"
-                glucoseConcentration in 140.0..199.9 -> "Podwyższony poziom glukozy – stan przedcukrzycowy"
-                glucoseConcentration >= 200 -> "Poziom glukozy wskazuje na cukrzycę"
-                else -> "Nieprawidłowa wartość pomiaru"
-            }
+enum class DiabetesType {
+    TYPE_1, TYPE_2, MODY, LADA, GESTATIONAL, NONE
+}
+
+fun evaluateGlucoseWithDiabetesType(
+    unit: GlucoseUnitType,
+    glucoseConcentration: Double,
+    afterMedication: Boolean,
+    emptyStomach: Boolean,
+    diabetesType: DiabetesType
+): String {
+    val concentrationMgDl = when (unit) {
+        GlucoseUnitType.MG_PER_DL -> glucoseConcentration
+        GlucoseUnitType.MMOL_PER_L -> glucoseConcentration * 18.0182
+    }
+
+    val baseMessage = if (emptyStomach) {
+        // Ocena na czczo (dla cukrzycy ciążowej można być bardziej rygorystycznym)
+        val fastingThresholds = when (diabetesType) {
+            DiabetesType.GESTATIONAL -> listOf(60.0, 90.0, 110.0, 126.0) // bardziej restrykcyjne normy?
+            else -> listOf(70.0, 99.9, 125.9, 126.0)
         }
 
-        GlucoseUnitType.MMOL_PER_L -> {
-            when {
-                glucoseConcentration < 7.8 -> "Prawidłowy poziom glukozy po posiłku"
-                glucoseConcentration in 7.8..10.9 -> "Podwyższony poziom glukozy – stan przedcukrzycowy"
-                glucoseConcentration >= 11.1 -> "Poziom glukozy wskazuje na cukrzycę"
-                else -> "Nieprawidłowa wartość pomiaru"
-            }
+        when {
+            concentrationMgDl < fastingThresholds[0] -> "Hipoglikemia (poziom glukozy poniżej normy)"
+            concentrationMgDl <= fastingThresholds[1] -> "Prawidłowy poziom glukozy na czczo"
+            concentrationMgDl <= fastingThresholds[2] -> "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
+            concentrationMgDl >= fastingThresholds[3] -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
+            else -> "Nieprawidłowa wartość pomiaru"
+        }
+    } else {
+        // Ocena po posiłku
+        val postMealThresholds = when (diabetesType) {
+            DiabetesType.GESTATIONAL -> listOf(120.0, 140.0, 180.0, 200.0) // też bardziej restrykcyjne?
+            else -> listOf(140.0, 199.9, 200.0, Double.MAX_VALUE)
+        }
+
+        when {
+            concentrationMgDl < postMealThresholds[0] -> "Prawidłowy poziom glukozy po posiłku"
+            concentrationMgDl <= postMealThresholds[1] -> "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
+            concentrationMgDl >= postMealThresholds[2] -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
+            else -> "Nieprawidłowa wartość pomiaru"
         }
     }
+
+    val medsInfo = if (afterMedication) {
+        "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę, interpretuj ostrożnie."
+    } else ""
+
+    val diabetesInfo = when (diabetesType) {
+        DiabetesType.TYPE_1 -> "Pacjent z cukrzycą typu 1 wymaga ścisłego monitorowania."
+        DiabetesType.TYPE_2 -> "Pacjent z cukrzycą typu 2 zaleca regularne konsultacje i kontrolę."
+        DiabetesType.MODY -> "Cukrzyca MODY – rzadsza forma, wymaga indywidualnej opieki."
+        DiabetesType.LADA -> "Cukrzyca LADA – postać pośrednia, monitoruj rozwój choroby."
+        DiabetesType.GESTATIONAL -> "Cukrzyca ciążowa – wymaga rygorystycznej kontroli glikemii."
+        DiabetesType.NONE -> ""
+    }
+
+    return listOf(baseMessage, medsInfo, diabetesInfo)
+        .filter { it.isNotBlank() }
+        .joinToString(" ")
 }
+
 
 
 @Composable

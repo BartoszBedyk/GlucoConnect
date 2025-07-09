@@ -14,11 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,13 +29,13 @@ import pl.example.aplikacja.Screens.AdminUserDirectScreen
 import pl.example.aplikacja.Screens.AdministrationMainScreen
 import pl.example.aplikacja.Screens.AllResultsDownload
 import pl.example.aplikacja.Screens.AllResultsScreen
-import pl.example.aplikacja.Screens.EditUserDataScreen
-import pl.example.aplikacja.Screens.GlucoseResultScreen
-import pl.example.aplikacja.Screens.LoginScreen
 import pl.example.aplikacja.Screens.BluetoothPermission
+import pl.example.aplikacja.Screens.EditUserDataScreen
 import pl.example.aplikacja.Screens.GlucometerAdminScreen
+import pl.example.aplikacja.Screens.GlucoseResultScreen
 import pl.example.aplikacja.Screens.HeartbeatResultScreen
 import pl.example.aplikacja.Screens.LicenceScreen
+import pl.example.aplikacja.Screens.LoginScreen
 import pl.example.aplikacja.Screens.MainScreen
 import pl.example.aplikacja.Screens.MedicationHistoryScreen
 import pl.example.aplikacja.Screens.MedicationResultScreen
@@ -95,8 +92,8 @@ data class BottomNavigationItem(
     val unselectedIcon: ImageVector,
     val hasNews: Boolean,
     val badgeCount: Int? = null
-
 )
+
 
 //@Composable
 //fun Navigation(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {

@@ -12,14 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.example.aplikacja.Screens.TextRow
-import pl.example.aplikacja.formatDateTimeSpecificLocale
-import pl.example.aplikacja.formatUnit
+import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
+import pl.example.aplikacja.mappters.formatUnit
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ObserverResult
 import pl.example.networkmodule.apiData.ResearchResult
@@ -33,8 +32,7 @@ fun ItemView(item: ResearchResult, onItemClick: (String) -> Unit) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .clickable { onItemClick(item.id.toString()) }
-        .background(chooseColorForGlucose(item.glucoseConcentration, item.unit))
-    ) {
+        .background(chooseColorForGlucose(item.glucoseConcentration, item.unit))) {
         Text(
             text = "Glukoza: ${item.glucoseConcentration} ${formatUnit(item.unit)}",
             fontSize = 18.sp,
@@ -54,10 +52,9 @@ fun ItemView(item: UserResult, onItemClick: (String) -> Unit) {
 
     Column(modifier = Modifier
         .fillMaxWidth()
-        .clickable { onItemClick(item.id.toString())}
-    ) {
-        TextRow(label = "Imię i nazwisko", value =  item.firstName + " " + item.lastName)
-        TextRow(label = "Status", value =  "Zaakceptowany")
+        .clickable { onItemClick(item.id.toString()) }) {
+        TextRow(label = "Imię i nazwisko", value = item.firstName + " " + item.lastName)
+        TextRow(label = "Status", value = "Zaakceptowany")
         HorizontalDivider(thickness = 1.dp)
     }
 }
@@ -66,17 +63,12 @@ fun ItemView(item: UserResult, onItemClick: (String) -> Unit) {
 fun ItemView(item: ObserverResult, onItemClick: (String) -> Unit) {
     Column(modifier = Modifier
         .fillMaxWidth()
-        .clickable { onItemClick(item.id.toString())}
-    ) {
-        TextRow(label = "Identyfikator użytkownika", value =  item.observerId.toString())
-        TextRow(label = "Status", value =  "Oczekujący akceptacji")
+        .clickable { onItemClick(item.id.toString()) }) {
+        TextRow(label = "Identyfikator użytkownika", value = item.observerId.toString())
+        TextRow(label = "Status", value = "Oczekujący akceptacji")
         HorizontalDivider(thickness = 1.dp)
     }
 }
-
-
-
-
 
 
 @Composable
@@ -112,9 +104,7 @@ private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent
-                    ),
-                    start = Offset(900f, 0f),
-                    end = Offset(0f, 0f)
+                    ), start = Offset(900f, 0f), end = Offset(0f, 0f)
                 )
             } else if (glucose > 5.5) {
                 Brush.linearGradient(
@@ -124,9 +114,7 @@ private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent
-                    ),
-                    start = Offset(900f, 0f),
-                    end = Offset(0f, 0f)
+                    ), start = Offset(900f, 0f), end = Offset(0f, 0f)
                 )
             } else if (glucose < 3.9) {
                 Brush.linearGradient(
@@ -136,9 +124,7 @@ private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent
-                    ),
-                    start = Offset(900f, 0f),
-                    end = Offset(0f, 0f)
+                    ), start = Offset(900f, 0f), end = Offset(0f, 0f)
                 )
             } else {
                 Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
@@ -154,9 +140,7 @@ private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent
-                    ),
-                    start = Offset(900f, 0f),
-                    end = Offset(0f, 0f)
+                    ), start = Offset(900f, 0f), end = Offset(0f, 0f)
                 )
             } else if (glucose > 99.0) {
                 Brush.linearGradient(
@@ -166,9 +150,7 @@ private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent
-                    ),
-                    start = Offset(900f, 0f),
-                    end = Offset(0f, 0f)
+                    ), start = Offset(900f, 0f), end = Offset(0f, 0f)
                 )
             } else if (glucose < 70.0) {
                 Brush.linearGradient(
@@ -178,9 +160,7 @@ private fun chooseColorForGlucose(glucose: Double, unit: GlucoseUnitType): Brush
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent
-                    ),
-                    start = Offset(900f, 0f),
-                    end = Offset(0f, 0f)
+                    ), start = Offset(900f, 0f), end = Offset(0f, 0f)
                 )
             } else {
                 Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))

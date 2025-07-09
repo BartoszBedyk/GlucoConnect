@@ -1,18 +1,24 @@
 package pl.example.aplikacja.viewModels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiMethods.ApiProvider
+import javax.inject.Inject
 
 
-class DownloadViewModel(apiProvider: ApiProvider) : ViewModel() {
+@HiltViewModel
+class DownloadViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
+    private val apiProvider = ApiProvider(context)
     private val glucoseApi = apiProvider.resultApi
 
     private val _glucoseResults = MutableStateFlow<List<ResearchResult>>(emptyList())
@@ -50,17 +56,6 @@ class DownloadViewModel(apiProvider: ApiProvider) : ViewModel() {
                 }
             }
         }
-    }
-
-}
-
-class DownloadViewModelFactory(private val apiProvider: ApiProvider) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(DownloadViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return DownloadViewModel(apiProvider) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 

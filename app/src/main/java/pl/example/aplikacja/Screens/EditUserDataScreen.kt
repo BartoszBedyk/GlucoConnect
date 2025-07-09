@@ -36,7 +36,7 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.DiabetesTypeDropdownMenu
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.viewModels.EditUserViewModel
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType

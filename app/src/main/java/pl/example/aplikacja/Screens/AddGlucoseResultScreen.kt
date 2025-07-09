@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -37,7 +38,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,8 +54,7 @@ import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.UiElements.SwitchWithFoodIcon
 import pl.example.aplikacja.UiElements.SwitchWithMedicationIcon
-import pl.example.aplikacja.formatDateTimeWithoutLocale
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeWithoutLocale
 import pl.example.aplikacja.viewModels.AddGlucoseResultViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.requestData.ResearchResultCreate
@@ -63,13 +67,17 @@ import java.util.UUID
 fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
 
     //Create Glucose Result data variables
-    val glucoseConcentrationState = remember { mutableStateOf("0.0") }
+    val glucoseConcentrationState = remember { mutableStateOf("") }
     var unitState by remember { mutableStateOf<GlucoseUnitType?>(null) }
     var timestampDate by remember { mutableStateOf<Date?>(null) }
     var timestampTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var foodChecked by remember { mutableStateOf(false) }
     var medicationChecked by remember { mutableStateOf(false) }
     var note by remember { mutableStateOf("") }
+
+    val glucoseConcentrationFocusRequester = remember { FocusRequester() }
+    val noteFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     //Dialog management variables
     var takeDateCheckbox by remember { mutableStateOf(false) }
@@ -118,7 +126,9 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
         scrollState.animateScrollTo(scrollState.maxValue)
     }
     Column(
-        Modifier.padding(18.dp).verticalScroll(scrollState),
+        Modifier
+            .padding(18.dp)
+            .verticalScroll(scrollState),
     ) {
         OutlinedCard() {
             Column(Modifier.padding(16.dp)) {
@@ -127,7 +137,12 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                     value = glucoseConcentrationState.value,
                     onValueChange = { glucoseConcentrationState.value = it },
                     fontSize = 18,
-                    true
+                    true,
+                    focusRequester = glucoseConcentrationFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = {
+                        keyboardController?.hide()
+                    })
                 )
 
                 Text(
@@ -168,7 +183,12 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                     value = note,
                     onValueChange = { note = it },
                     fontSize = 18,
-                    false
+                    false,
+                    focusRequester = noteFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = {
+                        keyboardController?.hide()
+                    })
                 )
 
 
@@ -189,7 +209,8 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                 }
 
                 if (takeDateCheckbox) {
-                    TextRowEdit(label = "Data pomiaru",
+                    TextRowEdit(
+                        label = "Data pomiaru",
                         value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
                         onValueChange = {},
                         fontSize = 18,
@@ -367,6 +388,45 @@ fun TextRowEdit(
             keyboardOptions = if (isNumeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions(
                 keyboardType = KeyboardType.Text
             )
+        )
+    }
+}
+
+@Composable
+fun TextRowEdit(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    fontSize: Int,
+    isNumeric: Boolean,
+    focusRequester: FocusRequester? = null,
+    imeAction: ImeAction = ImeAction.Default,
+    onKeyboardAction: KeyboardActions = KeyboardActions.Default
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            modifier = Modifier.padding(4.dp),
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = (fontSize).sp
+        )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(text = value) },
+            maxLines = 1,
+            singleLine = true,
+            modifier = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier,
+            keyboardOptions = if (isNumeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = imeAction
+            ),
+            keyboardActions = onKeyboardAction
         )
     }
 }

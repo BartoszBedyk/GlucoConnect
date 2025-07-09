@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
@@ -28,19 +29,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeWithoutLocale
-import pl.example.aplikacja.removeQuotes
+import pl.example.aplikacja.mappters.formatDateTimeWithoutLocale
 import pl.example.aplikacja.viewModels.AddHeartbeatViewModel
-import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.CreateHeartbeatForm
 import java.util.Calendar
 import java.util.Date
@@ -52,10 +52,15 @@ import java.util.UUID
 fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
 
     //form data variables
-    var systolicPressure by remember { mutableStateOf("0") }
-    var diastolicPressure by remember { mutableStateOf("0") }
-    var pulse by remember { mutableStateOf("0") }
+    var systolicPressure by remember { mutableStateOf("") }
+    var diastolicPressure by remember { mutableStateOf("") }
+    var pulse by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+
+    val systolicPressureFocusRequester = remember { FocusRequester() }
+    val diastolicPressureFocusRequester = remember { FocusRequester() }
+    val pulseFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var timestampDate by remember { mutableStateOf<Date?>(null) }
     var timestampTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
@@ -101,7 +106,10 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     value = systolicPressure,
                     onValueChange = { systolicPressure = it },
                     fontSize = 18,
-                    true
+                    true,
+                    focusRequester = systolicPressureFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = { diastolicPressureFocusRequester.requestFocus() })
                 )
 
                 TextRowEdit(
@@ -109,7 +117,10 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     value = diastolicPressure,
                     onValueChange = { diastolicPressure = it },
                     fontSize = 18,
-                    true
+                    true,
+                    focusRequester = diastolicPressureFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = { pulseFocusRequester.requestFocus() })
                 )
 
                 TextRowEdit(
@@ -117,7 +128,12 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     value = pulse,
                     onValueChange = { pulse = it },
                     fontSize = 18,
-                    true
+                    true,
+                    focusRequester = pulseFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = {
+                        keyboardController?.hide()
+                    })
                 )
 
                 TextRowEdit(

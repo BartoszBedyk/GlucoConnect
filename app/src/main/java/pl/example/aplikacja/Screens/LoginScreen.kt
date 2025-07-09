@@ -82,30 +82,37 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
 
     LaunchedEffect(Unit) {
         val currentToken = getToken(context)
-        Log.i("Token", "Current token: $currentToken")
+        //Log.i("Token", "Current token: $currentToken")
         if (currentToken != null) {
-            Log.i("Token", "Token istnieje.")
+            //Log.i("Token", "Token istnieje.")
             val decoded: DecodedJWT = JWT.decode(currentToken)
             val expiration = decoded.expiresAt
             val now = Date()
             if (expiration != null && now.before(expiration)) {
-                Log.i("Token", "Token jest ważny")
-                navController.navigate("main_screen")
+                //Log.i("Token", "Token jest ważny")
+                navController.navigate("main_screen"){
+                    popUpTo("login_screen") { inclusive = true }
+                    launchSingleTop = true
+                }
             } else {
                 val refreshedToken = viewModel.refreshToken(context)
                 if (refreshedToken != null) {
-                    Log.i("Token", "Token jest odświerzony.")
+                    //Log.i("Token", "Token jest odświerzony.")
                     clearToken(context)
                     saveToken(context, refreshedToken)
-                    navController.navigate("main_screen")
+                    navController.navigate("main_screen"){
+                        popUpTo("login_screen") { inclusive = true }
+                        launchSingleTop = true
+                    }
+
                 } else {
-                    Log.i("Token", "Token wygasł i nie można go odświeżyć")
+                    //Log.i("Token", "Token wygasł i nie można go odświeżyć")
                     clearToken(context)
                     navController.navigate("login_screen")
                 }
             }
         }else{
-            Log.i("Token", "Brak tokena w LoginScreen")
+            //Log.i("Token", "Brak tokena w LoginScreen")
         }
     }
 

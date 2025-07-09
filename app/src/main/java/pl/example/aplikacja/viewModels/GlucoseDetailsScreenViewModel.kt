@@ -7,8 +7,9 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.Screens.DiabetesType
 import pl.example.aplikacja.Screens.isNetworkAvailable
-import pl.example.aplikacja.convertResearchDBtoResearchResult
+import pl.example.aplikacja.mappters.toResearchResult
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
@@ -29,6 +30,9 @@ class GlucoseDetailsScreenViewModel(
     private val _glucoseResult = MutableStateFlow<ResearchResult?>(null)
     val glucoseResult: MutableStateFlow<ResearchResult?> = _glucoseResult
 
+    private val _diabetesType = MutableStateFlow<DiabetesType?>(null)
+    val diabetesType: MutableStateFlow<DiabetesType?> = _diabetesType
+
     private val _prefUnit = MutableStateFlow<GlucoseUnitType>(GlucoseUnitType.MMOL_PER_L)
     val prefUnit: StateFlow<GlucoseUnitType> = _prefUnit
 
@@ -45,7 +49,19 @@ class GlucoseDetailsScreenViewModel(
     init {
         isApiAvilible(apiProvider.innerContext)
         fetchGlucoseResult()
+        fechDiabetesType()
 
+    }
+
+    private fun fechDiabetesType(){
+        viewModelScope.launch {
+            try{
+                if (!healthy.value) throw IllegalStateException("API not available")
+                _diabetesType.value = userApi.getUserById(USER_ID)?.diabetesType as DiabetesType?
+            }catch (e: Exception){
+                Log.e("GlucoseDetails", "Error fetching diabetes type: ${e.message}")
+            }
+        }
     }
 
     private fun fetchGlucoseResult() {
@@ -61,7 +77,7 @@ class GlucoseDetailsScreenViewModel(
                 val result = glucoseResultRepository.getResearchResultById(RESULT_ID)
                 _prefUnit.value = GlucoseUnitType.MG_PER_DL
                 if (result != null) {
-                    _glucoseResult.value = convertResearchDBtoResearchResult(result)
+                    _glucoseResult.value = result.toResearchResult()
                 }
             } finally {
 

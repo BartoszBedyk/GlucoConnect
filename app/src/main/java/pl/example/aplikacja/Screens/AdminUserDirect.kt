@@ -41,8 +41,9 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.UiElements.UserTypeDropdownMenu
-import pl.example.aplikacja.formatUnit
-import pl.example.aplikacja.formatUserType
+import pl.example.aplikacja.mappters.formatUnit
+import pl.example.aplikacja.mappters.formatUserType
+
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.requestData.UnitUpdate

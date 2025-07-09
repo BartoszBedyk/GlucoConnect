@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -30,7 +29,6 @@ import pl.example.aplikacja.UiElements.DiabetesTypeDropdownMenu
 import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.UiElements.UserTypeDropdownMenu
 import pl.example.aplikacja.viewModels.RegistrationStepTwoScreenViewModel
-import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
@@ -118,10 +116,10 @@ fun RegisterStepTwoScreen(
                     }else
                     {
                         if (viewModel.registerStepTwo(
-                                userId, name, lastName, prefUnit.toString(), diabetesType.toString()
+                                userId, name, lastName, prefUnit.toString(), diabetesType.toString(), typeState.toString()
                             )
                         ) {
-                            viewModel.updateType(userId, typeState.toString())
+                            //viewModel.updateType(userId, typeState.toString())
                             registerError = ""
                             navController.navigate("login_screen")
                             snackState.showSnackbar("Możesz się zalogować!")

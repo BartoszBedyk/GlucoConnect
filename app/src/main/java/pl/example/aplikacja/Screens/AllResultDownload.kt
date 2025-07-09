@@ -21,21 +21,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import pl.example.aplikacja.viewModels.DownloadViewModel
-import pl.example.aplikacja.viewModels.DownloadViewModelFactory
 import pl.example.networkmodule.apiData.ResearchResult
-import pl.example.networkmodule.apiMethods.ApiProvider
 import java.io.File
 
 @Composable
 fun AllResultsDownload(navController: NavController) {
     val context = LocalContext.current
-    val viewModel: DownloadViewModel =
-        viewModel(factory = DownloadViewModelFactory(ApiProvider(context)))
+    val viewModel: DownloadViewModel = hiltViewModel()
 
     //download correct data for view and launch loading
     val isLoading by viewModel.isLoading.collectAsState()

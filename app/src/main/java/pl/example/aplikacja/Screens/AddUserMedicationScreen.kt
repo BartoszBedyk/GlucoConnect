@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
@@ -33,7 +34,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.formatDateTimeWithoutTime
+import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
 import pl.example.aplikacja.viewModels.AddUserMedicationViewModel
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
@@ -60,6 +64,12 @@ fun AddUserMedicationScreen(navController: NavController) {
     var endDate by remember { mutableStateOf<Date?>(null) }
     var openStartDateDialog by remember { mutableStateOf(false) }
     var openEndDateDialog by remember { mutableStateOf(false) }
+
+
+    val doseFocusRequester = remember { FocusRequester() }
+    val frequencyFocusRequester = remember { FocusRequester() }
+    val noteFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
 
     val snackState = remember { SnackbarHostState() }
@@ -93,7 +103,11 @@ fun AddUserMedicationScreen(navController: NavController) {
                     value = dose,
                     onValueChange = { dose = it },
                     fontSize = 18,
-                    false
+                    false,
+                    focusRequester = doseFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = { frequencyFocusRequester.requestFocus() })
+
                 )
 
                 TextRowEdit(
@@ -101,7 +115,10 @@ fun AddUserMedicationScreen(navController: NavController) {
                     value = frequency,
                     onValueChange = { frequency = it },
                     fontSize = 18,
-                    false
+                    false,
+                    focusRequester = frequencyFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = { noteFocusRequester.requestFocus() })
                 )
 
                 TextRowEdit(
@@ -109,7 +126,10 @@ fun AddUserMedicationScreen(navController: NavController) {
                     value = note,
                     onValueChange = { note = it },
                     fontSize = 18,
-                    false
+                    false,
+                    focusRequester = noteFocusRequester,
+                    imeAction = ImeAction.Done,
+                    onKeyboardAction = KeyboardActions(onDone = { keyboardController?.hide() })
                 )
 
                 Row {
@@ -276,6 +296,7 @@ fun AddUserMedicationScreen(navController: NavController) {
 fun MedicationDropdownExample(
     medications: List<MedicationResult>, onMedicationSelected: (MedicationResult) -> Unit
 ) {
+
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     var filteredMedications by remember { mutableStateOf(medications) }

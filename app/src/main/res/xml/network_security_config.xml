@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <domain-config cleartextTrafficPermitted="false">
+    <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">10.0.2.2</domain> <!-- emulator -->
         <domain includeSubdomains="true">localhost</domain> <!-- localhost -->
         <domain includeSubdomains="true">192.168.1.26</domain> <!-- prawdziwy telefon -->
         <domain includeSubdomains="true">192.168.1.25</domain> <!-- prawdziwy telefon -->
         <trust-anchors>
-            <certificates src="@raw/ktor_cert"/>
+            <certificates src="@raw/ktor"/>
         </trust-anchors>
     </domain-config>
 </network-security-config>

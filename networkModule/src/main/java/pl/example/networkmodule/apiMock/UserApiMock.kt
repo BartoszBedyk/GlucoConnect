@@ -5,7 +5,8 @@ import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.apiMethods.UserApiInterface
-import pl.example.networkmodule.requestData.CreateUserForm
+import pl.example.networkmodule.requestData.CreateUserStepOneForm
+import pl.example.networkmodule.requestData.CreateUserStepTwoForm
 import pl.example.networkmodule.requestData.UnitUpdate
 import pl.example.networkmodule.requestData.UpdateUserNullForm
 import pl.example.networkmodule.requestData.UserCreateWIthType
@@ -44,20 +45,12 @@ class UserApiMock : UserApiInterface {
         )
     }
 
-    override suspend fun createUser(form: CreateUserForm): String {
-        val newUser = UserResult(
-            id = UUID.randomUUID(),
-            firstName = "Jan",
-            lastName = "Paweł",
-            email = form.email,
-            password = form.password,
-            type = UserType.PATIENT,
-            isBlocked = false,
-            prefUnit = null,
-            diabetesType = DiabetesType.NONE
-        )
-        mockUsers.add(newUser)
-        return "746004a6-bcdf-4991-bb65-42d3f388d65c"
+    override suspend fun createUserStepOne(form: CreateUserStepOneForm): String? {
+        return null
+    }
+
+    override suspend fun createUserStepTwo(form: CreateUserStepTwoForm): Boolean {
+        return false
     }
 
     override suspend fun createUserWithType(form: UserCreateWIthType): Boolean {
