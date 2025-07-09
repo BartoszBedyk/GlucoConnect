@@ -20,7 +20,7 @@ fun formatDateTimeWithoutLocale(date: Date): String {
     val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm")
     return dateFormat.format(date)
 }
-//
+
 fun formatDateTimeWithoutTime(date: Date?): String {
     if(date == null) return "Nie określono"
     val dateFormat = SimpleDateFormat("dd.MM.yyyy")
