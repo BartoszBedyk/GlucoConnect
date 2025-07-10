@@ -33,6 +33,7 @@ import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
 import pl.example.aplikacja.mappters.formatUnit
 import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.viewModels.GlucoseDetailsScreenViewModel
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.getToken
 
@@ -171,7 +172,7 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                                 researchResult!!.glucoseConcentration,
                                 researchResult!!.afterMedication,
                                 researchResult!!.emptyStomach,
-                                diabetesType!!
+                                diabetesType
                             )
                         )
 
@@ -198,36 +199,36 @@ fun evaluateGlucoseResult(
         GlucoseUnitType.MMOL_PER_L -> glucoseConcentration * 18.0182
     }
 
-    return if (emptyStomach) {
-        // Ocena na czczo
+    val baseMessage = if (emptyStomach) {
         when {
-            concentrationMgDl < 70 -> "Hipoglikemia (poziom glukozy poniżej normy)"
-            concentrationMgDl in 70.0..99.9 -> "Prawidłowy poziom glukozy na czczo"
-            concentrationMgDl in 100.0..125.9 -> "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
-            concentrationMgDl >= 126 -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
-            else -> "Nieprawidłowa wartość pomiaru"
+            concentrationMgDl < 70 -> "Hipoglikemia (glukoza na czczo poniżej normy — pilna interwencja może być konieczna)"
+            concentrationMgDl in 70.0..99.0 -> "Prawidłowy poziom glukozy na czczo"
+            concentrationMgDl in 100.0..125.0 -> "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
+            concentrationMgDl >= 126 -> "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
+            else -> "Nieoczekiwana wartość — sprawdź dane wejściowe"
         }
     } else {
-        // Ocena po posiłku (2h po)
         when {
-            concentrationMgDl < 140 -> "Prawidłowy poziom glukozy po posiłku"
-            concentrationMgDl in 140.0..199.9 -> "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
-            concentrationMgDl >= 200 -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
-            else -> "Nieprawidłowa wartość pomiaru"
+            concentrationMgDl < 70 -> "Hipoglikemia (glukoza po posiłku poniżej normy — stan potencjalnie niebezpieczny)"
+            concentrationMgDl in 70.0..139.0 -> "Prawidłowy poziom glukozy po posiłku"
+            concentrationMgDl in 140.0..199.0 -> "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
+            concentrationMgDl >= 200 -> "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
+            else -> "Nieoczekiwana wartość — sprawdź dane wejściowe"
         }
-    }.let { baseMessage ->
-        val medsInfo = if (afterMedication) {
-            "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę, interpretuj ostrożnie."
-        } else {
-            ""
-        }
-        listOf(baseMessage, medsInfo).filter { it.isNotBlank() }.joinToString(" ")
     }
+
+    val medsInfo = if (afterMedication) {
+        "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę — interpretuj ostrożnie."
+    } else ""
+
+    return listOf(baseMessage, medsInfo)
+        .filter { it.isNotBlank() }
+        .joinToString(" ")
 }
 
-enum class DiabetesType {
-    TYPE_1, TYPE_2, MODY, LADA, GESTATIONAL, NONE
-}
+
+
+
 
 fun evaluateGlucoseWithDiabetesType(
     unit: GlucoseUnitType,
@@ -242,44 +243,33 @@ fun evaluateGlucoseWithDiabetesType(
     }
 
     val baseMessage = if (emptyStomach) {
-        // Ocena na czczo (dla cukrzycy ciążowej można być bardziej rygorystycznym)
-        val fastingThresholds = when (diabetesType) {
-            DiabetesType.GESTATIONAL -> listOf(60.0, 90.0, 110.0, 126.0) // bardziej restrykcyjne normy?
-            else -> listOf(70.0, 99.9, 125.9, 126.0)
-        }
-
         when {
-            concentrationMgDl < fastingThresholds[0] -> "Hipoglikemia (poziom glukozy poniżej normy)"
-            concentrationMgDl <= fastingThresholds[1] -> "Prawidłowy poziom glukozy na czczo"
-            concentrationMgDl <= fastingThresholds[2] -> "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
-            concentrationMgDl >= fastingThresholds[3] -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
-            else -> "Nieprawidłowa wartość pomiaru"
+            concentrationMgDl < 70 -> "Hipoglikemia (na czczo poniżej normy — wymaga pilnej uwagi)"
+            concentrationMgDl in 70.0..99.0 -> "Prawidłowy poziom glukozy na czczo"
+            concentrationMgDl in 100.0..125.0 -> "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
+            concentrationMgDl >= 126.0 -> "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
+            else -> "Nieoczekiwana wartość — sprawdź dane wejściowe"
         }
     } else {
-        // Ocena po posiłku
-        val postMealThresholds = when (diabetesType) {
-            DiabetesType.GESTATIONAL -> listOf(120.0, 140.0, 180.0, 200.0) // też bardziej restrykcyjne?
-            else -> listOf(140.0, 199.9, 200.0, Double.MAX_VALUE)
-        }
-
         when {
-            concentrationMgDl < postMealThresholds[0] -> "Prawidłowy poziom glukozy po posiłku"
-            concentrationMgDl <= postMealThresholds[1] -> "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
-            concentrationMgDl >= postMealThresholds[2] -> "Wskazuje na cukrzycę (potwierdź badaniem powtórnym)"
-            else -> "Nieprawidłowa wartość pomiaru"
+            concentrationMgDl < 70 -> "Hipoglikemia po posiłku — stan potencjalnie niebezpieczny"
+            concentrationMgDl in 70.0..139.0 -> "Prawidłowy poziom glukozy po posiłku"
+            concentrationMgDl in 140.0..199.0 -> "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
+            concentrationMgDl >= 200.0 -> "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
+            else -> "Nieoczekiwana wartość — sprawdź dane wejściowe"
         }
     }
 
     val medsInfo = if (afterMedication) {
-        "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę, interpretuj ostrożnie."
+        "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę — interpretuj ostrożnie."
     } else ""
 
     val diabetesInfo = when (diabetesType) {
-        DiabetesType.TYPE_1 -> "Pacjent z cukrzycą typu 1 wymaga ścisłego monitorowania."
-        DiabetesType.TYPE_2 -> "Pacjent z cukrzycą typu 2 zaleca regularne konsultacje i kontrolę."
-        DiabetesType.MODY -> "Cukrzyca MODY – rzadsza forma, wymaga indywidualnej opieki."
-        DiabetesType.LADA -> "Cukrzyca LADA – postać pośrednia, monitoruj rozwój choroby."
-        DiabetesType.GESTATIONAL -> "Cukrzyca ciążowa – wymaga rygorystycznej kontroli glikemii."
+        DiabetesType.TYPE_1 -> "Cukrzyca typu 1 — wymaga regularnego monitorowania i insuliny."
+        DiabetesType.TYPE_2 -> "Cukrzyca typu 2 — zaleca się kontrolę diety, aktywność fizyczną i regularne badania."
+        DiabetesType.LADA -> "Cukrzyca LADA — forma autoimmunologiczna, zwykle rozwija się wolniej niż typ 1."
+        DiabetesType.MODY -> "Cukrzyca MODY — rzadka forma, często dziedziczna. Potrzebna opieka specjalistyczna."
+        DiabetesType.GESTATIONAL -> "Cukrzyca ciążowa — rygorystyczna kontrola glikemii jest kluczowa dla zdrowia matki i dziecka."
         DiabetesType.NONE -> ""
     }
 
@@ -287,6 +277,7 @@ fun evaluateGlucoseWithDiabetesType(
         .filter { it.isNotBlank() }
         .joinToString(" ")
 }
+
 
 
 

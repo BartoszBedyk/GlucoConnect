@@ -24,6 +24,10 @@ class PrefUnitRepository(context: Context) {
         return dao.getAllNotSynced()
     }
 
+    suspend fun getUserDiabetesType(userId: String): String {
+        return dao.getUserDiabetesType(userId)
+    }
+
      suspend fun sync(userId: String) {
         return dao.sync(userId)
     }

@@ -59,6 +59,31 @@ fun formatDiabetesType(type: DiabetesTypeDB): String {
 
 }
 
+fun DiabetesType.toDiabetesTypeDB(): DiabetesTypeDB{
+    return when (this) {
+        DiabetesType.TYPE_1 -> DiabetesTypeDB.TYPE_1
+        DiabetesType.TYPE_2 -> DiabetesTypeDB.TYPE_2
+        DiabetesType.NONE -> DiabetesTypeDB.NONE
+        DiabetesType.LADA -> DiabetesTypeDB.LADA
+        DiabetesType.GESTATIONAL -> DiabetesTypeDB.GESTATIONAL
+        DiabetesType.MODY -> DiabetesTypeDB.MODY
+    }
+}
+
+
+
+fun String.toDiabetesType(): DiabetesType {
+    return when (this) {
+        "TYPE_1" -> DiabetesType.TYPE_1
+        "TYPE_2" -> DiabetesType.TYPE_2
+        "NONE" -> DiabetesType.NONE
+        "LADA" -> DiabetesType.LADA
+        "GESTATIONAL" -> DiabetesType.GESTATIONAL
+        "MODY" -> DiabetesType.MODY
+        else -> DiabetesType.NONE
+    }
+}
+
 fun formatDiabetesType(type: DiabetesType): String {
     return when (type) {
         DiabetesType.TYPE_1 -> "Typ 1"

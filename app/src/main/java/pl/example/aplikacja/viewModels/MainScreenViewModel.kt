@@ -1,3 +1,4 @@
+
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -10,9 +11,10 @@ import kotlinx.coroutines.withContext
 import pl.example.aplikacja.Screens.isNetworkAvailable
 import pl.example.aplikacja.mappters.convertUnits
 import pl.example.aplikacja.mappters.stringUnitParser
+import pl.example.aplikacja.mappters.toDiabetesType
+import pl.example.aplikacja.mappters.toDiabetesTypeDB
 import pl.example.aplikacja.mappters.toHeartbeatResultList
 import pl.example.aplikacja.mappters.toResearchResult
-import pl.example.databasemodule.database.data.DiabetesTypeDB
 import pl.example.databasemodule.database.data.PrefUnitDB
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
 import pl.example.databasemodule.database.repository.HeartbeatRepository
@@ -88,12 +90,13 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                 if (!healthy.value) throw IllegalStateException("API not available")
                 val results = resultApi.getThreeResultsById(USER_ID) ?: emptyList()
                 _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
+                _userDiabetesType.value = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
                 prefUnitRepository.insert(
                     PrefUnitDB(
                         userId = USER_ID,
                         glucoseUnit = _prefUnit.value.toString(),
                         isSynced = true,
-                        diabetesType = DiabetesTypeDB.NONE
+                        diabetesType = _userDiabetesType.value.toDiabetesTypeDB()
                     )
                 )
 
@@ -103,10 +106,12 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                 _threeGlucoseItems.value = convertUnits(results, prefUnit.value)
 
             } catch (e: Exception) {
+                //Log.e("MainScreenViewModel", "Error fetching items", e)
                 withContext(Dispatchers.IO) {
                     val localResults = researchRepository.getLatestThreeResearchResult(USER_ID)
+                    _userDiabetesType.value = prefUnitRepository.getUserDiabetesType(USER_ID).toDiabetesType()
                     val localHeartbeats =
-                        heartbeatRepository.getThreeHeartbeatById(USER_ID) ?: emptyList()
+                        heartbeatRepository.getThreeHeartbeatById(USER_ID)
                     _prefUnit.value = stringUnitParser(prefUnitRepository.getUnitByUserId(USER_ID))
                     _threeGlucoseItems.value = convertUnits(
                         localResults.map { it.toResearchResult() }, prefUnit.value
@@ -120,7 +125,7 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
     }
 
 
-    private fun getUserDiabetesType() {
+    private suspend fun getUserDiabetesType() {
         try {
             if (!healthy.value) throw IllegalStateException("API not available")
             viewModelScope.launch {
@@ -128,7 +133,11 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                     userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
             }
         } catch (e: Exception) {
-            return
+            //Log.e("MainScreenViewModel", "Error fetching items", e)
+            withContext(Dispatchers.IO){
+                _userDiabetesType.value = prefUnitRepository.getUserDiabetesType(USER_ID).toDiabetesType()
+            }
+
         }
 
     }
@@ -139,6 +148,7 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                 if (!healthy.value) throw IllegalStateException("API not available")
                 _userHb1AcValue.value = resultApi.getHb1AcResultById(USER_ID) ?: 0.0f
             } catch (e: Exception) {
+                //Log.e("MainScreenViewModel", "Error fetching items", e)
                 _userHb1AcValue.value = researchRepository.getUserGbA1cById(USER_ID)
             }
         }

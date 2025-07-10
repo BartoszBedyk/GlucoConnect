@@ -6,7 +6,6 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -16,18 +15,16 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import java.io.InputStream
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 
 
 class KtorClient(context: Context) {
     private val token = getToken(context)
-    val baseUrl = "https://192.168.1.25:8443"
+    val baseUrl = "https://192.168.1.26:8443"
     val context = context
     //val baseUrl = "http://10.0.2.2:8080"
     val client = HttpClient(OkHttp) {
@@ -71,13 +68,13 @@ class KtorClient(context: Context) {
 
     private fun getCustomSslSocketFactory(): Pair<javax.net.ssl.SSLSocketFactory, X509TrustManager> {
         val cf = CertificateFactory.getInstance("X.509")
-        val inputStream = context.resources.openRawResource(R.raw.ktor_local)
+        val inputStream = context.resources.openRawResource(R.raw.ktor)
         val certificate = cf.generateCertificate(inputStream)
         inputStream.close()
 
         val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
         keyStore.load(null, null)
-        keyStore.setCertificateEntry("ktorLocal", certificate)
+        keyStore.setCertificateEntry("ktor", certificate)
 
         val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
         tmf.init(keyStore)
