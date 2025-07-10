@@ -21,6 +21,9 @@ interface PrefUnitDao {
     @Query("SELECT * FROM pref_unit WHERE is_synced = 0")
     suspend fun getAllNotSynced() : PrefUnitDB
 
+    @Query("SELECT diabetes_type FROM pref_unit WHERE user_id = :userId")
+    suspend fun getUserDiabetesType(userId: String): String
+
     @Query("UPDATE pref_unit SET is_synced = 1 WHERE user_id = :userId")
     suspend fun sync(userId: String)
 }

@@ -7,11 +7,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.Screens.DiabetesType
 import pl.example.aplikacja.Screens.isNetworkAvailable
+import pl.example.aplikacja.mappters.toDiabetesType
 import pl.example.aplikacja.mappters.toResearchResult
 import pl.example.databasemodule.database.repository.GlucoseResultRepository
+import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.ResearchResult
+import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
 import java.math.RoundingMode
@@ -23,6 +25,7 @@ class GlucoseDetailsScreenViewModel(
 ) : ViewModel() {
     private val apiProvider = ApiProvider(context)
     private val glucoseResultRepository = GlucoseResultRepository(context)
+    private val userRepository = PrefUnitRepository(context)
 
     private val resultApi = apiProvider.resultApi
     private val userApi = apiProvider.userApi
@@ -30,8 +33,8 @@ class GlucoseDetailsScreenViewModel(
     private val _glucoseResult = MutableStateFlow<ResearchResult?>(null)
     val glucoseResult: MutableStateFlow<ResearchResult?> = _glucoseResult
 
-    private val _diabetesType = MutableStateFlow<DiabetesType?>(null)
-    val diabetesType: MutableStateFlow<DiabetesType?> = _diabetesType
+    private val _diabetesType = MutableStateFlow<DiabetesType>(DiabetesType.NONE)
+    val diabetesType: MutableStateFlow<DiabetesType> = _diabetesType
 
     private val _prefUnit = MutableStateFlow<GlucoseUnitType>(GlucoseUnitType.MMOL_PER_L)
     val prefUnit: StateFlow<GlucoseUnitType> = _prefUnit
@@ -57,8 +60,9 @@ class GlucoseDetailsScreenViewModel(
         viewModelScope.launch {
             try{
                 if (!healthy.value) throw IllegalStateException("API not available")
-                _diabetesType.value = userApi.getUserById(USER_ID)?.diabetesType as DiabetesType?
+                _diabetesType.value = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
             }catch (e: Exception){
+                _diabetesType.value = userRepository.getUserDiabetesType(USER_ID).toDiabetesType()
                 Log.e("GlucoseDetails", "Error fetching diabetes type: ${e.message}")
             }
         }
