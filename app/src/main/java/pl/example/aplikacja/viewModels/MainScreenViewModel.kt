@@ -135,7 +135,11 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
         } catch (e: Exception) {
             //Log.e("MainScreenViewModel", "Error fetching items", e)
             withContext(Dispatchers.IO){
-                _userDiabetesType.value = prefUnitRepository.getUserDiabetesType(USER_ID).toDiabetesType()
+                try{
+                    _userDiabetesType.value = prefUnitRepository.getUserDiabetesType(USER_ID).toDiabetesType()
+                }catch (e: Exception){
+                    _userDiabetesType.value = DiabetesType.NONE
+                }
             }
 
         }

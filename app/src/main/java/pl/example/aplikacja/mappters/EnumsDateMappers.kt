@@ -72,7 +72,9 @@ fun DiabetesType.toDiabetesTypeDB(): DiabetesTypeDB{
 
 
 
-fun String.toDiabetesType(): DiabetesType {
+
+
+fun String?.toDiabetesType(): DiabetesType {
     return when (this) {
         "TYPE_1" -> DiabetesType.TYPE_1
         "TYPE_2" -> DiabetesType.TYPE_2

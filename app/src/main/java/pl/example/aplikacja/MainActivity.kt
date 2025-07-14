@@ -7,19 +7,30 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import com.auth0.jwt.JWT
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 import pl.example.aplikacja.UiElements.MainApp
 import pl.example.aplikacja.ui.theme.AplikacjaTheme
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
+import pl.example.databasemodule.database.security.isDeviceRooted
+import pl.example.databasemodule.database.security.loadBase
+import pl.example.databasemodule.database.security.wipeAppDataAndExit
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.getToken
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().setKeepOnScreenCondition { false }
 
+
         super.onCreate(savedInstanceState)
+        //deleteDatabase(this)
+        loadBase(this)
+        if (isDeviceRooted(this)) {
+            wipeAppDataAndExit(this)
+            return
+        }
+
         //clearToken(applicationContext)
         //saveToken(applicationContext, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiJmNjk5MzZkYy0wOTYyLTQ4ZDItYTJjMi1hNWRmNDg1NzM5MTciLCJ1c2VybmFtZSI6Im0ubUB3cC5wbCIsInVzZXJUeXBlIjoiUEFUSUVOVCIsImV4cCI6MTc0MzAwMDI5OH0.V3Y8pwigJJW-nNhQ2vSZfiwczRlTRYOGDbOuvT3g6_o")
         val bluetoothViewModel = ViewModelProvider(this).get(BluetoothViewModel::class.java)
