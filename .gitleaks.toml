@@ -3,4 +3,4 @@ title = "Gitleaks Config"
 [[rules]]
 description = "Ignore fake test token"
 regex = '''fakeToken'''
-allowlist = { paths = ["**"] }
+allowlist = { paths = [".*"] }
