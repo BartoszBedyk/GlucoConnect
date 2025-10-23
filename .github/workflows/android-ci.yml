@@ -14,11 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Check for secrets
+      - name: Scan for secrets
         uses: zricethezav/gitleaks-action@v2
-        with:
-          args: "--config=.gitleaks.toml"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
       - name: Set up JDK
