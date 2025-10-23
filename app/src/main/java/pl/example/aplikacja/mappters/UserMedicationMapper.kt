@@ -18,7 +18,7 @@ fun UserMedicationResult.toUserMedicationDB(): UserMedicationDB {
             startDate = form.startDate,
             endDate = form.endDate,
             notes = form.notes,
-            isSynced = true
+            isSynced = true,
         )
     }
 }
@@ -34,11 +34,10 @@ fun CreateUserMedicationForm.toUserMedicationDB(): UserMedicationDB {
             startDate = form.startDate,
             endDate = form.endDate,
             notes = form.notes,
-            isSynced = false
+            isSynced = false,
         )
     }
 }
-
 
 fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> {
     return this.map { it.toUserMedicationDB() }
@@ -52,13 +51,13 @@ fun MedicationDB?.toMedicationResult(): MedicationResult? {
         manufacturer = this.manufacturer,
         form = this.form,
         strength = this.strength,
-        description = this.description
+        description = this.description,
     )
 }
 
 fun parseUserMedicationDBtoUserMedicationResult(
     userMedication: UserMedicationDB?,
-    medication: MedicationResult?
+    medication: MedicationResult?,
 ): UserMedicationResult? {
     if (userMedication != null) {
         if (medication != null) {
@@ -75,7 +74,7 @@ fun parseUserMedicationDBtoUserMedicationResult(
                 manufacturer = medication.manufacturer,
                 form = medication.form,
                 strength = medication.strength,
-                description = medication.description
+                description = medication.description,
             )
         }
     }
@@ -97,6 +96,6 @@ fun UserMedicationDB?.toUserMedicationResult(): UserMedicationResult? {
         manufacturer = "",
         form = "",
         strength = "",
-        description = ""
+        description = "",
     )
 }

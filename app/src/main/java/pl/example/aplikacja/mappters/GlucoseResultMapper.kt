@@ -20,7 +20,7 @@ fun GlucoseResultDB.toResearchResult(): ResearchResult {
             lastUpdatedOn = it.lastUpdatedOn,
             afterMedication = it.afterMedication,
             emptyStomach = it.emptyStomach,
-            notes = it.notes
+            notes = it.notes,
         )
     }
 }
@@ -37,11 +37,10 @@ fun ResearchResult.toGlucoseResultDB(): GlucoseResultDB {
             lastUpdatedOn = it.lastUpdatedOn,
             afterMedication = it.afterMedication,
             emptyStomach = it.emptyStomach,
-            notes = it.notes
+            notes = it.notes,
         )
     }
 }
-
 
 private fun GlucoseUnitTypeDB.toGlucoseUnitType(): GlucoseUnitType {
     return when (this) {
@@ -67,7 +66,6 @@ fun List<ResearchResult>.toGlucoseResultDBList(): List<GlucoseResultDB> {
     return this.map { it.toGlucoseResultDB() }
 }
 
-
 fun ResearchResultCreate.toGlucoseResultDB(USER_ID: String): GlucoseResultDB {
     return this.let {
         GlucoseResultDB(
@@ -81,8 +79,7 @@ fun ResearchResultCreate.toGlucoseResultDB(USER_ID: String): GlucoseResultDB {
             afterMedication = it.afterMedication,
             emptyStomach = it.emptyStomach,
             notes = it.notes,
-            isSynced = false
+            isSynced = false,
         )
     }
-
 }

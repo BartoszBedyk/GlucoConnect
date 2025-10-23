@@ -15,6 +15,5 @@ object UtilHiltModule {
 
     @Provides
     @Singleton
-    fun provideJwtHelper(@ApplicationContext context: Context): JwtHelper =
-        JwtHelper(context)
+    fun provideJwtHelper(@ApplicationContext context: Context): JwtHelper = JwtHelper(context)
 }

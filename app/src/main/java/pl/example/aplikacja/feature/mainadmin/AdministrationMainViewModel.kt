@@ -15,7 +15,7 @@ import pl.example.networkmodule.apiMethods.ApiProvider
 import javax.inject.Inject
 
 @HiltViewModel
-class AdministrationMainViewModel @Inject constructor (@ApplicationContext private val context: Context) : ViewModel() {
+class AdministrationMainViewModel @Inject constructor(@ApplicationContext private val context: Context) : ViewModel() {
     val apiProvider = ApiProvider(context)
     val userApi = apiProvider.userApi
 
@@ -24,14 +24,11 @@ class AdministrationMainViewModel @Inject constructor (@ApplicationContext priva
 
     private val authenticationApi = apiProvider.authenticationApi
 
-
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
 
-
     init {
         isApiAvilible(apiProvider.innerContext)
-
 
         viewModelScope.launch {
             healthy.collect { isHealthy ->
@@ -48,13 +45,12 @@ class AdministrationMainViewModel @Inject constructor (@ApplicationContext priva
                 if (!healthy.value) throw IllegalStateException("API not available")
                 _users.value = userApi.getAllUsers() ?: emptyList()
             } catch (
-                e: Exception
+                e: Exception,
             ) {
                 _users.value = emptyList()
             }
         }
     }
-
 
     private var lastCheckedTime = 0L
 
@@ -78,6 +74,4 @@ class AdministrationMainViewModel @Inject constructor (@ApplicationContext priva
             }
         }
     }
-
-
 }

@@ -1,6 +1,5 @@
 package pl.example.aplikacja.mappters
 
-
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import java.math.RoundingMode
@@ -9,11 +8,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
-fun convertUnits(
-    items: List<ResearchResult>,
-    targetUnit: GlucoseUnitType
-): List<ResearchResult> {
+fun convertUnits(items: List<ResearchResult>, targetUnit: GlucoseUnitType): List<ResearchResult> {
     return items.map { item ->
         if (item.unit != targetUnit) {
             val convertedConcentration = when (item.unit) {
@@ -22,7 +17,7 @@ fun convertUnits(
             }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
             item.copy(
                 glucoseConcentration = convertedConcentration,
-                unit = targetUnit
+                unit = targetUnit,
             )
         } else {
             item
@@ -41,8 +36,7 @@ fun parseMeasurement(input: String): Measurement? {
             val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT'Z yyyy", Locale.US)
             val dateParsed: Date = dateFormat.parse(date)
             return Measurement(dateParsed, result.toDouble(), unit)
-        }
-        catch (e: ParseException) {
+        } catch (e: ParseException) {
             println("Niepoprawny format daty.")
             return null
         }
@@ -50,18 +44,10 @@ fun parseMeasurement(input: String): Measurement? {
         println("Niepoprawny format stringa.")
         return null
     }
-
 }
 
 data class Measurement(
     val date: Date,
     val result: Double,
-    val unit: String
+    val unit: String,
 )
-
-
-
-
-
-
-

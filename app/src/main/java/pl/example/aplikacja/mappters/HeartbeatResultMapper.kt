@@ -12,7 +12,7 @@ fun HeartbeatDB.toHeartbeatResult(): HeartbeatResult {
             systolicPressure = dbResult.systolicPressure,
             diastolicPressure = dbResult.diastolicPressure,
             pulse = dbResult.pulse,
-            note = dbResult.note
+            note = dbResult.note,
         )
     }
 }
@@ -26,7 +26,7 @@ fun HeartbeatResult.toHeartbeatResultDB(): HeartbeatDB {
             systolicPressure = dbResult.systolicPressure,
             diastolicPressure = dbResult.diastolicPressure,
             pulse = dbResult.pulse,
-            note = dbResult.note
+            note = dbResult.note,
         )
     }
 }

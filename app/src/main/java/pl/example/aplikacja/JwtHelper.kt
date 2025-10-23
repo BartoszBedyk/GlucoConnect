@@ -8,8 +8,7 @@ import pl.example.networkmodule.getToken
 import javax.inject.Inject
 
 class JwtHelper @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) {
-    fun getUserId(): String =
-        removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
+    fun getUserId(): String = removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
 }

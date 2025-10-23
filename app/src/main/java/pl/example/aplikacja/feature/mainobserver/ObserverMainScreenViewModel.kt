@@ -10,7 +10,7 @@ import pl.example.networkmodule.apiData.ObserverResult
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiMethods.ApiProvider
 
-class ObserverMainScreenViewModel(context: Context, private val OBSERVER_ID: String): ViewModel() {
+class ObserverMainScreenViewModel(context: Context, private val OBSERVER_ID: String) : ViewModel() {
     private val apiProvider = ApiProvider(context)
 
     private val observerApi = apiProvider.observerApi
@@ -31,7 +31,6 @@ class ObserverMainScreenViewModel(context: Context, private val OBSERVER_ID: Str
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-
     init {
         fetchObservedData()
     }
@@ -45,7 +44,6 @@ class ObserverMainScreenViewModel(context: Context, private val OBSERVER_ID: Str
 
                 _observedAccepted.value = accepted
                 _observedUnaccepted.value = unAccepted
-
 
                 if (accepted.isNotEmpty()) {
                     val users = accepted.mapNotNull { observed ->
@@ -62,8 +60,4 @@ class ObserverMainScreenViewModel(context: Context, private val OBSERVER_ID: Str
             }
         }
     }
-
-
-
-
 }

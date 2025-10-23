@@ -41,8 +41,7 @@ object ApiProviderHiltModule {
 
     @Provides
     @Singleton
-    fun provideKtorClient(@ApplicationContext context: Context): KtorClient =
-        KtorClient(context)
+    fun provideKtorClient(@ApplicationContext context: Context): KtorClient = KtorClient(context)
 
     @Provides
     @Singleton
@@ -51,8 +50,7 @@ object ApiProviderHiltModule {
 
     @Provides
     @Singleton
-    fun provideUserApi(client: KtorClient): UserApiInterface =
-        if (USE_MOCK_API) UserApiMock() else UserApi(client)
+    fun provideUserApi(client: KtorClient): UserApiInterface = if (USE_MOCK_API) UserApiMock() else UserApi(client)
 
     @Provides
     @Singleton
@@ -83,5 +81,4 @@ object ApiProviderHiltModule {
     @Singleton
     fun provideReportApi(client: KtorClient): ReportApiInterface =
         if (USE_MOCK_API) ReportApiMock() else ReportApi(client)
-
 }

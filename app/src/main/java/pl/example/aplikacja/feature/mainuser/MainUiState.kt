@@ -12,5 +12,5 @@ data class MainUiState(
     val userDiabetesType: DiabetesType = DiabetesType.NONE,
     val userHb1AcValue: Float = 0.0f,
     val prefUnit: GlucoseUnitType = GlucoseUnitType.MMOL_PER_L,
-    val isHealthy: Boolean = false
+    val isHealthy: Boolean = false,
 )

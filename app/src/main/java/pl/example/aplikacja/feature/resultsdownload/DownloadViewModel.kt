@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DownloadViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val apiProvider = ApiProvider(context)
     private val glucoseApi = apiProvider.resultApi

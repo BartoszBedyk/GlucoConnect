@@ -17,8 +17,10 @@ import pl.example.networkmodule.saveToken
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginScreenViewModel @Inject constructor(private val authenticationApi: AuthenticationApiInterface,
-    apiProvider: ApiProvider): ViewModel() {
+class LoginScreenViewModel @Inject constructor(
+    private val authenticationApi: AuthenticationApiInterface,
+    apiProvider: ApiProvider,
+) : ViewModel() {
 
     private val _healthy = MutableStateFlow<Boolean?>(false)
     val healthy: MutableStateFlow<Boolean?> = _healthy
@@ -48,10 +50,8 @@ class LoginScreenViewModel @Inject constructor(private val authenticationApi: Au
         }
     }
 
-
     var lastCheckedTime = 0L
     fun isApiAvilible(context: Context) {
-
         val now = System.currentTimeMillis()
         if (now - lastCheckedTime < 10_000) return
         lastCheckedTime = now
@@ -65,7 +65,6 @@ class LoginScreenViewModel @Inject constructor(private val authenticationApi: Au
             }
         }
     }
-
 
     suspend fun refreshToken(context: Context): String? = withContext(Dispatchers.IO) {
         val currentToken = getToken(context) ?: run {
@@ -93,6 +92,4 @@ class LoginScreenViewModel @Inject constructor(private val authenticationApi: Au
             null
         }
     }
-
-
 }

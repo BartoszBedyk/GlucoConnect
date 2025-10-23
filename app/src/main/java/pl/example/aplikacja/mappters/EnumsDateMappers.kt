@@ -11,8 +11,8 @@ import java.util.Locale
 
 fun formatDateTimeSpecificLocale(date: Date): String {
     val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale("pl", "PL"))
-    //Log.i("GlucometerDate", "without format $date")
-    //Log.i("GlucometerDate", "with format ${dateFormat.format(date)}")
+    // Log.i("GlucometerDate", "without format $date")
+    // Log.i("GlucometerDate", "with format ${dateFormat.format(date)}")
     return dateFormat.format(date)
 }
 
@@ -22,7 +22,7 @@ fun formatDateTimeWithoutLocale(date: Date): String {
 }
 
 fun formatDateTimeWithoutTime(date: Date?): String {
-    if(date == null) return "Nie określono"
+    if (date == null) return "Nie określono"
     val dateFormat = SimpleDateFormat("dd.MM.yyyy")
     return dateFormat.format(date)
 }
@@ -56,10 +56,9 @@ fun formatDiabetesType(type: DiabetesTypeDB): String {
         DiabetesTypeDB.GESTATIONAL -> "Ciążowa"
         DiabetesTypeDB.MODY -> "MODY"
     }
-
 }
 
-fun DiabetesType.toDiabetesTypeDB(): DiabetesTypeDB{
+fun DiabetesType.toDiabetesTypeDB(): DiabetesTypeDB {
     return when (this) {
         DiabetesType.TYPE_1 -> DiabetesTypeDB.TYPE_1
         DiabetesType.TYPE_2 -> DiabetesTypeDB.TYPE_2
@@ -69,10 +68,6 @@ fun DiabetesType.toDiabetesTypeDB(): DiabetesTypeDB{
         DiabetesType.MODY -> DiabetesTypeDB.MODY
     }
 }
-
-
-
-
 
 fun String?.toDiabetesType(): DiabetesType {
     return when (this) {
@@ -95,7 +90,6 @@ fun formatDiabetesType(type: DiabetesType): String {
         DiabetesType.GESTATIONAL -> "Ciążowa"
         DiabetesType.MODY -> "MODY"
     }
-
 }
 
 fun UserType.toRestrictedUserTypeOrNull(): RestrictedUserType? {
@@ -121,10 +115,9 @@ fun stringUnitParser(string: String?): GlucoseUnitType {
         "MMOL_PER_L" -> GlucoseUnitType.MMOL_PER_L
         else -> GlucoseUnitType.MG_PER_DL
     }
-
 }
 
-fun toUserType(userType: String): UserType{
+fun toUserType(userType: String): UserType {
     return when (userType) {
         "ADMIN" -> UserType.ADMIN
         "PATIENT" -> UserType.PATIENT

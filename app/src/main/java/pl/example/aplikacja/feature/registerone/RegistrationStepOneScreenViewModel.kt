@@ -12,5 +12,4 @@ class RegistrationStepOneScreenViewModel @Inject constructor(private val userApi
     suspend fun register(login: String, password: String): String? {
         return userApi.createUserStepOne(CreateUserStepOneForm(login, password))
     }
-
 }

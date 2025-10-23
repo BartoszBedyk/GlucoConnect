@@ -21,7 +21,7 @@ import java.math.RoundingMode
 class GlucoseDetailsScreenViewModel(
     context: Context,
     private val RESULT_ID: String,
-    private val USER_ID: String
+    private val USER_ID: String,
 ) : ViewModel() {
     private val apiProvider = ApiProvider(context)
     private val glucoseResultRepository = GlucoseResultRepository(context)
@@ -42,9 +42,7 @@ class GlucoseDetailsScreenViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-
     private val authenticationApi = apiProvider.authenticationApi
-
 
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
@@ -53,15 +51,14 @@ class GlucoseDetailsScreenViewModel(
         isApiAvilible(apiProvider.innerContext)
         fetchGlucoseResult()
         fechDiabetesType()
-
     }
 
-    private fun fechDiabetesType(){
+    private fun fechDiabetesType() {
         viewModelScope.launch {
-            try{
+            try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 _diabetesType.value = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 _diabetesType.value = userRepository.getUserDiabetesType(USER_ID).toDiabetesType()
                 Log.e("GlucoseDetails", "Error fetching diabetes type: ${e.message}")
             }
@@ -84,11 +81,8 @@ class GlucoseDetailsScreenViewModel(
                     _glucoseResult.value = result.toResearchResult()
                 }
             } finally {
-
                 _isLoading.value = false
             }
-
-
         }
     }
 
@@ -100,7 +94,7 @@ class GlucoseDetailsScreenViewModel(
             }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
             result.copy(
                 glucoseConcentration = convertedConcentration,
-                unit = prefUnit.value
+                unit = prefUnit.value,
             )
         } else {
             result
@@ -135,5 +129,4 @@ class GlucoseDetailsScreenViewModel(
             }
         }
     }
-
 }

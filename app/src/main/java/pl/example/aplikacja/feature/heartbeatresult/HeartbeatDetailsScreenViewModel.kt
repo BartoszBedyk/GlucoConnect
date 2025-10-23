@@ -15,7 +15,7 @@ import pl.example.networkmodule.apiMethods.ApiProvider
 
 class HeartbeatDetailsScreenViewModel(
     context: Context,
-    private val RESULT_ID: String
+    private val RESULT_ID: String,
 ) : ViewModel() {
     private val apiProvider = ApiProvider(context)
     private val heartbeatResultRepository = HeartbeatRepository(context)
@@ -28,9 +28,7 @@ class HeartbeatDetailsScreenViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-
     private val authenticationApi = apiProvider.authenticationApi
-
 
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
@@ -44,7 +42,6 @@ class HeartbeatDetailsScreenViewModel(
                 } else {
                     fetchHeartbeatResult()
                 }
-
             }
         }
     }
@@ -54,7 +51,6 @@ class HeartbeatDetailsScreenViewModel(
             _isLoading.value = true
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
-
 
                 val result = heartbeatAPi.getHeartBeat(RESULT_ID)
                 _heartbeatResult.value = result

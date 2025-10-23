@@ -19,7 +19,6 @@ class InnerNotificationManager(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     public fun createDownloadNotification(fileName: String) {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = createChannel()
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -32,10 +31,12 @@ class InnerNotificationManager(private val context: Context) {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(
-                context.applicationInfo.icon
+                context.applicationInfo.icon,
             )
             .setContentTitle("Pobieranie raportu")
-            .setContentText("Zamówiony raport jest właśnie generowany. Po zakończeniu zostanie on zapisany w folderze Pobrane.")
+            .setContentText(
+                "Zamówiony raport jest właśnie generowany. Po zakończeniu zostanie on zapisany w folderze Pobrane.",
+            )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOnlyAlertOnce(true)
             .setContentIntent(intent)
@@ -43,12 +44,11 @@ class InnerNotificationManager(private val context: Context) {
 
         val notificationManager = NotificationManagerCompat.from(context)
 
-
         notificationManager.notify(1, builder.build())
     }
 
     private fun createChannel(): NotificationChannel? {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(context, R.string.notification_name_download)
             val descriptionText = getString(context, R.string.notification_description_download)
             val importance = android.app.NotificationManager.IMPORTANCE_HIGH
@@ -56,19 +56,20 @@ class InnerNotificationManager(private val context: Context) {
             downloadChannel.description = descriptionText
 
             return downloadChannel
-        }else
+        } else {
             return null
+        }
     }
 
     fun openDownloadedFile(context: Context, fileName: String): PendingIntent? {
         val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
 
-        //if (!file.exists()) return null
+        // if (!file.exists()) return null
 
         val fileUri: Uri = FileProvider.getUriForFile(
             context,
             "${context.packageName}.provider",
-            file
+            file,
         )
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -80,11 +81,9 @@ class InnerNotificationManager(private val context: Context) {
             context,
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }
-
-
 
     companion object {
         const val CHANNEL_ID = "glucose_channel"

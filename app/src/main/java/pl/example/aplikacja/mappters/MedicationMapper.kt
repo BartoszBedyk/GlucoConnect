@@ -10,7 +10,7 @@ fun MedicationDB.toMedication(): MedicationResult {
         description = this.description,
         manufacturer = this.manufacturer,
         form = this.form,
-        strength = this.strength
+        strength = this.strength,
     )
 }
 
@@ -21,7 +21,7 @@ fun MedicationResult.toMedicationDB(): MedicationDB {
         description = this.description,
         manufacturer = this.manufacturer,
         form = this.form,
-        strength = this.strength
+        strength = this.strength,
     )
 }
 

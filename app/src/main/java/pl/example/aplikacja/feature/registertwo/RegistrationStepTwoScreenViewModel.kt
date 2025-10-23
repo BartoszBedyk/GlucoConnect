@@ -18,7 +18,7 @@ class RegistrationStepTwoScreenViewModel @Inject constructor(
         lastName: String,
         prefUnit: String,
         diabetesType: String,
-        userType: String
+        userType: String,
     ): Boolean {
         val updateData = CreateUserStepTwoForm(
             UUID.fromString(id),
@@ -26,7 +26,7 @@ class RegistrationStepTwoScreenViewModel @Inject constructor(
             lastName,
             prefUnit,
             diabetesType,
-            userType
+            userType,
         )
         return userApi.createUserStepTwo(updateData)
     }
