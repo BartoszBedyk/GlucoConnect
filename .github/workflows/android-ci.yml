@@ -21,6 +21,8 @@ jobs:
 
       - name: Scan for secrets
         uses: zricethezav/gitleaks-action@v2
+        with:
+          config-path: ..gitleaks.toml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
