@@ -21,21 +21,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.feature.login.PasswordTextField
-import pl.example.networkmodule.apiMethods.ApiProvider
 
 @Composable
 fun RegistrationScreen(navController: NavHostController){
-    val context = LocalContext.current
-    val apiProvider = ApiProvider(context)
-    val viewModel = RegistrationStepOneScreenViewModel(apiProvider)
+    val viewModel : RegistrationStepOneScreenViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
 
     var login by remember { mutableStateOf("") }

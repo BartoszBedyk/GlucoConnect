@@ -20,10 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.UiElements.DiabetesTypeDropdownMenu
@@ -32,15 +32,13 @@ import pl.example.aplikacja.UiElements.UserTypeDropdownMenu
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
-import pl.example.networkmodule.apiMethods.ApiProvider
 
 @Composable
 fun RegisterStepTwoScreen(
-    navController: NavHostController, userId: String
+    navController: NavHostController,
+    userId: String
 ) {
-    val context = LocalContext.current
-    val apiProvider = ApiProvider(context)
-    val viewModel = RegistrationStepTwoScreenViewModel(apiProvider)
+    val viewModel : RegistrationStepTwoScreenViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
 
     var name by remember { mutableStateOf("") }
@@ -110,15 +108,14 @@ fun RegisterStepTwoScreen(
         Button(onClick = {
             coroutineScope.launch {
                 try {
-                    if(validateForm(name, lastName)!=null){
-                        registerError =  validateForm(name, lastName).toString()
+                    if(viewModel.validateForm(name, lastName)!=null){
+                        registerError =  viewModel.validateForm(name, lastName).toString()
                     }else
                     {
                         if (viewModel.registerStepTwo(
                                 userId, name, lastName, prefUnit.toString(), diabetesType.toString(), typeState.toString()
                             )
                         ) {
-                            //viewModel.updateType(userId, typeState.toString())
                             registerError = ""
                             navController.navigate("login_screen")
                             snackState.showSnackbar("Możesz się zalogować!")
@@ -128,7 +125,6 @@ fun RegisterStepTwoScreen(
                             snackState.showSnackbar("Pamiętaj o poprawności danych")
                         }
                     }
-
 
                 } catch (e: Exception) {
                     registerError = "Wystąpił błąd: ${e.message}"
@@ -146,24 +142,4 @@ fun RegisterStepTwoScreen(
             )
         }
     }
-}
-
-fun validateForm(name: String, lastName: String): String? {
-    val nameTrimmed = name.trim()
-    val lastNameTrimmed = lastName.trim()
-
-    if (nameTrimmed.isEmpty() || lastNameTrimmed.isEmpty()) {
-        return "Pola nie mogą być puste"
-    }
-    if (nameTrimmed.length < 2 || lastNameTrimmed.length < 2) {
-        return "Imię i nazwisko muszą mieć co najmniej 2 znaki"
-    }
-
-    val nameRegex = Regex("^[A-Za-zÀ-ÖØ-öø-ÿŁłŚśŻżŹźĆćŃńĄąĘęÓó'\\-\\s]+\$")
-
-    if (!nameRegex.matches(nameTrimmed) || !nameRegex.matches(lastNameTrimmed)) {
-        return "Imię i nazwisko mogą zawierać tylko litery, spacje, myślniki i apostrofy"
-    }
-
-    return null
 }

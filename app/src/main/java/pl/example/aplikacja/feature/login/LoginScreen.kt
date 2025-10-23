@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
@@ -54,11 +55,10 @@ import java.util.Date
 @Composable
 fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostController) {
     val context = LocalContext.current
-    //saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIwYWMwMjNlZC05YWUwLTQ0YzEtOWQyYy0zZmU1OGI2NzAxMTEiLCJ1c2VybmFtZSI6ImQuZEB3cC5wbCIsInVzZXJUeXBlIjoiT0JTRVJWRVIiLCJleHAiOjE3NDI0MDUxNTZ9.oBoivhg8ri8uRRRbnm4NYI9ieCyeqP1FPU_NYphbM2I")
-    //clearToken(context)
+
     val coroutineScope = rememberCoroutineScope()
     val apiProvider = remember { ApiProvider(context) }
-    val viewModel = remember { LoginScreenViewModel(apiProvider) }
+    val viewModel : LoginScreenViewModel = hiltViewModel()
 
 
     val healthy by viewModel.healthy.collectAsState()
@@ -68,41 +68,49 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     var password by remember { mutableStateOf("") }
     var loginError by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
-
-    LaunchedEffect(Unit) {
+    LaunchedEffect(checked) {
+        //clearToken(context)
         val currentToken = getToken(context)
-        //Log.i("Token", "Current token: $currentToken")
-        if (currentToken != null) {
-            //Log.i("Token", "Token istnieje.")
-            val decoded: DecodedJWT = JWT.decode(currentToken)
-            val expiration = decoded.expiresAt
-            val now = Date()
-            if (expiration != null && now.before(expiration)) {
-                //Log.i("Token", "Token jest ważny")
-                navController.navigate("main_screen"){
+        Log.i("Token", "Current token: $currentToken")
+
+        if (currentToken.isNullOrEmpty()) {
+            Log.i("Token", "Brak tokena w LoginScreen")
+            return@LaunchedEffect
+            checked = true
+        }
+
+        val decoded = JWT.decode(currentToken)
+        val expiration = decoded.expiresAt
+        Log.i("Token", "Expiration: $expiration")
+        val now = Date()
+
+        if (expiration != null && now.before(expiration)) {
+            Log.i("Token", "Token jest ważny")
+            navController.navigate("main_screen") {
+                popUpTo("login_screen") { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
+            Log.i("Token", "Token wygasł, próba odświeżenia")
+            val refreshedToken = viewModel.refreshToken(context)
+            if (refreshedToken != null) {
+                Log.i("Token", "Token został odświeżony")
+                clearToken(context)
+                saveToken(context, refreshedToken)
+                navController.navigate("main_screen") {
                     popUpTo("login_screen") { inclusive = true }
                     launchSingleTop = true
                 }
             } else {
-                val refreshedToken = viewModel.refreshToken(context)
-                if (refreshedToken != null) {
-                    //Log.i("Token", "Token jest odświerzony.")
-                    clearToken(context)
-                    saveToken(context, refreshedToken)
-                    navController.navigate("main_screen"){
-                        popUpTo("login_screen") { inclusive = true }
-                        launchSingleTop = true
-                    }
-
-                } else {
-                    //Log.i("Token", "Token wygasł i nie można go odświeżyć")
-                    clearToken(context)
-                    navController.navigate("login_screen")
+                Log.i("Token", "Nie udało się odświeżyć tokena")
+                clearToken(context)
+                navController.navigate("login_screen") {
+                    popUpTo("login_screen") { inclusive = true }
+                    launchSingleTop = true
                 }
             }
-        }else{
-            //Log.i("Token", "Brak tokena w LoginScreen")
         }
     }
 

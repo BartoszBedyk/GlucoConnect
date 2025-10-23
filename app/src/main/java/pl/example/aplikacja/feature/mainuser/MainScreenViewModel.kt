@@ -4,11 +4,13 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import pl.example.aplikacja.JwtHelper
 import pl.example.aplikacja.feature.login.isNetworkAvailable
 import pl.example.aplikacja.mappters.convertUnits
 import pl.example.aplikacja.mappters.stringUnitParser
@@ -23,19 +25,27 @@ import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
+import pl.example.networkmodule.apiMethods.HeartbeatApiInterface
+import pl.example.networkmodule.apiMethods.ResultApiInterface
+import pl.example.networkmodule.apiMethods.UserApiInterface
+import javax.inject.Inject
 
-class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewModel() {
+@HiltViewModel
+class MainScreenViewModel @Inject constructor(
+    private val resultApi: ResultApiInterface,
+    private val heartApi: HeartbeatApiInterface,
+    private val userApi: UserApiInterface,
+    private val authenticationApi: AuthenticationApiInterface,
+    private val researchRepository: GlucoseResultRepository,
+    private val heartbeatRepository: HeartbeatRepository,
+    private val prefUnitRepository: PrefUnitRepository,
+    jwtHelper: JwtHelper,
+    apiProvider: ApiProvider
 
-    private val apiProvider = ApiProvider(context)
+) : ViewModel() {
 
-    private val resultApi = apiProvider.resultApi
-    private val heartApi = apiProvider.heartbeatApi
-    private val userApi = apiProvider.userApi
-    private val authenticationApi = apiProvider.authenticationApi
-
-    private val researchRepository = GlucoseResultRepository(context)
-    private val heartbeatRepository = HeartbeatRepository(context)
-    private val prefUnitRepository = PrefUnitRepository(context)
+    val USER_ID: String = jwtHelper.getUserId()
 
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -72,9 +82,10 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
 
+                Log.d("ViewModel", "UserId: $USER_ID")
                 val results = resultApi.getThreeResultsById(USER_ID) ?: emptyList()
                 val unit = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
-                val diabetesType = userApi.getUserById(USER_ID).diabetesType ?: DiabetesType.NONE
+                val diabetesType = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
                 val heartbeat = heartApi.getThreeHeartbeatResults(USER_ID) ?: emptyList()
 
                 prefUnitRepository.insert(
@@ -153,7 +164,6 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
     }
 
 
-
     private var lastCheckedTime = 0L
 
     fun isApiAvilible(context: Context) {
@@ -169,13 +179,14 @@ class MainScreenViewModel(context: Context, private val USER_ID: String) : ViewM
                 Log.d("HealthCheck", "API: $apiAvailable, Network: $networkAvailable")
 
                 _healthy.value = apiAvailable == true && networkAvailable
-                _uiState.value = _uiState.value.copy(isHealthy = apiAvailable == true && networkAvailable)
+                _uiState.value =
+                    _uiState.value.copy(isHealthy = apiAvailable == true && networkAvailable)
 
                 Log.d("HealthCheck", "Healthy: ${_healthy.value}")
             } catch (e: Exception) {
                 Log.e("HealthCheck", "Error while checking health", e)
                 _healthy.value = false
-                _uiState.value = _uiState.value.copy(isHealthy =false)
+                _uiState.value = _uiState.value.copy(isHealthy = false)
             }
         }
     }

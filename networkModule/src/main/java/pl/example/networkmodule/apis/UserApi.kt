@@ -101,13 +101,23 @@ class UserApi(private val ktorClient: KtorClient) : UserApiInterface {
     }
 
 
-    override suspend fun getUserById(id: String): Result<UserResult> = runCatching {
-        val response = client.get("$address/$usersEndpoint/$id")
-        if (response.status == HttpStatusCode.OK &&
-            response.contentType()?.match(ContentType.Application.Json) == true) {
-            response.body<UserResult>()
-        } else {
-            throw IllegalStateException("Unexpected response: ${response.status}")
+    override suspend fun getUserById(id: String): UserResult? {
+        return try {
+            val response = client.get("$address/$usersEndpoint/$id")
+            if (response.status == HttpStatusCode.OK) {
+                if (response.contentType()?.match(ContentType.Application.Json) == true) {
+                    response.body<UserResult>()
+                } else {
+                    Log.e("UserApi", "Unexpected content type: ${response.contentType()}")
+                    null
+                }
+            } else {
+                Log.e("UserApi", "Request failed with status ${response.status}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserApi", "Error during request: ${e.message}", e)
+            null
         }
     }
 

@@ -2,6 +2,7 @@ package pl.example.networkmodule.apiMethods
 
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiMock.AuthenticationApiMock
 import pl.example.networkmodule.apiMock.HeartbeatApiMock
@@ -19,15 +20,16 @@ import pl.example.networkmodule.apis.ReportApi
 import pl.example.networkmodule.apis.ResultApi
 import pl.example.networkmodule.apis.UserApi
 import pl.example.networkmodule.apis.UserMedicationApi
+import javax.inject.Inject
 
 
-class ApiProvider(context: Context) {
+class ApiProvider @Inject constructor (@ApplicationContext private val context: Context) {
     companion object{
-        val USE_MOCK_API: Boolean = true    //true = mock
+        val USE_MOCK_API = false    //true = mock
         val fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiIxZjUxMTg1MS1lMWU4LTQzNGEtODFjZS1lMmM4ZDYzNmY5N2IiLCJ1c2VybmFtZSI6ImIuYkB3cC5wbCIsInVzZXJUeXBlIjoiUEFUSUVOVCIsImV4cCI6MTc0ODc3Mzg1Mn0.yBhuPiAM4Xjty2L-EnSs9LeVl-U1Ilygst1TNwzIKMQ"
     }
 
-    public val innerContext = context
+     val innerContext = context
 
 
 

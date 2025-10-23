@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
@@ -96,12 +97,7 @@ fun MainScreen(navController: NavController, userId: String?) {
         )
     }
 
-    val viewModel = remember {
-        MainScreenViewModel(
-            context,
-            userId ?: decodedUserId
-        )
-    }
+    val viewModel: MainScreenViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {

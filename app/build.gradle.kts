@@ -4,6 +4,8 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
     alias(libs.plugins.compose.compiler)
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("com.diffplug.spotless") version "8.0.0"
 }
 
 android {
@@ -52,6 +54,30 @@ android {
         }
     }
 
+}
+
+detekt {
+    config = files("$rootDir/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        ktlint("1.2.1")
+            .editorConfigOverride(
+                mapOf(
+                    "indent_size" to "4",
+                    "insert_final_newline" to "true",
+                    "max_line_length" to "120"
+                )
+            )
+    }
+
+    kotlinGradle {
+        target("**/*.gradle.kts")
+        ktlint()
+    }
 }
 
 

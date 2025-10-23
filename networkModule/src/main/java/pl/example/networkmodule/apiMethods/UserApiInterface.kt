@@ -12,7 +12,7 @@ interface UserApiInterface {
     suspend fun createUserStepOne(form: CreateUserStepOneForm): String?
     suspend fun createUserStepTwo(form : CreateUserStepTwoForm): Boolean
     suspend fun createUserWithType(form: UserCreateWIthType): Boolean
-    suspend fun getUserById(id: String): UserResult
+    suspend fun getUserById(id: String): UserResult?
     suspend fun blockUser(id: String): Boolean
     suspend fun unblockUser(id: String): Boolean
     suspend fun unitUpdate(form: UnitUpdate): Boolean

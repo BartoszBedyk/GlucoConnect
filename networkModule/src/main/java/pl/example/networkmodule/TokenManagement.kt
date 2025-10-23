@@ -2,11 +2,12 @@ package pl.example.networkmodule
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import pl.example.networkmodule.apiMethods.ApiProvider
 
 fun saveToken(context: Context, token: String) {
     val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-    sharedPreferences.edit().putString("jwt_token", token).apply()
+    sharedPreferences.edit { putString("jwt_token", token) }
 }
 
 fun getToken(context: Context): String? {
@@ -29,7 +30,7 @@ fun clearToken(context: Context) {
     Log.i("Token", "Clear token")
     try {
         val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-        sharedPreferences.edit().remove("jwt_token").apply()
+        sharedPreferences.edit {remove("jwt_token")}
     } catch (e: Exception) {
         e.printStackTrace()
     }
