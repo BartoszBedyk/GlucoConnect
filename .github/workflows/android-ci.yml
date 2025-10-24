@@ -40,6 +40,14 @@ jobs:
         env:
           KTOR_CERT: ${{ secrets.KTOR_CERT }}
 
+      - name: Prepare Ktor certificate
+        run: |
+          mkdir -p networkModule/src/main/res/raw
+          echo "${KTOR_CERT}" > networkModule/src/main/res/raw/ktor.crt
+        env:
+          KTOR_CERT: ${{ secrets.KTOR_CERT }}
+
+
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
