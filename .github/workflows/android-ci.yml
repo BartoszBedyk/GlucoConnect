@@ -33,6 +33,13 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Add ktor certificate
+        run: |
+          mkdir -p app/src/main/res/raw
+          echo "$KTOR_CERT" > app/src/main/res/raw/ktor.crt
+        env:
+          KTOR_CERT: ${{ secrets.KTOR_CERT }}
+
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
