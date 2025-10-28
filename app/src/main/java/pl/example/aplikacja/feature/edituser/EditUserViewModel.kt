@@ -1,30 +1,22 @@
 package pl.example.aplikacja.feature.edituser
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.auth0.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.JwtHelper
 import pl.example.networkmodule.apiData.UserResult
-import pl.example.networkmodule.apiMethods.ApiProvider
-import pl.example.networkmodule.getToken
+import pl.example.networkmodule.apiMethods.UserApiInterface
 import pl.example.networkmodule.requestData.UpdateUserNullForm
 import javax.inject.Inject
 
 @HiltViewModel
-class EditUserViewModel @Inject constructor(@ApplicationContext private val context: Context) :
+class EditUserViewModel @Inject constructor(private val userApi: UserApiInterface, jwtHelper: JwtHelper) :
     ViewModel() {
 
-
-    private val USER_ID: String =
-        removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
-    private val apiProvider = ApiProvider(context = context)
-    private val userApi = apiProvider.userApi
+    private val userId: String = jwtHelper.getUserId()
 
     private val _userData = MutableStateFlow<UserResult?>(null)
     val userData: MutableStateFlow<UserResult?> = _userData
@@ -35,7 +27,7 @@ class EditUserViewModel @Inject constructor(@ApplicationContext private val cont
 
     private fun fetchUserData() {
         viewModelScope.launch {
-            _userData.value = userApi.getUserById(id = USER_ID)
+            _userData.value = userApi.getUserById(id = userId)
         }
     }
 
@@ -43,5 +35,4 @@ class EditUserViewModel @Inject constructor(@ApplicationContext private val cont
         Log.d("EditUserViewModel", "editUserData: $editData")
         return userApi.updateUserNulls(editData)
     }
-
 }

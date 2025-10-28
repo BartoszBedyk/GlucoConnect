@@ -10,28 +10,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import pl.example.aplikacja.R
 
-
 @Composable
 fun LicenceScreen(typUmowy: String) {
     val context = LocalContext.current
 
-    if(typUmowy == "licencyjna"){
+    if (typUmowy == "licencyjna") {
         val inputStream = context.resources.openRawResource(R.raw.umowa)
         val text = inputStream.bufferedReader().use { it.readText() }
-        Card() {
+        Card {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(text = text)
             }
         }
-    }
-    else if(typUmowy == "nielicencyjna"){
+    } else if (typUmowy == "nielicencyjna") {
         val inputStream = context.resources.openRawResource(R.raw.umowa_download)
         val text = inputStream.bufferedReader().use { it.readText() }
-        Card() {
+        Card {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(text = text)
             }
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package pl.example.aplikacja.UiElements
+package pl.example.aplikacja.uiElements
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,12 +25,10 @@ fun LinearIndicatorHb1Ac(value: Float, diabetesType: DiabetesType) {
     var currentProgress by remember { mutableFloatStateOf(0f) }
     currentProgress = value / 9.0f
 
-
-
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text(
             text = "Wartość Hb1Ac: $value %",
@@ -39,22 +37,23 @@ fun LinearIndicatorHb1Ac(value: Float, diabetesType: DiabetesType) {
                 .padding(vertical = 8.dp, horizontal = 16.dp),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 18.sp
+            fontSize = 18.sp,
         )
         LinearProgressIndicator(
             progress = { currentProgress },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 0.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
-            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
         )
         HorizontalDivider(
             modifier = Modifier.padding(
                 top = 4.dp,
                 bottom = 4.dp,
                 start = 16.dp,
-                end = 16.dp
-            ), thickness = 1.dp
+                end = 16.dp,
+            ),
+            thickness = 1.dp,
         )
         Text(
             text = interpretHbA1c(value, diabetesType),
@@ -63,19 +62,20 @@ fun LinearIndicatorHb1Ac(value: Float, diabetesType: DiabetesType) {
                 .padding(top = 4.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 12.sp
+            fontSize = 12.sp,
         )
         Text(
-            text = "HbA1c (hemoglobina glikowana) wskazuje na średni poziom glukozy we krwi w ciągu ostatnich około 2–3 miesięcy. Jest to kluczowy wskaźnik w diagnostyce i monitorowaniu cukrzycy.",
+            text = "HbA1c (hemoglobina glikowana) wskazuje na średni" +
+                " poziom glukozy we krwi w ciągu ostatnich około 2–3 miesięcy. " +
+                "Jest to kluczowy wskaźnik w diagnostyce i monitorowaniu cukrzycy.",
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 0.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.secondary,
             fontSize = 8.sp,
-            lineHeight = 12.sp
+            lineHeight = 12.sp,
         )
-
     }
 }
 
@@ -85,32 +85,29 @@ fun LinearIndicatorHb1AcPreview() {
     LinearIndicatorHb1Ac(value = 5.0f, DiabetesType.TYPE_1)
 }
 
+fun interpretHbA1c(value: Float, type: DiabetesType): String = when (type) {
+    DiabetesType.NONE -> when {
+        value < 5.7 -> "Prawidłowy poziom glikemii"
+        value in 5.7..6.4 -> "Stan przedcukrzycowy"
+        value >= 6.5 -> "Podejrzenie cukrzycy (wymaga potwierdzenia)"
+        else -> "Nieprawidłowa wartość"
+    }
 
-fun interpretHbA1c(value: Float, type: DiabetesType): String {
-    return when (type) {
-        DiabetesType.NONE -> when {
-            value < 5.7 -> "Prawidłowy poziom glikemii"
-            value in 5.7..6.4 -> "Stan przedcukrzycowy"
-            value >= 6.5 -> "Podejrzenie cukrzycy (wymaga potwierdzenia)"
-            else -> "Nieprawidłowa wartość"
-        }
+    DiabetesType.TYPE_1, DiabetesType.LADA -> when {
+        value < 6.5 -> "Dobrze kontrolowana cukrzyca typu 1 / LADA"
+        value < 7.0 -> "Akceptowalna kontrola glikemii"
+        else -> "Niewyrównana cukrzyca typu 1 / LADA"
+    }
 
-        DiabetesType.TYPE_1, DiabetesType.LADA -> when {
-            value < 6.5 -> "Dobrze kontrolowana cukrzyca typu 1 / LADA"
-            value < 7.0 -> "Akceptowalna kontrola glikemii"
-            else -> "Niewyrównana cukrzyca typu 1 / LADA"
-        }
+    DiabetesType.TYPE_2, DiabetesType.MODY -> when {
+        value < 6.5 -> "Dobrze kontrolowana cukrzyca typu 2 / MODY"
+        value < 7.0 -> "Akceptowalna kontrola glikemii"
+        value < 8.0 -> "Średnia kontrola, zalecana poprawa"
+        else -> "Niewyrównana cukrzyca typu 2 / MODY"
+    }
 
-        DiabetesType.TYPE_2, DiabetesType.MODY -> when {
-            value < 6.5 -> "Dobrze kontrolowana cukrzyca typu 2 / MODY"
-            value < 7.0 -> "Akceptowalna kontrola glikemii"
-            value < 8.0 -> "Średnia kontrola, zalecana poprawa"
-            else -> "Niewyrównana cukrzyca typu 2 / MODY"
-        }
-
-        DiabetesType.GESTATIONAL -> when {
-            value < 6.0 -> "Dobrze kontrolowana cukrzyca ciążowa"
-            else -> "Niewyrównana cukrzyca ciążowa – ryzyko dla matki i płodu"
-        }
+    DiabetesType.GESTATIONAL -> when {
+        value < 6.0 -> "Dobrze kontrolowana cukrzyca ciążowa"
+        else -> "Niewyrównana cukrzyca ciążowa – ryzyko dla matki i płodu"
     }
 }

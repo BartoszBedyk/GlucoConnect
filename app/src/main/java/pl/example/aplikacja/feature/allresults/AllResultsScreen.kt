@@ -39,46 +39,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
-import pl.example.aplikacja.UiElements.GlucoseChart
-import pl.example.aplikacja.UiElements.HeartbeatChart
-import pl.example.aplikacja.UiElements.ItemView
-import pl.example.aplikacja.mappters.removeQuotes
-import pl.example.aplikacja.feature.allresults.AllResultsScreenViewModel
-import pl.example.networkmodule.getToken
+import pl.example.aplikacja.uiElements.GlucoseChart
+import pl.example.aplikacja.uiElements.HeartbeatChart
+import pl.example.aplikacja.uiElements.ItemView
 
 @Preview(
-    name = "Standard", group = "First", device = "id:pixel_8"
+    name = "Standard",
+    group = "First",
+    device = "id:pixel_8",
 )
 @Composable
 fun AllResultsScreenPreview() {
     AllResultsScreen(NavController(LocalContext.current))
 }
 
-
 @Composable
 fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
-    val context = LocalContext.current
     var screenType: Boolean? = null
     if (type != null) {
         screenType = !type
     }
 
     Log.d("SCREEN_ALL", "screenType: $screenType")
-    val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember {
-        AllResultsScreenViewModel(
-            context, removeQuotes(decoded.getClaim("userId").toString())
-        )
-    }
+    val viewModel: AllResultsScreenViewModel = hiltViewModel()
 
     val isLoading by viewModel.isLoading.collectAsState()
     val glucoseResults by viewModel.glucoseResults.collectAsState()
     val heartbeatResult by viewModel.heartbeatResult.collectAsState()
 
-    val glucoseResultsData by viewModel.glucoseResultsData.collectAsState()
+    val glucoseResultsData by viewModel.glucoseResultData.collectAsState()
     Log.d("ALL", "glucoseResultsData: $glucoseResultsData")
 
     var checked by remember { mutableStateOf(screenType ?: true) }
@@ -87,14 +78,15 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
     Box(Modifier.fillMaxSize()) {
         if (isLoading) {
             Box(
-                contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize(),
             ) {
                 Column {
                     CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                     Text(
                         text = "Nawiązywanie połączenia...",
                         modifier = Modifier.padding(16.dp),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 }
             }
@@ -113,7 +105,8 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                         }) { change, dragAmount ->
                             totalDrag += dragAmount
                         }
-                    }) {
+                    },
+            ) {
                 Box(Modifier.align(Alignment.CenterHorizontally)) {
 //                    Switch(
 //                        checked = checked,
@@ -132,7 +125,6 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
 //                    )
                 }
 
-
                 if (checked) {
                     LazyColumn(
                         modifier = Modifier
@@ -140,7 +132,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                             .weight(1f),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         userScrollEnabled = true,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (glucoseResults.isNotEmpty()) {
                             item {
@@ -159,7 +151,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                                 Text(
                                     text = "Brak danych",
                                     modifier = Modifier.padding(16.dp),
-                                    color = MaterialTheme.colorScheme.secondary
+                                    color = MaterialTheme.colorScheme.secondary,
                                 )
                             }
                         }
@@ -169,9 +161,8 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                         modifier = Modifier
                             .padding(16.dp)
                             .weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-
                         if (heartbeatResult.isNotEmpty()) {
                             item {
                                 HeartbeatChart(heartbeatResult.reversed().take(14))
@@ -189,7 +180,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                                 Text(
                                     text = "Brak danych",
                                     modifier = Modifier.padding(16.dp),
-                                    color = MaterialTheme.colorScheme.secondary
+                                    color = MaterialTheme.colorScheme.secondary,
                                 )
                             }
                         }
@@ -197,7 +188,6 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
                 }
             }
         }
-
 
         FloatingActionButton(
             onClick = {
@@ -211,7 +201,7 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            elevation = FloatingActionButtonDefaults.elevation(4.dp)
+            elevation = FloatingActionButtonDefaults.elevation(4.dp),
         ) {
             Icon(Icons.Filled.Add, "Przycisk do dodawania wyników")
         }
@@ -221,13 +211,11 @@ fun AllResultsScreen(navController: NavController, type: Boolean? = null) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(8.dp)
+                .height(8.dp),
         ) {
             SelectedScreenBottomImage(checked)
         }
-
     }
-
 }
 
 @Preview
@@ -238,7 +226,7 @@ fun SelectedScreenBottomImagePreview() {
 
 @Composable
 fun SelectedScreenBottomImage(position: Boolean) {
-    //Column(verticalArrangement = Arrangement.Top) {
+    // Column(verticalArrangement = Arrangement.Top) {
 
     AnimatedContent(position, label = "") {
         Box(
@@ -252,18 +240,20 @@ fun SelectedScreenBottomImage(position: Boolean) {
                                 MaterialTheme.colorScheme.primary,
                                 Color.Transparent,
                                 Color.Transparent,
-                                Color.Transparent
+                                Color.Transparent,
                             )
                         } else {
                             listOf(
                                 Color.Transparent,
                                 Color.Transparent,
                                 Color.Transparent,
-                                MaterialTheme.colorScheme.primary
+                                MaterialTheme.colorScheme.primary,
                             )
-                        }, start = Offset.Zero, end = Offset.Infinite
-                    )
-                )
+                        },
+                        start = Offset.Zero,
+                        end = Offset.Infinite,
+                    ),
+                ),
         ) {
             Text(
                 text = if (it) "Glukoza" else "Ciśnienie",
@@ -271,13 +261,9 @@ fun SelectedScreenBottomImage(position: Boolean) {
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .align(if (it) Alignment.TopStart else Alignment.TopEnd)
-                    .padding(horizontal = 4.dp)
+                    .padding(horizontal = 4.dp),
             )
         }
-        //}
+        // }
     }
 }
-
-
-
-

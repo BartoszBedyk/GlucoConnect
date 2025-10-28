@@ -25,34 +25,24 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
-import pl.example.aplikacja.feature.medicationhistory.MedicationHistoryViewModel
 import pl.example.networkmodule.apiData.UserMedicationResult
 
 @Composable
-fun MedicationHistoryScreen(
-    navController : NavController
-){
-
-    val viewModel : MedicationHistoryViewModel = hiltViewModel()
+fun MedicationHistoryScreen(navController: NavController) {
+    val viewModel: MedicationHistoryViewModel = hiltViewModel()
     val medicationResults = viewModel.medicationResults.collectAsState()
 
-
-        Column(Modifier.fillMaxSize()) {
-
-
-            LazyColumn {
-                items(medicationResults.value) { medication ->
-                    MedicationItemHistory(medication)
-                    HorizontalDivider(
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
+    Column(Modifier.fillMaxSize()) {
+        LazyColumn {
+            items(medicationResults.value) { medication ->
+                MedicationItemHistory(medication)
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
             }
         }
-
-
-
+    }
 }
 
 @Composable
@@ -64,26 +54,29 @@ fun MedicationItemHistory(medication: UserMedicationResult) {
             .fillMaxWidth()
             .clickable {
                 isExpanded = !isExpanded
-            }) {
+            },
+    ) {
         Log.d("MedicationItem", "medication: $medication")
 
-        Column(Modifier
+        Column(
+            Modifier,
         ) {
             Text(
                 text = "Nazwa leku: ${medication.medicationName}",
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
             Text(text = "Przepisany od: ${formatDateTimeWithoutTime(medication.startDate)}")
             Text(text = "Przepisany do: ${formatDateTimeWithoutTime(medication.endDate)}")
             AnimatedVisibility(
-                visible = isExpanded, modifier = Modifier
-                    .padding(end = 0.dp)
-            ){
+                visible = isExpanded,
+                modifier = Modifier
+                    .padding(end = 0.dp),
+            ) {
                 Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
                     HorizontalDivider(
                         thickness = 1.dp,
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                     Text(text = "Dawka: ${medication.dosage}")
                     Text(text = "Częstotliwość: ${medication.frequency}")

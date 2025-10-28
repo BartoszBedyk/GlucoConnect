@@ -1,7 +1,5 @@
 package pl.example.aplikacja.feature.heartbeatresult
 
-
-
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,16 +28,14 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.feature.glucoseresult.TextRow
 import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
-import pl.example.aplikacja.feature.heartbeatresult.HeartbeatDetailsScreenViewModel
 
 @Composable
 fun HeartbeatResultScreen(id: String, navController: NavController) {
     val context = LocalContext.current
     val viewModel =
-        remember {HeartbeatDetailsScreenViewModel(context, id)}
+        remember { HeartbeatDetailsScreenViewModel(context, id) }
 
-
-    //fetch data from server about heartbeats for actual user
+    // fetch data from server about heartbeats for actual user
     val heartbeatResult by viewModel.heartbeatResult.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -47,14 +43,14 @@ fun HeartbeatResultScreen(id: String, navController: NavController) {
     if (isLoading) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             Column {
                 CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                 Text(
                     text = "Nawiązywanie połączenia...",
                     modifier = Modifier.padding(16.dp),
-                    color = Color.Gray
+                    color = Color.Gray,
                 )
             }
         }
@@ -63,82 +59,79 @@ fun HeartbeatResultScreen(id: String, navController: NavController) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(16.dp),
                 ) {
                     Text(
                         text = "Dane pomiaru tętna",
                         style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
 
-                    //TextRow(label = "ID pomiaru", value = heartbeatResult?.id.toString())
-                    TextRow(label = "Czas Pomiaru", value = heartbeatResult?.timestamp?.let {
-                        formatDateTimeSpecificLocale(it)
-                    } ?: "Brak danych")
+                    // TextRow(label = "ID pomiaru", value = heartbeatResult?.id.toString())
+                    TextRow(
+                        label = "Czas Pomiaru",
+                        value = heartbeatResult?.timestamp?.let {
+                            formatDateTimeSpecificLocale(it)
+                        } ?: "Brak danych",
+                    )
                     TextRow(
                         label = "Ciśnienie skurczowe",
-                        value = "${heartbeatResult?.systolicPressure} mmHg"
+                        value = "${heartbeatResult?.systolicPressure} mmHg",
                     )
                     TextRow(
                         label = "Ciśnienie rozkurczowe",
-                        value = "${heartbeatResult?.diastolicPressure} mmHg"
+                        value = "${heartbeatResult?.diastolicPressure} mmHg",
                     )
                     TextRow(label = "Puls", value = "${heartbeatResult?.pulse} bpm")
-                    if(heartbeatResult?.note?.isNotBlank() == true){
+                    if (heartbeatResult?.note?.isNotBlank() == true) {
                         TextRow(label = "Notatka", value = heartbeatResult?.note ?: "Brak danych")
-                        }
-
+                    }
 
                     FloatingActionButton(
                         onClick = {
                             viewModelScope.launch {
-                            if (viewModel.deleteHeartbeatResult()) {
-                                navController.popBackStack()
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Nie udało się usunąć pomiaru!",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                navController.popBackStack()
+                                if (viewModel.deleteHeartbeatResult()) {
+                                    navController.popBackStack()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Nie udało się usunąć pomiaru!",
+                                        Toast.LENGTH_LONG,
+                                    ).show()
+                                    navController.popBackStack()
+                                }
                             }
-                        }},
+                        },
                         modifier = Modifier
                             .padding(top = 16.dp)
-                            .align(Alignment.End)
+                            .align(Alignment.End),
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
-                        //Text(text = "Usuń")
+                        // Text(text = "Usuń")
                     }
                 }
-
-
             }
             if (heartbeatResult != null) {
                 Text(
                     evaluateBloodPressure(
                         heartbeatResult!!.systolicPressure,
                         heartbeatResult!!.diastolicPressure,
-                        heartbeatResult!!.pulse
+                        heartbeatResult!!.pulse,
                     ),
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 )
             }
         }
     }
 }
 
-//Funtion for evaluation of medical data (blood pressure)
+// Funtion for evaluation of medical data (blood pressure)
 
-fun evaluateBloodPressure(
-    systolicPressure: Int,
-    diastolicPressure: Int,
-    pulse: Int
-): String {
+fun evaluateBloodPressure(systolicPressure: Int, diastolicPressure: Int, pulse: Int): String {
     val bloodPressureMessage = when {
         systolicPressure < 90 && diastolicPressure < 60 ->
             "Ciśnienie tętnicze jest za niskie (niedociśnienie)."
@@ -164,7 +157,9 @@ fun evaluateBloodPressure(
         else -> "Nieprawidłowe dane pomiarowe."
     }
 
-    val conditionsMessage = "Upewnij się, że pomiar został wykonany w spoczynku, w pozycji siedzącej, po co najmniej 5 minutach odpoczynku."
+    val conditionsMessage =
+        "Upewnij się, że pomiar został wykonany w spoczynku," +
+            " w pozycji siedzącej, po co najmniej 5 minutach odpoczynku."
 
     val pulseMessage = when {
         pulse < 60 -> "Tętno jest zbyt niskie (bradykardia)."
@@ -175,5 +170,3 @@ fun evaluateBloodPressure(
 
     return "$bloodPressureMessage $pulseMessage $conditionsMessage"
 }
-
-

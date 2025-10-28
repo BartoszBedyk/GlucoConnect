@@ -7,41 +7,35 @@ import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
 import java.util.UUID
 
-fun UserMedicationResult.toUserMedicationDB(): UserMedicationDB {
-    return this.let { form ->
-        UserMedicationDB(
-            id = form.id,
-            medicationId = form.medicationId,
-            userId = form.userId,
-            dosage = form.dosage,
-            frequency = form.frequency,
-            startDate = form.startDate,
-            endDate = form.endDate,
-            notes = form.notes,
-            isSynced = true,
-        )
-    }
+fun UserMedicationResult.toUserMedicationDB(): UserMedicationDB = this.let { form ->
+    UserMedicationDB(
+        id = form.id,
+        medicationId = form.medicationId,
+        userId = form.userId,
+        dosage = form.dosage,
+        frequency = form.frequency,
+        startDate = form.startDate,
+        endDate = form.endDate,
+        notes = form.notes,
+        isSynced = true,
+    )
 }
 
-fun CreateUserMedicationForm.toUserMedicationDB(): UserMedicationDB {
-    return this.let { form ->
-        UserMedicationDB(
-            id = UUID.randomUUID(),
-            medicationId = form.medicationId,
-            userId = form.userId,
-            dosage = form.dosage,
-            frequency = form.frequency,
-            startDate = form.startDate,
-            endDate = form.endDate,
-            notes = form.notes,
-            isSynced = false,
-        )
-    }
+fun CreateUserMedicationForm.toUserMedicationDB(): UserMedicationDB = this.let { form ->
+    UserMedicationDB(
+        id = UUID.randomUUID(),
+        medicationId = form.medicationId,
+        userId = form.userId,
+        dosage = form.dosage,
+        frequency = form.frequency,
+        startDate = form.startDate,
+        endDate = form.endDate,
+        notes = form.notes,
+        isSynced = false,
+    )
 }
 
-fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> {
-    return this.map { it.toUserMedicationDB() }
-}
+fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> = this.map { it.toUserMedicationDB() }
 
 fun MedicationDB?.toMedicationResult(): MedicationResult? {
     if (this == null) return null

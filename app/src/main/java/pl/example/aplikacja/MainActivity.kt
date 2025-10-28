@@ -7,8 +7,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import com.auth0.jwt.JWT
 import dagger.hilt.android.AndroidEntryPoint
-import pl.example.aplikacja.UiElements.MainApp
 import pl.example.aplikacja.ui.theme.AplikacjaTheme
+import pl.example.aplikacja.uiElements.MainApp
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 import pl.example.databasemodule.database.security.isDeviceRooted
 import pl.example.databasemodule.database.security.loadBase
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
             return
         }
 
-            val bluetoothViewModel = ViewModelProvider(this).get(BluetoothViewModel::class.java)
+        val bluetoothViewModel = ViewModelProvider(this).get(BluetoothViewModel::class.java)
         val token = getToken(applicationContext) ?: savedInstanceState?.getString("token")
 
         val userType = if (token != null) {

@@ -34,12 +34,11 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.UiElements.DiabetesTypeDropdownMenu
-import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
 import pl.example.aplikacja.feature.addglucose.TextRowEdit
 import pl.example.aplikacja.feature.user.TextRow
 import pl.example.aplikacja.mappters.removeQuotes
-import pl.example.aplikacja.feature.edituser.EditUserViewModel
+import pl.example.aplikacja.uiElements.DiabetesTypeDropdownMenu
+import pl.example.aplikacja.uiElements.GlucoseUnitDropdownMenu
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiMethods.ApiProvider
@@ -49,23 +48,21 @@ import java.util.UUID
 
 @Composable
 fun EditUserDataScreen(navController: NavController) {
-
     val context = LocalContext.current
     val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
-    val viewModel : EditUserViewModel = hiltViewModel()
+    val viewModel: EditUserViewModel = hiltViewModel()
 
-    //Download user data form backend
+    // Download user data form backend
     val userData = viewModel.userData.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    //Edit form data variables
+    // Edit form data variables
     var name by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var prefUnit by remember { mutableStateOf<GlucoseUnitType?>(null) }
     var diabetesType by remember { mutableStateOf<DiabetesType?>(null) }
-
 
     LaunchedEffect(userData.value) {
         userData.value?.let {
@@ -75,7 +72,6 @@ fun EditUserDataScreen(navController: NavController) {
             diabetesType = it.diabetesType?.let { type -> DiabetesType.valueOf(type.toString()) }
             prefUnit = it.prefUnit?.let { pref ->
                 GlucoseUnitType.valueOf(pref.toString())
-
             }
         }
     }
@@ -94,42 +90,46 @@ fun EditUserDataScreen(navController: NavController) {
     Column(
         Modifier.padding(18.dp),
     ) {
-        OutlinedCard() {
+        OutlinedCard {
             Column(Modifier.padding(16.dp)) {
                 TextRow(
-                    label = "ID użytkownika", value = userData.value?.id.toString(), fontSize = 20
+                    label = "ID użytkownika",
+                    value = userData.value?.id.toString(),
+                    fontSize = 20,
                 )
                 TextRowEdit(
                     label = "Adres email",
                     value = email,
                     onValueChange = { email = it },
                     fontSize = 18,
-                    false
+                    false,
                 )
                 TextRowEdit(
                     label = "Imię",
                     value = name,
                     onValueChange = { name = it },
                     fontSize = 18,
-                    false
+                    false,
                 )
                 TextRowEdit(
                     label = "Nazwisko",
                     value = lastName,
                     onValueChange = { lastName = it },
                     fontSize = 18,
-                    false
+                    false,
                 )
                 prefUnit?.let {
                     Text(
                         text = "Jednostka stężenia glukozy",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
                     )
 
                     GlucoseUnitDropdownMenu(
-                        selectedUnit = it, onUnitSelected = { prefUnit = it }, label = ""
+                        selectedUnit = it,
+                        onUnitSelected = { prefUnit = it },
+                        label = "",
                     )
                 }
 
@@ -139,19 +139,17 @@ fun EditUserDataScreen(navController: NavController) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp),
                     )
 
                     DiabetesTypeDropdownMenu(
                         selectedDiabetesType = it,
                         onTypeSelected = { diabetesType = it },
-                        label = ""
+                        label = "",
                     )
                 }
 
-
-
-                //Try to edit data in api and navigate to correct screen
+                // Try to edit data in api and navigate to correct screen
                 ExtendedFloatingActionButton(
                     onClick = {
                         coroutineScope.launch {
@@ -159,10 +157,14 @@ fun EditUserDataScreen(navController: NavController) {
                                     UpdateUserNullForm(
                                         UUID.fromString(
                                             removeQuotes(
-                                                decoded.getClaim("userId").toString()
-                                            )
-                                        ), name, lastName, prefUnit.toString(), diabetesType.toString()
-                                    )
+                                                decoded.getClaim("userId").toString(),
+                                            ),
+                                        ),
+                                        name,
+                                        lastName,
+                                        prefUnit.toString(),
+                                        diabetesType.toString(),
+                                    ),
                                 )
                             ) {
                                 navController.navigate("user_profile_screen")
@@ -173,29 +175,25 @@ fun EditUserDataScreen(navController: NavController) {
                     text = { Text(text = "Zatwierdź edycję") },
                     modifier = Modifier
                         .padding(16.dp, top = 32.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
                 )
-
             }
         }
-
-
     }
 }
-
 
 @Composable
 fun TextRowEdit(label: String, value: String, onValueChange: (String) -> Unit, fontSize: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp),
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = (fontSize - 5).sp
+            fontSize = (fontSize - 5).sp,
         )
         OutlinedTextField(
             value = value,
@@ -203,7 +201,7 @@ fun TextRowEdit(label: String, value: String, onValueChange: (String) -> Unit, f
             placeholder = { Text(text = value) },
             maxLines = 1,
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         )
     }
 }

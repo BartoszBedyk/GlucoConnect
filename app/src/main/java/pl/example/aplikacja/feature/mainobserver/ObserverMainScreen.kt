@@ -20,33 +20,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
-import pl.example.aplikacja.UiElements.ItemView
-import pl.example.aplikacja.mappters.removeQuotes
-import pl.example.aplikacja.feature.mainobserver.ObserverMainScreenViewModel
+import pl.example.aplikacja.uiElements.ItemView
 import pl.example.networkmodule.getToken
 
 @Composable
 fun ObserverMainScreen(navController: NavController) {
     val context = LocalContext.current
     val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember {
-        ObserverMainScreenViewModel(
-            context,
-            removeQuotes(decoded.getClaim("userId").toString())
-        )
-    }
+    val viewModel: ObserverMainScreenViewModel = hiltViewModel()
 
-    //Download data from server about observed users
+    // Download data from server about observed users
     val isLoading by viewModel.isLoading.collectAsState()
     val unAccepted by viewModel.observedUnaccepted.collectAsState()
     val acceptedUsers by viewModel.observedAcceptedUser.collectAsState()
@@ -55,26 +48,28 @@ fun ObserverMainScreen(navController: NavController) {
         if (isLoading) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 Column {
                     CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                     Text(
                         text = "Nawiązywanie połączenia...",
                         modifier = Modifier.padding(16.dp),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 }
             }
         } else {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+            ) {
                 Text(text = "Obserwowani użytkownicy", fontSize = 24.sp, color = MaterialTheme.colorScheme.primary)
 
                 LazyColumn(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(acceptedUsers) { item ->
                         Row {
@@ -96,7 +91,7 @@ fun ObserverMainScreen(navController: NavController) {
                     onClick = { navController.navigate("user_profile_screen") },
                     shape = Shapes().medium,
                     modifier = Modifier.padding(16.dp).align(Alignment.End),
-                    elevation = FloatingActionButtonDefaults.elevation(8.dp)
+                    elevation = FloatingActionButtonDefaults.elevation(8.dp),
 
                 ) {
                     Icon(Icons.Filled.Add, "Przycisk do dodawania wyników")

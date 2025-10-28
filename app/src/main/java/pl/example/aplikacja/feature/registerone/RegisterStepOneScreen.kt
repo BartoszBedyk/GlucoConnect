@@ -31,8 +31,8 @@ import kotlinx.coroutines.launch
 import pl.example.aplikacja.feature.login.PasswordTextField
 
 @Composable
-fun RegistrationScreen(navController: NavHostController){
-    val viewModel : RegistrationStepOneScreenViewModel = hiltViewModel()
+fun RegistrationScreen(navController: NavHostController) {
+    val viewModel: RegistrationStepOneScreenViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
 
     var login by remember { mutableStateOf("") }
@@ -41,22 +41,24 @@ fun RegistrationScreen(navController: NavHostController){
     var registerError by remember { mutableStateOf("") }
     val snackState = remember { SnackbarHostState() }
 
-
-    Box(Modifier
-        .fillMaxSize())
-    {
-        Text(text = "Zarejestruj się", modifier = Modifier
-            .align(Alignment.TopCenter)
-            .padding(bottom = 16.dp, top = 100.dp),
+    Box(
+        Modifier
+            .fillMaxSize(),
+    ) {
+        Text(
+            text = "Zarejestruj się",
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(bottom = 16.dp, top = 100.dp),
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 32.sp
+            fontSize = 32.sp,
         )
     }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         OutlinedTextField(
             value = login,
@@ -65,12 +67,12 @@ fun RegistrationScreen(navController: NavHostController){
             placeholder = { Text(text = "Wpisz login") },
             maxLines = 1,
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         )
 
         PasswordTextField(
             password = password,
-            onPasswordChange = { password = it }
+            onPasswordChange = { password = it },
         )
 
         OutlinedTextField(
@@ -80,18 +82,14 @@ fun RegistrationScreen(navController: NavHostController){
             placeholder = { Text(text = "Powtórz hasło") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 8.dp),
         )
-
-
-
 
         Button(
             onClick = {
-                if (checkPassword(password, passwordRepeat)!=null){
+                if (checkPassword(password, passwordRepeat) != null) {
                     registerError = checkPassword(password, passwordRepeat).toString()
-                }else
-                {
+                } else {
                     coroutineScope.launch {
                         try {
                             val userId = viewModel.register(login, password)
@@ -106,7 +104,7 @@ fun RegistrationScreen(navController: NavHostController){
                         }
                     }
                 }
-            }
+            },
         ) {
             Text(text = "Zarejestruj")
         }
@@ -115,25 +113,24 @@ fun RegistrationScreen(navController: NavHostController){
             Text(
                 text = registerError,
                 modifier = Modifier.padding(top = 16.dp),
-                color = Color.Red
+                color = Color.Red,
             )
         }
-
-
     }
     Box(
-        Modifier.padding(vertical = 8.dp).fillMaxSize(), contentAlignment = Alignment.BottomCenter
-    ){
-        Text(text = "Rejestrując się wyrażasz zgodę na umowę licencyjną", modifier = Modifier.padding(vertical = 8.dp)
-            .align(Alignment.BottomCenter)
-            .clickable {
-                navController.navigate("licence_screen/licencyjna")
-            },
+        Modifier.padding(vertical = 8.dp).fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        Text(
+            text = "Rejestrując się wyrażasz zgodę na umowę licencyjną",
+            modifier = Modifier.padding(vertical = 8.dp)
+                .align(Alignment.BottomCenter)
+                .clickable {
+                    navController.navigate("licence_screen/licencyjna")
+                },
 
-            )
+        )
     }
-
-
 }
 
 fun checkPassword(password: String, passwordRepeat: String): String? {
@@ -144,7 +141,8 @@ fun checkPassword(password: String, passwordRepeat: String): String? {
         return "Hasła muszą mieć więcej niż 8 znaków"
     }
     if (!(password.any { it.isLetter() } && password.any { it.isDigit() }) ||
-        !(passwordRepeat.any { it.isLetter() } && passwordRepeat.any { it.isDigit() })) {
+        !(passwordRepeat.any { it.isLetter() } && passwordRepeat.any { it.isDigit() })
+    ) {
         return "Hasła muszą zawierać litery i cyfry"
     }
     if (password != passwordRepeat) {
@@ -155,5 +153,3 @@ fun checkPassword(password: String, passwordRepeat: String): String? {
     }
     return null
 }
-
-

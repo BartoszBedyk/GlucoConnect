@@ -1,4 +1,4 @@
-package pl.example.aplikacja.UiElements
+package pl.example.aplikacja.uiElements
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.aspectRatio
@@ -28,13 +28,12 @@ import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import java.util.Date
 import java.util.UUID
 
-
 @Preview
 @Composable
 fun LineChartPreview() {
     val userId = UUID.randomUUID()
     val id = UUID.randomUUID().toString()
-     val results =listOf(
+    val results = listOf(
         ResearchResult(
             id = UUID.fromString(id),
             glucoseConcentration = 5.5,
@@ -45,7 +44,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.randomUUID(),
@@ -57,7 +56,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.randomUUID(),
@@ -69,7 +68,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.fromString(id),
@@ -81,7 +80,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.randomUUID(),
@@ -93,7 +92,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.randomUUID(),
@@ -105,7 +104,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.fromString(id),
@@ -117,7 +116,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.randomUUID(),
@@ -129,7 +128,7 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
+            notes = "",
         ),
         ResearchResult(
             id = UUID.randomUUID(),
@@ -141,13 +140,14 @@ fun LineChartPreview() {
             lastUpdatedOn = Date(),
             afterMedication = false,
             emptyStomach = false,
-            notes = ""
-        )
+            notes = "",
+        ),
     )
 
     GlucoseChart(glucoseData = results)
-    //NewGlucoseChart()
+    // NewGlucoseChart()
 }
+
 @Composable
 fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
     val lines = listOf(
@@ -155,7 +155,7 @@ fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
             label = "Ciśnienie rozkurczowe",
             values = heartbeatData.map { it.diastolicPressure.toDouble() },
             color = Brush.linearGradient(
-                colors = listOf(Color.Red, Color.Yellow)
+                colors = listOf(Color.Red, Color.Yellow),
             ),
             firstGradientFillColor = Color.Blue.copy(alpha = 0.3f),
             secondGradientFillColor = Color.Cyan.copy(alpha = 0.1f),
@@ -170,21 +170,21 @@ fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
                 strokeWidth = 2.dp,
                 strokeColor = SolidColor(Color.Black),
                 animationEnabled = true,
-                animationSpec = tween(500)
+                animationSpec = tween(500),
             ),
             popupProperties = PopupProperties(
                 textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
                     color = Color.Transparent,
-                    fontSize = 0.sp
-                )
+                    fontSize = 0.sp,
+                ),
             ),
-            curvedEdges = true
+            curvedEdges = true,
         ),
         Line(
             label = "Ciśnienie skurczowe",
             values = heartbeatData.map { it.systolicPressure.toDouble() },
             color = Brush.linearGradient(
-                colors = listOf(Color.Blue, Color.Cyan)
+                colors = listOf(Color.Blue, Color.Cyan),
             ),
             firstGradientFillColor = Color.Blue.copy(alpha = 0.3f),
             secondGradientFillColor = Color.Cyan.copy(alpha = 0.1f),
@@ -199,21 +199,21 @@ fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
                 strokeWidth = 2.dp,
                 strokeColor = SolidColor(Color.Black),
                 animationEnabled = true,
-                animationSpec = tween(500)
+                animationSpec = tween(500),
             ),
             popupProperties = PopupProperties(
                 textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
                     color = Color.Transparent,
-                    fontSize = 0.sp
-                )
+                    fontSize = 0.sp,
+                ),
             ),
-            curvedEdges = true
+            curvedEdges = true,
         ),
         Line(
             label = "Puls",
             values = heartbeatData.map { it.pulse.toDouble() },
             color = Brush.linearGradient(
-                colors = listOf(Color.Yellow, Color.White)
+                colors = listOf(Color.Yellow, Color.White),
             ),
             firstGradientFillColor = Color.Blue.copy(alpha = 0.3f),
             secondGradientFillColor = Color.Cyan.copy(alpha = 0.1f),
@@ -228,16 +228,16 @@ fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
                 strokeWidth = 2.dp,
                 strokeColor = SolidColor(Color.Black),
                 animationEnabled = true,
-                animationSpec = tween(500)
+                animationSpec = tween(500),
             ),
             popupProperties = PopupProperties(
                 textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
                     color = Color.Transparent,
-                    fontSize = 0.sp
-                )
+                    fontSize = 0.sp,
+                ),
             ),
-            curvedEdges = true
-        )
+            curvedEdges = true,
+        ),
     )
 
     LineChart(
@@ -250,50 +250,46 @@ fun HeartbeatChart(heartbeatData: List<HeartbeatResult>) {
         curvedEdges = true,
         animationDelay = 300L,
         dividerProperties = DividerProperties(
-            //linie wykresy XY
+            // linie wykresy XY
             enabled = false,
             xAxisProperties = LineProperties(
-                enabled = true
+                enabled = true,
             ),
             yAxisProperties = LineProperties(
-                enabled = true
-            )
+                enabled = true,
+            ),
         ),
         gridProperties = GridProperties(
             enabled = true,
             xAxisProperties = GridProperties.AxisProperties(
                 thickness = 1.dp,
-                color = SolidColor(Color.Transparent)
+                color = SolidColor(Color.Transparent),
             ),
             yAxisProperties = GridProperties.AxisProperties(
                 thickness = 2.dp,
-                color = SolidColor(Color.Transparent)
-            )
+                color = SolidColor(Color.Transparent),
+            ),
         ),
         dotsProperties = DotProperties(
             enabled = true,
             radius = 4.dp,
-            color = SolidColor(Color.Red)
+            color = SolidColor(Color.Red),
         ),
         popupProperties = PopupProperties(
             enabled = true,
             textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
                 color = Color.Transparent,
-                fontSize = 12.sp
-            )
+                fontSize = 12.sp,
+            ),
         ),
-        //te jebane cyfry
+        // te jebane cyfry
         indicatorProperties = HorizontalIndicatorProperties(
             enabled = false,
             textStyle = androidx.compose.ui.text.TextStyle.Default,
-            padding = 12.dp
-        )
+            padding = 12.dp,
+        ),
     )
 }
-
-
-
-
 
 @Composable
 fun GlucoseChart(glucoseData: List<ResearchResult>) {
@@ -302,7 +298,7 @@ fun GlucoseChart(glucoseData: List<ResearchResult>) {
             label = "Glukoza",
             values = glucoseData.map { it.glucoseConcentration },
             color = Brush.linearGradient(
-                colors = listOf(Color.Blue, Color.Cyan)
+                colors = listOf(Color.Blue, Color.Cyan),
             ),
             firstGradientFillColor = Color.Blue.copy(alpha = 0.3f),
             secondGradientFillColor = Color.Cyan.copy(alpha = 0.1f),
@@ -317,16 +313,16 @@ fun GlucoseChart(glucoseData: List<ResearchResult>) {
                 strokeWidth = 2.dp,
                 strokeColor = SolidColor(Color.Black),
                 animationEnabled = true,
-                animationSpec = tween(500)
+                animationSpec = tween(500),
             ),
             popupProperties = PopupProperties(
                 textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
                     color = Color.Transparent,
-                    fontSize = 0.sp
-                )
+                    fontSize = 0.sp,
+                ),
             ),
-            curvedEdges = true
-        )
+            curvedEdges = true,
+        ),
     )
 
     LineChart(
@@ -339,51 +335,49 @@ fun GlucoseChart(glucoseData: List<ResearchResult>) {
         curvedEdges = true,
         animationDelay = 300L,
         dividerProperties = DividerProperties(
-            //linie wykresy XY
+            // linie wykresy XY
             enabled = false,
             xAxisProperties = LineProperties(
-                enabled = true
+                enabled = true,
             ),
             yAxisProperties = LineProperties(
-                enabled = true
-            )
+                enabled = true,
+            ),
         ),
         gridProperties = GridProperties(
             enabled = true,
             xAxisProperties = GridProperties.AxisProperties(
                 thickness = 1.dp,
-                color = SolidColor(Color.Transparent)
+                color = SolidColor(Color.Transparent),
             ),
             yAxisProperties = GridProperties.AxisProperties(
                 thickness = 2.dp,
-                color = SolidColor(Color.Transparent)
-            )
+                color = SolidColor(Color.Transparent),
+            ),
         ),
         dotsProperties = DotProperties(
             enabled = true,
             radius = 4.dp,
-            color = SolidColor(Color.Red)
+            color = SolidColor(Color.Red),
         ),
         popupProperties = PopupProperties(
             enabled = true,
             textStyle = androidx.compose.ui.text.TextStyle.Default.copy(
                 color = Color.Transparent,
-                fontSize = 12.sp
-            )
+                fontSize = 12.sp,
+            ),
         ),
-        //te jebane cyfry
+        // te jebane cyfry
         indicatorProperties = HorizontalIndicatorProperties(
             enabled = false,
             textStyle = androidx.compose.ui.text.TextStyle.Default,
-            padding = 12.dp
-        )
+            padding = 12.dp,
+        ),
     )
 }
 
-
-
-//@Composable
-//fun NewGlucoseChart(){
+// @Composable
+// fun NewGlucoseChart(){
 //
 //    val cartesian: Cartesian = AnyChart.line()
 //    cartesian.animation(true)
@@ -522,6 +516,4 @@ fun GlucoseChart(glucoseData: List<ResearchResult>) {
 //        .size(4.0)
 //
 //    cartesian.legend().enabled(false)
-//}
-
-
+// }

@@ -7,8 +7,6 @@ import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.networkmodule.getToken
 import javax.inject.Inject
 
-class JwtHelper @Inject constructor(
-    @ApplicationContext private val context: Context,
-) {
+class JwtHelper @Inject constructor(@ApplicationContext private val context: Context) {
     fun getUserId(): String = removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
 }

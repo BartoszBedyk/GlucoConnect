@@ -43,7 +43,7 @@ fun BluetoothPermission(
     navBarViewModel: BottomNavBarViewModel,
     onDeviceConnected: (BluetoothDevice) -> Unit = {},
     navController: NavHostController,
-    destination: String?
+    destination: String?,
 ) {
     val context = LocalContext.current
     val bleScanner = remember { BLEScanner(context) }
@@ -56,9 +56,8 @@ fun BluetoothPermission(
     Log.i("SCREEN", "measurmentData2: $measurmentData2")
     val result = ""
 
-
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
+        ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
         val bluetoothGranted = permissions[Manifest.permission.BLUETOOTH_CONNECT] == true
         if (bluetoothGranted) {
@@ -74,8 +73,8 @@ fun BluetoothPermission(
                 Manifest.permission.BLUETOOTH_ADVERTISE,
                 Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.BLUETOOTH,
-                Manifest.permission.INTERNET
-            )
+                Manifest.permission.INTERNET,
+            ),
         )
     }
 
@@ -93,17 +92,16 @@ fun BluetoothPermission(
 
     when {
         state.isConnecting -> {
-
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(0.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
+                    verticalArrangement = Arrangement.Top,
                 ) {
                     TopBluetoothPanel(isLoading = true)
                 }
@@ -126,8 +124,8 @@ fun BluetoothPermission(
                     bluetoothViewModel.connectToGattDevice(
                         pl.example.bluetoothmodule.domain.BluetoothDevice(
                             device.name,
-                            device.address
-                        )
+                            device.address,
+                        ),
                     )
                 },
                 onDownloadTime = {
@@ -139,7 +137,7 @@ fun BluetoothPermission(
                 bluetoothViewModel = bluetoothViewModel,
                 title = "Połącz się z glukometrem",
                 navController = navController,
-                destination = destination
+                destination = destination,
             )
         }
     }
@@ -155,12 +153,11 @@ fun BluetoothPermission(
     }
 }
 
-
 private fun enableBluetooth(context: Context) {
     val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
     if (ActivityCompat.checkSelfPermission(
             context,
-            Manifest.permission.BLUETOOTH_CONNECT
+            Manifest.permission.BLUETOOTH_CONNECT,
         ) != PackageManager.PERMISSION_GRANTED
     ) {
         return
@@ -169,11 +166,7 @@ private fun enableBluetooth(context: Context) {
 }
 
 @SuppressLint("MissingPermission")
-private fun connectToDevice(
-    context: Context,
-    device: BluetoothDevice,
-    onDeviceConnected: (BluetoothDevice) -> Unit
-) {
+private fun connectToDevice(context: Context, device: BluetoothDevice, onDeviceConnected: (BluetoothDevice) -> Unit) {
     val bleManager = MyBleManager(context)
 
     bleManager.connect(device)
@@ -187,4 +180,3 @@ private fun connectToDevice(
         }
         ?.enqueue()
 }
-

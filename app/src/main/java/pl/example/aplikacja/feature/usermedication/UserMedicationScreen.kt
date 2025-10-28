@@ -34,16 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import pl.example.aplikacja.R
-import pl.example.aplikacja.UiElements.UserMedicationSwapItem
 import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
+import pl.example.aplikacja.uiElements.UserMedicationSwapItem
 import pl.example.networkmodule.apiData.UserMedicationResult
 
 @Composable
 fun UserMedicationScreen(navController: NavController?) {
-
     val viewModel: UserMedicationScreenViewModel = hiltViewModel()
 
-    //download medications for specyfic time
+    // download medications for specyfic time
     val medications = viewModel.medicationResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -51,20 +50,19 @@ fun UserMedicationScreen(navController: NavController?) {
         if (isLoading) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 Column {
                     CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                     Text(
                         text = "Nawiązywanie połączenia...",
                         modifier = Modifier.padding(16.dp),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 }
             }
         } else {
             Box(Modifier.fillMaxSize()) {
-
                 Column(Modifier.fillMaxSize()) {
                     LazyColumn {
                         items(medications.value) { medication ->
@@ -73,12 +71,13 @@ fun UserMedicationScreen(navController: NavController?) {
                                 modifier = Modifier,
                                 {},
                                 {},
-                                {
-                                        umId, medicationId  -> navController?.navigate("medication_result/$umId/$medicationId")
-                                })
+                                { umId, medicationId ->
+                                    navController?.navigate("medication_result/$umId/$medicationId")
+                                },
+                            )
                             HorizontalDivider(
                                 thickness = 1.dp,
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                                modifier = Modifier.padding(horizontal = 16.dp),
                             )
                         }
                     }
@@ -87,7 +86,7 @@ fun UserMedicationScreen(navController: NavController?) {
                 Column(
                     Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.Bottom
+                    verticalArrangement = Arrangement.Bottom,
                 ) {
                     FloatingActionButton(
                         onClick = {
@@ -96,11 +95,11 @@ fun UserMedicationScreen(navController: NavController?) {
                         shape = Shapes().medium,
                         modifier = Modifier
                             .padding(vertical = 8.dp, horizontal = 16.dp),
-                        elevation = FloatingActionButtonDefaults.elevation(4.dp)
+                        elevation = FloatingActionButtonDefaults.elevation(4.dp),
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_history_24),
-                            contentDescription = "Przycisk do historii"
+                            contentDescription = "Przycisk do historii",
                         )
                     }
 
@@ -111,19 +110,15 @@ fun UserMedicationScreen(navController: NavController?) {
                         shape = Shapes().medium,
                         modifier = Modifier
                             .padding(bottom = 16.dp, top = 4.dp, start = 16.dp, end = 16.dp),
-                        elevation = FloatingActionButtonDefaults.elevation(4.dp)
+                        elevation = FloatingActionButtonDefaults.elevation(4.dp),
                     ) {
                         Icon(Icons.Filled.Add, "Przycisk do dodawania leków")
                     }
                 }
-
             }
-
-
         }
     }
 }
-
 
 @Composable
 fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Unit) {
@@ -133,14 +128,14 @@ fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Un
             .fillMaxWidth()
             .clickable {
                 onItemClick(medication.medicationId.toString())
-            }
+            },
     ) {
         Log.d("MedicationItem", "medication: $medication")
 
-        Column() {
+        Column {
             Text(
                 text = "Nazwa leku: ${medication.medicationName}",
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
             Text(text = "Dawka: ${medication.dosage}")
             Text(text = "Częstotliwość: ${medication.frequency}")
@@ -148,11 +143,10 @@ fun MedicationItem(medication: UserMedicationResult, onItemClick: (String) -> Un
             Text(text = "Przepisany do: ${formatDateTimeWithoutTime(medication.endDate)}")
         }
 
-
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.End,
         ) {
 //            Icon(
 //                imageVector = Icons.Default.Info,
@@ -184,14 +178,14 @@ fun MedicationItem(medication: UserMedicationResult, onItemClick: (String, Strin
             .fillMaxWidth()
             .clickable {
                 onItemClick(medication.id.toString(), medication.medicationId.toString())
-            }
+            },
     ) {
         Log.d("MedicationItem", "medication: $medication")
 
-        Column() {
+        Column {
             Text(
                 text = "Nazwa leku: ${medication.medicationName}",
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
             Text(text = "Dawka: ${medication.dosage}")
             Text(text = "Częstotliwość: ${medication.frequency}")
@@ -199,17 +193,14 @@ fun MedicationItem(medication: UserMedicationResult, onItemClick: (String, Strin
             Text(text = "Przepisany do: ${formatDateTimeWithoutTime(medication.endDate)}")
         }
 
-
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.End,
         ) {
-
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

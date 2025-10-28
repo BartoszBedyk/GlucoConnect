@@ -20,16 +20,17 @@ import pl.example.networkmodule.apiData.UserResult
 
 @Composable
 fun AdministrationMainScreen(navController: NavController) {
-
-    val viewModel : AdministrationMainViewModel = hiltViewModel()
+    val viewModel: AdministrationMainViewModel = hiltViewModel()
 
     val users = viewModel.users.collectAsState()
 
-    if (users.value.isEmpty()) return Text(
-        text = "Brak danych",
-        modifier = Modifier.padding(16.dp),
-        color = MaterialTheme.colorScheme.onBackground
-    )
+    if (users.value.isEmpty()) {
+        return Text(
+            text = "Brak danych",
+            modifier = Modifier.padding(16.dp),
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
     LazyColumn {
         items(users.value) { user ->
             UserItem(user) { itemId ->
@@ -37,25 +38,22 @@ fun AdministrationMainScreen(navController: NavController) {
             }
         }
     }
-
-
 }
 
 @Composable
 fun UserItem(user: UserResult, onItemClick: (String) -> Unit) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onItemClick(user.id.toString()) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onItemClick(user.id.toString()) },
     ) {
         TextRow(
             label = "Dane personalne",
             value = user.firstName + " " + user.lastName,
-            fontSize = 20
+            fontSize = 20,
         )
         TextRow(label = "ID:", value = user.id.toString(), fontSize = 20)
         TextRow(label = "Zablokowany", value = user.isBlocked.toString(), fontSize = 20)
         HorizontalDivider()
     }
-
-
 }

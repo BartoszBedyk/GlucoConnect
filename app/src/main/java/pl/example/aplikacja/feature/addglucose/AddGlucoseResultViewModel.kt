@@ -25,10 +25,10 @@ class AddGlucoseResultViewModel @Inject constructor(
     private val userApi: UserApiInterface,
     private val researchRepository: GlucoseResultRepository,
     private val unitRepository: PrefUnitRepository,
-    private val jwtHelper: JwtHelper
+    private val jwtHelper: JwtHelper,
 ) : ViewModel() {
 
-    val USER_ID = jwtHelper.getUserId()
+    val userId = jwtHelper.getUserId()
 
     private val _prefUnit = MutableStateFlow<GlucoseUnitType>(GlucoseUnitType.MG_PER_DL)
     val prefUnit: StateFlow<GlucoseUnitType> = _prefUnit
@@ -38,7 +38,7 @@ class AddGlucoseResultViewModel @Inject constructor(
     }
 
     suspend fun addGlucoseResult(form: ResearchResultCreate): Boolean {
-         try {
+        try {
             val id = resultApi.createResearchResult(form)
             if (id != null) {
                 val success = addIntoDatabase(removeQuotes(id))
@@ -48,13 +48,12 @@ class AddGlucoseResultViewModel @Inject constructor(
                 }
                 return success
             }
-             return saveLocally(form)
+            return saveLocally(form)
         } catch (e: Exception) {
             Log.e("API", "Failed to add glucose result to API, saving locally: ${e.message}", e)
             return true
         }
     }
-
 
     private suspend fun addIntoDatabase(id: String): Boolean {
         return try {
@@ -73,7 +72,7 @@ class AddGlucoseResultViewModel @Inject constructor(
 
     private suspend fun saveLocally(form: ResearchResultCreate): Boolean {
         try {
-            val localResult = form.toGlucoseResultDB(USER_ID)
+            val localResult = form.toGlucoseResultDB(userId)
             researchRepository.insert(localResult)
             Log.e("LOCALY", "Successfully saved glucose result locally.")
             return true
@@ -83,15 +82,12 @@ class AddGlucoseResultViewModel @Inject constructor(
         }
     }
 
-
-
-
     private fun fetchUnit() {
         viewModelScope.launch {
             try {
-                _prefUnit.value = userApi.getUserUnitById(USER_ID)!!
+                _prefUnit.value = userApi.getUserUnitById(userId)!!
             } catch (e: Exception) {
-                _prefUnit.value = stringUnitParser(unitRepository.getUnitByUserId(USER_ID))
+                _prefUnit.value = stringUnitParser(unitRepository.getUnitByUserId(userId))
                 Log.e("API", "Failed to fetch user unit: ${e.message}", e)
             }
         }

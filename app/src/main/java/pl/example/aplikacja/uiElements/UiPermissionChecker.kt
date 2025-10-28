@@ -1,9 +1,8 @@
-package pl.example.aplikacja.UiElements
+package pl.example.aplikacja.uiElements
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,7 +15,7 @@ fun ColorSquare(isTrue: Boolean) {
     Box(
         modifier = Modifier
             .size(100.dp) // Możesz zmienić rozmiar kwadratu
-            .background(color)
+            .background(color),
     )
 }
 

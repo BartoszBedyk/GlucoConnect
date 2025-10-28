@@ -1,24 +1,18 @@
 package pl.example.aplikacja.feature.resultsdownload
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.networkmodule.apiData.ResearchResult
-import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.apiMethods.ResultApiInterface
 import javax.inject.Inject
 
 @HiltViewModel
-class DownloadViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
-) : ViewModel() {
-    private val apiProvider = ApiProvider(context)
-    private val glucoseApi = apiProvider.resultApi
+class DownloadViewModel @Inject constructor(private val glucoseApi: ResultApiInterface) : ViewModel() {
 
     private val _glucoseResults = MutableStateFlow<List<ResearchResult>>(emptyList())
     val glucoseResults: StateFlow<List<ResearchResult>> = _glucoseResults

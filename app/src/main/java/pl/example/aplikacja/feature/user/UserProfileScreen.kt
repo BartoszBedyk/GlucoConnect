@@ -69,13 +69,12 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(navController: NavController) {
-
     val context = LocalContext.current
     val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
 
     val viewModel: UserProfileViewModel = hiltViewModel()
 
-    val innerNotificationManager : InnerNotificationManager = remember {
+    val innerNotificationManager: InnerNotificationManager = remember {
         InnerNotificationManager(context)
     }
 
@@ -85,7 +84,6 @@ fun UserProfileScreen(navController: NavController) {
     var showAcceptDialog by remember { mutableStateOf(false) }
     var selectedObserver by remember { mutableStateOf<UserResult?>(null) }
     val healthy by viewModel.healthy.collectAsState()
-
 
     if (isNetworkAvailable(context) && healthy) {
         var codeImput by remember { mutableStateOf("") }
@@ -112,39 +110,39 @@ fun UserProfileScreen(navController: NavController) {
                     .padding(top = 32.dp, bottom = 16.dp),
                 fontSize = 32.sp,
                 fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         }
-
 
         LaunchedEffect(fileName.value) {
             fileName.value?.let {
                 innerNotificationManager.createDownloadNotification(
-                    it
+                    it,
                 )
             }
         }
 
-
-
-
         Column(
-            Modifier.padding(top = 64.dp, start = 16.dp, end = 16.dp)
+            Modifier.padding(top = 64.dp, start = 16.dp, end = 16.dp),
         ) {
 //            TextRow(
 //                label = "ID użytkownika", value = userData.value?.id.toString(), fontSize = fontSize
 //            )
             TextRow(
-                label = "Adres email", value = userData.value?.email.toString(), fontSize = fontSize
+                label = "Adres email",
+                value = userData.value?.email.toString(),
+                fontSize = fontSize,
             )
             TextRow(
                 label = "Dane personalne",
                 value = userData.value?.firstName.toString() + " " + userData.value?.lastName.toString(),
-                fontSize = fontSize
+                fontSize = fontSize,
             )
             if (prefUnit != null) {
                 TextRow(
-                    label = "Jednostka stęzenia glukozy", value = prefUnit, fontSize = fontSize
+                    label = "Jednostka stęzenia glukozy",
+                    value = prefUnit,
+                    fontSize = fontSize,
                 )
             }
 
@@ -160,21 +158,29 @@ fun UserProfileScreen(navController: NavController) {
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     ) {
                         Column(
                             Modifier
                                 .padding(16.dp)
                                 .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)) {
+                                .align(Alignment.CenterHorizontally),
+                        ) {
                             Text("Kod dostępu do profilu.", modifier = Modifier.align(Alignment.CenterHorizontally))
 
-                            Text(text = code, modifier = Modifier.clickable {
-                                clipboardManager.setText(AnnotatedString(code))
-                            }.align(Alignment.CenterHorizontally))
+                            Text(
+                                text = code,
+                                modifier = Modifier.clickable {
+                                    clipboardManager.setText(AnnotatedString(code))
+                                }.align(Alignment.CenterHorizontally),
+                            )
 
-                            Text("Dotknij by skopiować kod.", modifier = Modifier.align(Alignment.CenterHorizontally), color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-
+                            Text(
+                                "Dotknij by skopiować kod.",
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp,
+                            )
                         }
                     }
                 }
@@ -190,27 +196,29 @@ fun UserProfileScreen(navController: NavController) {
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     ) {
                         Column(
                             Modifier
                                 .padding(16.dp)
-                                .align(Alignment.CenterHorizontally)) {
+                                .align(Alignment.CenterHorizontally),
+                        ) {
                             Text("Podaj kod dostępu do profilu.")
                             TextRowEdit(
                                 label = "Kod dostępu",
                                 value = codeImput,
                                 onValueChange = { codeImput = it },
-                                fontSize = 20
+                                fontSize = 20,
                             )
                             Button(onClick = {
                                 coroutineScope.launch {
                                     viewModel.observe(codeImput.take(5), codeImput.takeLast(5))
                                     if (observed.value != null) {
-                                        viewModel.observeUser(userData.value?.id.toString(),
-                                            observed.value!!.id.toString()
+                                        viewModel.observeUser(
+                                            userData.value?.id.toString(),
+                                            observed.value!!.id.toString(),
                                         )
-                                        if(obseredUser.value != null){
+                                        if (obseredUser.value != null) {
                                             showUserCodeDialog = false
                                             showDialogObserver = false
                                             showDialogObservator = true
@@ -219,7 +227,6 @@ fun UserProfileScreen(navController: NavController) {
                                         showUserCodeDialog = false
                                         showDialogObserver = false
                                         showDialogObservator = true
-
                                     } else {
                                         //
                                     }
@@ -232,7 +239,7 @@ fun UserProfileScreen(navController: NavController) {
                 }
             }
 
-            if (showDialogObservator)
+            if (showDialogObservator) {
                 Dialog(
                     onDismissRequest = { showDialogObservator = false },
                 ) {
@@ -243,41 +250,45 @@ fun UserProfileScreen(navController: NavController) {
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     ) {
                         Column(
                             Modifier
                                 .padding(16.dp)
-                                .align(Alignment.CenterHorizontally)) {
+                                .align(Alignment.CenterHorizontally),
+                        ) {
                             Text("Dodano użytkownika")
                             TextRow(
                                 label = "Imie Nazwisko",
-                                value = observed.value?.firstName.toString() + " " + observed.value?.lastName.toString()
+                                value = observed.value?.firstName.toString() + " " +
+                                    observed.value?.lastName.toString(),
                             )
-                            //TextRow(label = "Email", value = observed.value?.email.toString())
+                            // TextRow(label = "Email", value = observed.value?.email.toString())
                         }
                     }
-
-
                 }
-
-
+            }
 
             Box(
                 Modifier
                     .fillMaxSize()
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = 32.dp),
             ) {
-                Column() {
+                Column {
                     if (userData.value?.type == UserType.PATIENT) {
                         ExtendedFloatingActionButton(
                             onClick = { showUserCodeDialog = true },
-                            icon = { Icon(Icons.Filled.Person, "Udostępnij kod profilu.") },
+                            icon = {
+                                Icon(
+                                    Icons.Filled.Person,
+                                    "Udostępnij kod profilu.",
+                                )
+                            },
                             text = { Text(text = "Udostępnij profil") },
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier.padding(16.dp),
                         )
                         Column {
-                            if(accepted.value?.size != 0){
+                            if (accepted.value?.size != 0) {
                                 Text(text = "Obserwatorzy zaakceptowani")
                             }
                             LazyColumn {
@@ -293,14 +304,14 @@ fun UserProfileScreen(navController: NavController) {
                                                         selectedObserver = it
                                                         showAcceptDialog = true
                                                     }
-                                                    .padding(16.dp)
+                                                    .padding(16.dp),
                                             )
                                         }
                                     }
                                 }
                             }
 
-                            if(unAccepted.value?.size != 0){
+                            if (unAccepted.value?.size != 0) {
                                 Text(text = "Obserwatorzy niezaakceptowani")
                             }
                             LazyColumn {
@@ -316,7 +327,7 @@ fun UserProfileScreen(navController: NavController) {
                                                         selectedObserver = it
                                                         showAcceptDialog = true
                                                     }
-                                                    .padding(16.dp)
+                                                    .padding(16.dp),
                                             )
                                         }
                                     }
@@ -328,18 +339,24 @@ fun UserProfileScreen(navController: NavController) {
                             AlertDialog(
                                 onDismissRequest = { showAcceptDialog = false },
                                 title = { Text(text = "Akceptacja obserwatora") },
-                                text = { Text(text = "Czy chcesz zaakceptować obserwatora ${selectedObserver!!.firstName + " " + selectedObserver!!.lastName}?") },
+                                text = {
+                                    Text(
+                                        text = "Czy chcesz zaakceptować obserwatora " +
+                                            "${selectedObserver!!.firstName + " " +
+                                                selectedObserver!!.lastName}?",
+                                    )
+                                },
                                 confirmButton = {
                                     Button(
                                         onClick = {
                                             selectedObserver?.let {
                                                 viewModel.accept(
                                                     selectedObserver!!.id.toString(),
-                                                    userData.value?.id.toString()
+                                                    userData.value?.id.toString(),
                                                 )
                                             }
                                             showAcceptDialog = false
-                                        }
+                                        },
                                     ) {
                                         Text("Zaakceptuj")
                                     }
@@ -350,16 +367,16 @@ fun UserProfileScreen(navController: NavController) {
                                             selectedObserver?.let {
                                                 viewModel.unAccept(
                                                     selectedObserver!!.id.toString(),
-                                                    userData.value?.id.toString()
+                                                    userData.value?.id.toString(),
                                                 )
                                             }
                                             showUserCodeDialog = false
                                             showAcceptDialog = false
-                                        }
+                                        },
                                     ) {
                                         Text("Odrzuć")
                                     }
-                                }
+                                },
                             )
                         }
                     } else if (userData.value?.type == UserType.OBSERVER) {
@@ -367,12 +384,9 @@ fun UserProfileScreen(navController: NavController) {
                             onClick = { showDialogObserver = true },
                             icon = { Icon(Icons.Filled.Person, "Dodaj profil") },
                             text = { Text(text = "Dodaj profil do obserwacji") },
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier.padding(16.dp),
                         )
-
                     }
-
-
                 }
 
                 Column(Modifier.align(Alignment.BottomCenter)) {
@@ -382,19 +396,20 @@ fun UserProfileScreen(navController: NavController) {
                             .padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-
                         ExtendedFloatingActionButton(
                             onClick = { navController.navigate("bluetooth_permission_screen/glucometer") },
-                            icon = { Icon(Icons.Filled.Settings, contentDescription = "Przycisk do ekranu bluetooth.") },
+                            icon = {
+                                Icon(Icons.Filled.Settings, contentDescription = "Przycisk do ekranu bluetooth.")
+                            },
                             text = { Text(text = "Bluetooth") },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
 
                         ExtendedFloatingActionButton(
                             onClick = { navController.navigate("edit_user_data_screen") },
                             icon = { Icon(Icons.Filled.Edit, contentDescription = "Przycisk do edycji danych.") },
                             text = { Text(text = "Edytuj dane") },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                     }
                     Row {
@@ -405,35 +420,35 @@ fun UserProfileScreen(navController: NavController) {
                             },
                             icon = { Icon(Icons.Filled.Close, contentDescription = "Przycisk do logoutu") },
                             text = { Text(text = "Wyloguj się") },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
 
                         ExtendedFloatingActionButton(
                             onClick = {
                                 if (ActivityCompat.checkSelfPermission(
                                         context,
-                                        Manifest.permission.POST_NOTIFICATIONS
+                                        Manifest.permission.POST_NOTIFICATIONS,
                                     ) != PackageManager.PERMISSION_GRANTED
                                 ) {
                                     ActivityCompat.requestPermissions(
                                         context as MainActivity,
                                         arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                                        1
+                                        1,
                                     )
-                                }else{
-                                    viewModel.generateReport(Date.from(Instant.now().minus(20, ChronoUnit.DAYS)), Date.from(Instant.now()))
+                                } else {
+                                    viewModel.generateReport(
+                                        Date.from(Instant.now().minus(20, ChronoUnit.DAYS)),
+                                        Date.from(Instant.now()),
+                                    )
                                     Log.i("FILE", fileName.value.toString())
                                 }
-
-
                             },
                             icon = { Icon(Icons.Filled.Close, contentDescription = "Przycisk do logoutu") },
                             text = { Text(text = "Generuj raport") },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                     }
                 }
-
             }
         }
     } else {
@@ -441,7 +456,7 @@ fun UserProfileScreen(navController: NavController) {
             Column(
                 Modifier
                     .align(Alignment.Center)
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = 32.dp),
             ) {
                 Text(
                     text = "Dane użytkownika",
@@ -456,7 +471,7 @@ fun UserProfileScreen(navController: NavController) {
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     fontSize = 24.sp,
                     fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
 
                 Text(
@@ -464,23 +479,25 @@ fun UserProfileScreen(navController: NavController) {
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     fontSize = 18.sp,
                     fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
                 Text(
                     text = "Połącz się by uzyskać dane.",
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     fontSize = 18.sp,
                     fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
             }
 
-            Row(  modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .align(Alignment.BottomCenter),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter),
                 verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),){
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
                 ExtendedFloatingActionButton(
                     onClick = {
                         clearToken(context)
@@ -488,43 +505,39 @@ fun UserProfileScreen(navController: NavController) {
                     },
                     icon = { Icon(Icons.Filled.Close, contentDescription = "Przycisk do logoutu") },
                     text = { Text(text = "Wyloguj się") },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
 
                 ExtendedFloatingActionButton(
                     onClick = { navController.navigate("bluetooth_permission_screen/glucometer") },
                     icon = { Icon(Icons.Filled.Settings, "Przycisk do ekranu bluetooth.") },
                     text = { Text(text = "Bluetooth") },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
-
-
         }
     }
-
 }
-
 
 @Composable
 fun TextRow(label: String, value: String, fontSize: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp),
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = (fontSize - 5).sp
+            fontSize = (fontSize - 5).sp,
 
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = fontSize.sp
+            fontSize = fontSize.sp,
         )
     }
 }
@@ -534,4 +547,3 @@ fun restartApp(context: Context) {
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     context.startActivity(intent)
 }
-

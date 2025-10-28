@@ -51,8 +51,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
-
-    //form data variables
+    // form data variables
     var systolicPressure by remember { mutableStateOf("") }
     var diastolicPressure by remember { mutableStateOf("") }
     var pulse by remember { mutableStateOf("") }
@@ -70,7 +69,6 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
     var openDateTimePicker by remember { mutableStateOf(false) }
     var openClockTimePicker by remember { mutableStateOf(false) }
 
-
     val snackState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -82,7 +80,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
         is24Hour = true,
     )
 
-    val viewModel : AddHeartbeatViewModel = hiltViewModel()
+    val viewModel: AddHeartbeatViewModel = hiltViewModel()
 
     val timestampFull by remember {
         derivedStateOf {
@@ -91,7 +89,9 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     hours = timestampTime!!.first
                     minutes = timestampTime!!.second
                 }
-            } else null
+            } else {
+                null
+            }
         }
     }
 
@@ -100,7 +100,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
     Column(
         Modifier.padding(18.dp),
     ) {
-        OutlinedCard() {
+        OutlinedCard {
             Column(Modifier.padding(16.dp)) {
                 TextRowEdit(
                     label = "Systoliczne ciśnienie",
@@ -110,7 +110,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     true,
                     focusRequester = systolicPressureFocusRequester,
                     imeAction = ImeAction.Done,
-                    onKeyboardAction = KeyboardActions(onDone = { diastolicPressureFocusRequester.requestFocus() })
+                    onKeyboardAction = KeyboardActions(onDone = { diastolicPressureFocusRequester.requestFocus() }),
                 )
 
                 TextRowEdit(
@@ -121,7 +121,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     true,
                     focusRequester = diastolicPressureFocusRequester,
                     imeAction = ImeAction.Done,
-                    onKeyboardAction = KeyboardActions(onDone = { pulseFocusRequester.requestFocus() })
+                    onKeyboardAction = KeyboardActions(onDone = { pulseFocusRequester.requestFocus() }),
                 )
 
                 TextRowEdit(
@@ -134,7 +134,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     imeAction = ImeAction.Done,
                     onKeyboardAction = KeyboardActions(onDone = {
                         keyboardController?.hide()
-                    })
+                    }),
                 )
 
                 TextRowEdit(
@@ -142,7 +142,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                     value = note,
                     onValueChange = { note = it },
                     fontSize = 18,
-                    false
+                    false,
                 )
 
                 Row(verticalAlignment = CenterVertically) {
@@ -150,7 +150,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                         text = "Data pomiaru",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
                     )
                     Checkbox(checked = timeDateCheckbox, onCheckedChange = { state ->
                         if (state) {
@@ -167,7 +167,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                         value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
                         onValueChange = {},
                         fontSize = 18,
-                        true
+                        true,
                     )
 
                     if (openDialogDate) {
@@ -191,7 +191,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                                         openDateTimePicker = false
                                         openClockTimePicker = true
                                     },
-                                    enabled = confirmEnabled.value
+                                    enabled = confirmEnabled.value,
                                 ) {
                                     Text("OK")
                                 }
@@ -204,13 +204,13 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                                 }) {
                                     Text("Anuluj")
                                 }
-                            }
+                            },
                         ) {
                             DatePicker(
                                 state = datePickerState,
                                 modifier = Modifier
                                     .padding(16.dp)
-                                    .verticalScroll(rememberScrollState())
+                                    .verticalScroll(rememberScrollState()),
                             )
                         }
                     }
@@ -223,7 +223,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                             onConfirm = {
                                 timestampTime = Pair(timePickerState.hour, timePickerState.minute)
                                 openClockTimePicker = false
-                            }
+                            },
                         )
                     }
                 }
@@ -241,7 +241,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                                         viewModel.addHeartbeatResult(
                                             CreateHeartbeatForm(
                                                 userId = UUID.fromString(
-                                                    viewModel.USER_ID
+                                                    viewModel.userId,
                                                 ),
                                                 timestamp = timestampFull ?: Date(),
                                                 pulse = pulse.toIntOrNull() ?: 0,
@@ -249,8 +249,8 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                                                     ?: 0,
                                                 diastolicPressure = diastolicPressure.toIntOrNull()
                                                     ?: 0,
-                                                note = note
-                                            )
+                                                note = note,
+                                            ),
                                         )
                                     ) {
                                         if (fromMain == true) {
@@ -263,7 +263,7 @@ fun AddHeartbeatResultScreen(navController: NavHostController, fromMain: Boolean
                                     }
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(text = "Dodaj pomiar")
                         }

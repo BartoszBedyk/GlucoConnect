@@ -1,31 +1,25 @@
 package pl.example.aplikacja.feature.medicationhistory
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.auth0.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.JwtHelper
 import pl.example.databasemodule.database.repository.UserMedicationRepository
 import pl.example.networkmodule.apiData.UserMedicationResult
-import pl.example.networkmodule.apiMethods.ApiProvider
-import pl.example.networkmodule.getToken
+import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicationHistoryViewModel @Inject constructor(@ApplicationContext private val context : Context) : ViewModel() {
-     private val USER_ID: String =
-         removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
-
-    private val apiProvider = ApiProvider(context)
-    private val userMedicationApi = apiProvider.userMedicationApi
-    private val userMedicationRepository = UserMedicationRepository(context)
-
+class MedicationHistoryViewModel @Inject constructor(
+    private val userMedicationApi: UserMedicationApiInterface,
+    private val userMedicationRepository: UserMedicationRepository,
+    jwtHelper: JwtHelper,
+) : ViewModel() {
+    private val userId: String = jwtHelper.getUserId()
 
     private val _medicationResults = MutableStateFlow<List<UserMedicationResult>>(emptyList())
     val medicationResults: MutableStateFlow<List<UserMedicationResult>> = _medicationResults
@@ -33,18 +27,17 @@ class MedicationHistoryViewModel @Inject constructor(@ApplicationContext private
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    init{
+    init {
         getMedicationHistory()
     }
 
-
-     fun getMedicationHistory(){
-         _isLoading.value = true
+    fun getMedicationHistory() {
+        _isLoading.value = true
         viewModelScope.launch {
             try {
-                _medicationResults.value = userMedicationApi.getUserMedicationHistory(USER_ID)!!
+                _medicationResults.value = userMedicationApi.getUserMedicationHistory(userId)!!
             } catch (e: Exception) {
-                _medicationResults.value = userMedicationRepository.getUserMedicationHistory(USER_ID).map {
+                _medicationResults.value = userMedicationRepository.getUserMedicationHistory(userId).map {
                     UserMedicationResult(
                         id = it.id,
                         userId = it.userId,
@@ -58,15 +51,13 @@ class MedicationHistoryViewModel @Inject constructor(@ApplicationContext private
                         description = it.description,
                         manufacturer = it.manufacturer,
                         form = it.form,
-                        strength = it.strength
+                        strength = it.strength,
                     )
                 }
                 Log.e("MedicationHistoryViewModel", "Error fetching medication history", e)
-            }finally {
+            } finally {
                 _isLoading.value = false
             }
         }
     }
-
-
 }

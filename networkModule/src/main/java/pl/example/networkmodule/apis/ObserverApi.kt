@@ -13,7 +13,8 @@ import pl.example.networkmodule.KtorClient
 import pl.example.networkmodule.apiData.ObserverResult
 import pl.example.networkmodule.apiMethods.ObserverApiInterface
 import pl.example.networkmodule.requestData.CreateObserver
-import java.util.*
+import java.util.UUID
+
 
 class ObserverApi(private val ktorClient: KtorClient) : ObserverApiInterface {
     private val client = ktorClient.client

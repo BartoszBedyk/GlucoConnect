@@ -48,13 +48,12 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import pl.example.aplikacja.R
-import pl.example.aplikacja.UiElements.GlucoseChart
-import pl.example.aplikacja.UiElements.HeartbeatChart
-import pl.example.aplikacja.UiElements.ItemView
-import pl.example.aplikacja.UiElements.LinearIndicatorHb1Ac
 import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.mappters.toUserType
-
+import pl.example.aplikacja.uiElements.GlucoseChart
+import pl.example.aplikacja.uiElements.HeartbeatChart
+import pl.example.aplikacja.uiElements.ItemView
+import pl.example.aplikacja.uiElements.LinearIndicatorHb1Ac
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.getToken
 
@@ -65,7 +64,7 @@ fun MainScreen(navController: NavController, userId: String?) {
     if (getToken(context) == null) {
         Log.i("Token", "Brak tokena w MainScreen przejście do login.")
         navController.navigate("login_screen")
-    };
+    }
 
     val decoded: DecodedJWT = JWT.decode(getToken(context))
     val userType = toUserType(decoded.getClaim("userType").asString())
@@ -82,9 +81,8 @@ fun MainScreen(navController: NavController, userId: String?) {
         }
     }
 
-
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
+        ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
         val notificationGranted = permissions[Manifest.permission.POST_NOTIFICATIONS] == true
     }
@@ -92,8 +90,8 @@ fun MainScreen(navController: NavController, userId: String?) {
     LaunchedEffect(Unit) {
         permissionLauncher.launch(
             arrayOf(
-                Manifest.permission.POST_NOTIFICATIONS
-            )
+                Manifest.permission.POST_NOTIFICATIONS,
+            ),
         )
     }
 
@@ -104,14 +102,14 @@ fun MainScreen(navController: NavController, userId: String?) {
         if (state.isLoading) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 Column {
                     CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                     Text(
                         text = "Nawiązywanie połączenia...",
                         modifier = Modifier.padding(16.dp),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 }
             }
@@ -120,9 +118,8 @@ fun MainScreen(navController: NavController, userId: String?) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-
                 if (state.glucoseItems.isNotEmpty()) {
                     item {
                         GlucoseChart(state.glucoseItems.reversed())
@@ -137,11 +134,10 @@ fun MainScreen(navController: NavController, userId: String?) {
                         Text(
                             text = "Brak danych",
                             modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.secondary,
                         )
                     }
                 }
-
 
                 if (state.heartbeatItems.isNotEmpty()) {
                     item {
@@ -157,7 +153,7 @@ fun MainScreen(navController: NavController, userId: String?) {
                         Text(
                             text = "Brak danych",
                             modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.secondary,
                         )
                     }
                 }
@@ -165,20 +161,14 @@ fun MainScreen(navController: NavController, userId: String?) {
                 item {
                     LinearIndicatorHb1Ac(state.userHb1AcValue, state.userDiabetesType)
                 }
-
             }
         }
-
-
-
 
         if (userType == UserType.PATIENT) {
             ExpandableFloatingActionButton(navController)
         }
-
     }
 }
-
 
 @Composable
 fun ExpandableFloatingActionButton(navController: NavController) {
@@ -190,7 +180,7 @@ fun ExpandableFloatingActionButton(navController: NavController) {
             .zIndex(2f)
             .padding(16.dp),
 
-        contentAlignment = Alignment.BottomEnd
+        contentAlignment = Alignment.BottomEnd,
 
     ) {
         Row(
@@ -199,37 +189,35 @@ fun ExpandableFloatingActionButton(navController: NavController) {
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
                 .background(FloatingActionButtonDefaults.containerColor)
-                .shadow(elevation = 8.dp)
+                .shadow(elevation = 8.dp),
         ) {
-
             AnimatedVisibility(
-                visible = isExpanded, modifier = Modifier
-                    .padding(end = 0.dp)
+                visible = isExpanded,
+                modifier = Modifier
+                    .padding(end = 0.dp),
             ) {
-                Row(
-                ) {
+                Row {
                     FloatingActionButton(
                         onClick = {
                             navController.navigate("add_glucose_result/main")
                             isExpanded = !isExpanded
                         },
                         modifier = Modifier.padding(end = 0.dp),
-                        elevation = FloatingActionButtonDefaults.elevation(0.dp)
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.drop_icon),
                             contentDescription = "Icon",
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(24.dp),
                         )
                     }
-
 
                     FloatingActionButton(
                         onClick = {
                             navController.navigate("add_heartbeat_result/main")
                             isExpanded = !isExpanded
                         },
-                        elevation = FloatingActionButtonDefaults.elevation(0.dp)
+                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.monitor_heart),
@@ -240,16 +228,15 @@ fun ExpandableFloatingActionButton(navController: NavController) {
                 }
             }
 
-
             FloatingActionButton(
                 onClick = { isExpanded = !isExpanded },
                 shape = Shapes().medium,
                 modifier = Modifier,
-                elevation = FloatingActionButtonDefaults.elevation(4.dp)
+                elevation = FloatingActionButtonDefaults.elevation(4.dp),
             ) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Filled.Close else Icons.Filled.Add,
-                    contentDescription = if (isExpanded) "Zamknij" else "Dodaj"
+                    contentDescription = if (isExpanded) "Zamknij" else "Dodaj",
                 )
             }
         }

@@ -4,12 +4,12 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.auth0.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.JwtHelper
 import pl.example.aplikacja.feature.login.isNetworkAvailable
 import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.mappters.toMedicationDBList
@@ -19,25 +19,23 @@ import pl.example.databasemodule.database.repository.MedicationRepository
 import pl.example.databasemodule.database.repository.UserMedicationRepository
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiData.UserMedicationResult
-import pl.example.networkmodule.apiMethods.ApiProvider
-import pl.example.networkmodule.getToken
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
+import pl.example.networkmodule.apiMethods.MedicationApiInterface
+import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import javax.inject.Inject
 
 @HiltViewModel
 class UserMedicationScreenViewModel @Inject constructor(
-    @ApplicationContext context: Context
+    private val medicationApi: MedicationApiInterface,
+    private val userMedicationsApi: UserMedicationApiInterface,
+    private val userMedicationRepository: UserMedicationRepository,
+    private val medicationRepository: MedicationRepository,
+    private val authenticationApi: AuthenticationApiInterface,
+    jwtHelper: JwtHelper,
+    @ApplicationContext context: Context,
 ) : ViewModel() {
 
-    private val USER_ID: String =
-        removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
-
-    val apiProvider = ApiProvider(context)
-    private val medicationApi = apiProvider.medicationApi
-    private val userMedicationsApi = apiProvider.userMedicationApi
-    private val userMedicationRepository = UserMedicationRepository(context)
-    private val medicationRepository = MedicationRepository(context)
-    private val authenticationApi = apiProvider.authenticationApi
-
+    private val userId: String = jwtHelper.getUserId()
 
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
@@ -55,7 +53,7 @@ class UserMedicationScreenViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
-        isApiAvilible(apiProvider.innerContext)
+        isApiAvilible(context)
 
         viewModelScope.launch {
             healthy.collect { isHealthy ->
@@ -69,16 +67,15 @@ class UserMedicationScreenViewModel @Inject constructor(
         }
     }
 
-
     private fun fetchMedicationResults() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 Log.i("UserMedicationScreenViewModel", "fetchMedicationResults")
-                _medicationResults.value = userMedicationsApi.readTodayUserMedication(USER_ID)!!
+                _medicationResults.value = userMedicationsApi.readTodayUserMedication(userId)!!
             } catch (e: Exception) {
-                _medicationResults.value = userMedicationRepository.getTodayUserMedication(USER_ID)
+                _medicationResults.value = userMedicationRepository.getTodayUserMedication(userId)
             } finally {
                 _isLoading.value = false
             }
@@ -89,8 +86,8 @@ class UserMedicationScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
-                _medication.value = medicationApi.getUnsynced(USER_ID)!!
-                _userMedication.value = userMedicationsApi.readTodayUserMedication(USER_ID)!!
+                _medication.value = medicationApi.getUnsynced(userId)!!
+                _userMedication.value = userMedicationsApi.readTodayUserMedication(userId)!!
                 userMedicationRepository.insertAll(userMedication.value.toUserMedicationDBList())
                 medicationRepository.insertAll(medication.value.toMedicationDBList())
                 medication.value.forEach { medicationResult ->
@@ -101,7 +98,6 @@ class UserMedicationScreenViewModel @Inject constructor(
                     medicationRepository.getAllMedications().toMedicationList()
             }
         }
-
     }
 
     suspend fun deleteUserMedicationById(): Boolean {
@@ -114,14 +110,16 @@ class UserMedicationScreenViewModel @Inject constructor(
                     userMedicationRepository.deleteMedication(getUserMedicationIDByID()!!)
                     Log.d("UM API", "User medication deleted successfully")
                     return true
-                } else
+                } else {
                     return false
-            } else
+                }
+            } else {
                 return false
+            }
         } catch (e: Exception) {
             Log.e(
                 "MedicationDetailsScreenViewModel",
-                "Error deleting user medication: ${e.message}"
+                "Error deleting user medication: ${e.message}",
             )
             return false
         }
@@ -129,13 +127,13 @@ class UserMedicationScreenViewModel @Inject constructor(
 
     private suspend fun getUserMedicationIDByID(): String? {
         try {
-//            val id = userMedicationsApi.getUserMedicationId(USER_ID, MEDICATION_ID)
+//            val id = userMedicationsApi.getUserMedicationId(user_id, MEDICATION_ID)
 //            Log.e("UM API", "ID: $id")
 //            return id
         } catch (e: Exception) {
             Log.e(
                 "MedicationDetailsScreenViewModel",
-                "Error fetching user medication ID: ${e.message}"
+                "Error fetching user medication ID: ${e.message}",
             )
         }
         return null
@@ -163,5 +161,4 @@ class UserMedicationScreenViewModel @Inject constructor(
             }
         }
     }
-
 }

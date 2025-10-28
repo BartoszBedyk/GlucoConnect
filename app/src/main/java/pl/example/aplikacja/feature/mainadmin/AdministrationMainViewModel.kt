@@ -11,24 +11,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.feature.login.isNetworkAvailable
 import pl.example.networkmodule.apiData.UserResult
-import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
+import pl.example.networkmodule.apiMethods.UserApiInterface
 import javax.inject.Inject
 
 @HiltViewModel
-class AdministrationMainViewModel @Inject constructor(@ApplicationContext private val context: Context) : ViewModel() {
-    val apiProvider = ApiProvider(context)
-    val userApi = apiProvider.userApi
+class AdministrationMainViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val userApi: UserApiInterface,
+    private val authenticationApi: AuthenticationApiInterface,
+) : ViewModel() {
 
     private val _users = MutableStateFlow<List<UserResult>>(emptyList())
     val users: MutableStateFlow<List<UserResult>> = _users
-
-    private val authenticationApi = apiProvider.authenticationApi
 
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
 
     init {
-        isApiAvilible(apiProvider.innerContext)
+        isApiAvilible(context)
 
         viewModelScope.launch {
             healthy.collect { isHealthy ->

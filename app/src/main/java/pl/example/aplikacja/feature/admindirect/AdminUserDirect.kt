@@ -37,24 +37,21 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.feature.user.TextRow
-import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
-import pl.example.aplikacja.UiElements.UserTypeDropdownMenu
 import pl.example.aplikacja.mappters.formatUnit
 import pl.example.aplikacja.mappters.formatUserType
+import pl.example.aplikacja.uiElements.GlucoseUnitDropdownMenu
+import pl.example.aplikacja.uiElements.UserTypeDropdownMenu
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 import pl.example.networkmodule.requestData.UnitUpdate
 import java.util.UUID
 
-
 @Composable
 fun AdminUserDirectScreen(
     userId: String,
     navController: NavController,
-    viewModel: AdminUserDirectViewModel = hiltViewModel()
+    viewModel: AdminUserDirectViewModel = hiltViewModel(),
 ) {
-
-
     val user = viewModel.userData.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
@@ -65,7 +62,6 @@ fun AdminUserDirectScreen(
     var prefUnit by remember { mutableStateOf<GlucoseUnitType>(GlucoseUnitType.MG_PER_DL) }
     var typeState by remember { mutableStateOf<RestrictedUserType?>(null) }
 
-
     val userType by viewModel.userType.collectAsState()
     prefUnit = user.value?.prefUnit ?: GlucoseUnitType.MG_PER_DL
 
@@ -74,7 +70,6 @@ fun AdminUserDirectScreen(
             typeState = userType
         }
     }
-
 
     Column(Modifier.padding(16.dp)) {
         Card(Modifier.padding(8.dp)) {
@@ -89,7 +84,7 @@ fun AdminUserDirectScreen(
                 TextRow(
                     "Zablokowany",
                     if (user.value?.isBlocked == true) "Zablokowany" else "Odblokowany",
-                    fontSize = 18
+                    fontSize = 18,
                 )
                 Icon(
                     modifier = Modifier.size(32.dp),
@@ -97,8 +92,6 @@ fun AdminUserDirectScreen(
                     contentDescription = if (user.value?.isBlocked == true) "Zablokowany" else "Odblokowany",
                     tint = if (user.value?.isBlocked == true) Color.Red else Color.Green,
                 )
-
-
             }
         }
 
@@ -107,29 +100,35 @@ fun AdminUserDirectScreen(
                 onClick = { showDialog = true },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp)
+                    .padding(end = 8.dp),
             ) {
                 Text("Zmień jednostkę")
             }
 
             if (user.value?.isBlocked == true) {
-                ExtendedFloatingActionButton(onClick = {
-                    viewModel.viewModelScope.launch {
-                        viewModel.unblcokUser()
-                    }
-                }, modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        viewModel.viewModelScope.launch {
+                            viewModel.unblcokUser()
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                ) {
                     Text("Odblokuj")
                 }
             } else {
-                ExtendedFloatingActionButton(onClick = {
-                    viewModel.viewModelScope.launch {
-                        viewModel.blockUser()
-                    }
-                }, modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        viewModel.viewModelScope.launch {
+                            viewModel.blockUser()
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                ) {
                     Text("Zablokuj")
                 }
             }
@@ -139,7 +138,7 @@ fun AdminUserDirectScreen(
                 onClick = { showDeleteDialog = true },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp)
+                    .padding(end = 8.dp),
             ) {
                 Text("Usuń użytkownika")
             }
@@ -147,7 +146,7 @@ fun AdminUserDirectScreen(
                 onClick = { showChangePasswordDialog = true },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp)
+                    .padding(end = 8.dp),
             ) {
                 Text("Zmień hasło")
             }
@@ -157,13 +156,11 @@ fun AdminUserDirectScreen(
                 onClick = { showDialogTypeChange = true },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp)
+                    .padding(end = 8.dp),
             ) {
                 Text("Zmień typ użytkownika")
             }
-
         }
-
     }
 
     if (showDialog) {
@@ -175,12 +172,12 @@ fun AdminUserDirectScreen(
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         "Zmień typ jednostki pomiarowej.",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -188,14 +185,14 @@ fun AdminUserDirectScreen(
                     GlucoseUnitDropdownMenu(
                         selectedUnit = prefUnit,
                         onUnitSelected = { prefUnit = it },
-                        label = "Jednostka stężenia glukozy"
+                        label = "Jednostka stężenia glukozy",
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
                         horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Button(onClick = {
                             viewModel.viewModelScope.launch {
@@ -226,7 +223,7 @@ fun AdminUserDirectScreen(
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Zmień typ użytkownika.", style = MaterialTheme.typography.bodyMedium)
@@ -236,15 +233,14 @@ fun AdminUserDirectScreen(
                     UserTypeDropdownMenu(
                         selectedUnit = typeState ?: RestrictedUserType.BRAK,
                         onUnitSelected = { typeState = it },
-                        label = "Typ użytkownika"
+                        label = "Typ użytkownika",
                     )
-
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
                         horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Button(onClick = {
                             viewModel.viewModelScope.launch {
@@ -275,7 +271,7 @@ fun AdminUserDirectScreen(
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Zmień hasło użytkownika", style = MaterialTheme.typography.bodyMedium)
@@ -285,14 +281,14 @@ fun AdminUserDirectScreen(
                     TextField(
                         value = newPassword,
                         onValueChange = { newPassword = it },
-                        label = { Text("Nowe hasło") }
+                        label = { Text("Nowe hasło") },
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
                         horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Button(onClick = {
                             viewModel.viewModelScope.launch {
@@ -314,7 +310,6 @@ fun AdminUserDirectScreen(
         }
     }
 
-
     if (showDeleteDialog) {
         Dialog(onDismissRequest = { showDeleteDialog = false }) {
             Card(
@@ -324,7 +319,7 @@ fun AdminUserDirectScreen(
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Usuń użytkownika", style = MaterialTheme.typography.bodyMedium)
@@ -337,7 +332,7 @@ fun AdminUserDirectScreen(
 
                     Row(
                         horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Button(onClick = {
                             viewModel.viewModelScope.launch {
@@ -359,6 +354,4 @@ fun AdminUserDirectScreen(
             }
         }
     }
-
-
 }

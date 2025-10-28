@@ -17,12 +17,10 @@ import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import pl.example.aplikacja.UiElements.BottomNavigationItem
+import pl.example.aplikacja.uiElements.BottomNavigationItem
 import pl.example.networkmodule.apiData.enumTypes.UserType
 
-class BottomNavBarViewModel(
-    private var userType: UserType,
-) : ViewModel() {
+class BottomNavBarViewModel(private var userType: UserType) : ViewModel() {
 
     val items = mutableStateListOf<BottomNavigationItem>()
     val selectedItemIndex = mutableStateOf(0)

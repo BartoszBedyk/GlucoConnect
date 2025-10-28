@@ -9,7 +9,6 @@ import javax.inject.Inject
 @HiltViewModel
 class RegistrationStepOneScreenViewModel @Inject constructor(private val userApi: UserApiInterface) : ViewModel() {
 
-    suspend fun register(login: String, password: String): String? {
-        return userApi.createUserStepOne(CreateUserStepOneForm(login, password))
-    }
+    suspend fun register(login: String, password: String): String? =
+        userApi.createUserStepOne(CreateUserStepOneForm(login, password))
 }

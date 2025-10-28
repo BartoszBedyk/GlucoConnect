@@ -40,12 +40,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.BottomNavBarViewModel
 import pl.example.aplikacja.MainActivity
 import pl.example.aplikacja.R
-import pl.example.aplikacja.feature.login.LoginScreenViewModel
 import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.clearToken
 import pl.example.networkmodule.getToken
@@ -58,12 +56,11 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
 
     val coroutineScope = rememberCoroutineScope()
     val apiProvider = remember { ApiProvider(context) }
-    val viewModel : LoginScreenViewModel = hiltViewModel()
-
+    val viewModel: LoginScreenViewModel = hiltViewModel()
 
     val healthy by viewModel.healthy.collectAsState()
 
-    //Login form data variables
+    // Login form data variables
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loginError by remember { mutableStateOf("") }
@@ -71,7 +68,7 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
     var checked by remember { mutableStateOf(false) }
 
     LaunchedEffect(checked) {
-        //clearToken(context)
+        // clearToken(context)
         val currentToken = getToken(context)
         Log.i("Token", "Current token: $currentToken")
 
@@ -116,23 +113,22 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
 
     Box(
         Modifier
-            .fillMaxSize()
-    )
-    {
+            .fillMaxSize(),
+    ) {
         Text(
-            text = "Zaloguj się", modifier = Modifier
+            text = "Zaloguj się",
+            modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(bottom = 16.dp, top = 100.dp),
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 32.sp
+            fontSize = 32.sp,
         )
     }
-
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         OutlinedTextField(
             value = login,
@@ -141,43 +137,42 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
             placeholder = { Text(text = "Wpisz email") },
             maxLines = 1,
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         )
 
         PasswordTextField(
             password = password,
-            onPasswordChange = { password = it }
+            onPasswordChange = { password = it },
         )
 
         Button(
             onClick = {
-                    loginError = ""
-                    loading = true
-                    coroutineScope.launch {
-                        if (isNetworkAvailable(context) && healthy == true) {
-                            Log.i("LoginScreen", "Network is available")
-                            val token = viewModel.login(login, password, context)
-                            if (token != null) {
-                                saveToken(context, token)
-                                val intent = Intent(context, MainActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(intent)
-                                //navController.navigate("main_screen")
-                            } else {
-                                loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
-                            }
+                loginError = ""
+                loading = true
+                coroutineScope.launch {
+                    if (isNetworkAvailable(context) && healthy == true) {
+                        Log.i("LoginScreen", "Network is available")
+                        val token = viewModel.login(login, password, context)
+                        if (token != null) {
+                            saveToken(context, token)
+                            val intent = Intent(context, MainActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent)
+                            // navController.navigate("main_screen")
                         } else {
-                            //saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiI1NjI1MWVhNi0zYTU3LTRmYjQtOGQ3Ni1kMWQwODg0M2Y5YTMiLCJ1c2VybmFtZSI6ImZzLmZzQHdwLnBsIiwidXNlclR5cGUiOiJQQVRJRU5UIiwiZXhwIjoxNzQ0NzIwMjcxfQ.WuCwX23OwRtAnQUs8zz2n2U8oui1IVx8gXMwI9qeL9w")
-                            loginError =
-                                "Brak połączenia z serwerem. Sprawdź połączenie i spróbuj ponownie."
+                            loginError = "Podczas logowania wystąpił błąd. Spróbuj ponownie."
                         }
-                        loading = false
+                    } else {
+                        // saveToken(context, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiaXNzIjoibXlpc3N1ZXIiLCJ1c2VySWQiOiI1NjI1MWVhNi0zYTU3LTRmYjQtOGQ3Ni1kMWQwODg0M2Y5YTMiLCJ1c2VybmFtZSI6ImZzLmZzQHdwLnBsIiwidXNlclR5cGUiOiJQQVRJRU5UIiwiZXhwIjoxNzQ0NzIwMjcxfQ.WuCwX23OwRtAnQUs8zz2n2U8oui1IVx8gXMwI9qeL9w")
+                        loginError =
+                            "Brak połączenia z serwerem. Sprawdź połączenie i spróbuj ponownie."
                     }
-                },
+                    loading = false
+                }
+            },
         ) {
             Text(text = if (loading) "Logowanie..." else "Zaloguj")
         }
-
 
         if (loginError.isNotEmpty()) {
             Text(
@@ -186,21 +181,23 @@ fun LoginScreen(navBarViewModel: BottomNavBarViewModel, navController: NavHostCo
                 fontSize = 16.sp,
                 overflow = TextOverflow.Clip,
                 maxLines = 2,
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
             )
         }
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
-        Text(text = "Nie masz konta? Załóż je tutaj", modifier = Modifier
-            .padding(top = 16.dp)
-            .padding(bottom = 32.dp)
-            .align(Alignment.BottomCenter)
-            .clickable { navController.navigate("registration_screen") })
+        Text(
+            text = "Nie masz konta? Załóż je tutaj",
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .padding(bottom = 32.dp)
+                .align(Alignment.BottomCenter)
+                .clickable { navController.navigate("registration_screen") },
+        )
     }
-
 }
 
 @SuppressLint("MissingPermission")
@@ -226,7 +223,7 @@ fun isNetworkAvailable(context: Context): Boolean {
 
 @SuppressLint("MissingPermission")
 fun isNetworkAvailable(context: Context, healthy: Boolean): Boolean {
-    if (healthy == false) return false;
+    if (healthy == false) return false
     val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -246,12 +243,8 @@ fun isNetworkAvailable(context: Context, healthy: Boolean): Boolean {
     }
 }
 
-
 @Composable
-fun PasswordTextField(
-    password: String,
-    onPasswordChange: (String) -> Unit
-) {
+fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
     var showPassword by remember { mutableStateOf(false) }
 
     OutlinedTextField(
@@ -264,17 +257,14 @@ fun PasswordTextField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         trailingIcon = {
             Icon(
-                painter = painterResource(id = if (showPassword) R.drawable.baseline_visibility_24 else R.drawable.baseline_visibility_off_24),
+                painter = painterResource(
+                    id = if (showPassword) R.drawable.baseline_visibility_24 else R.drawable.baseline_visibility_off_24,
+                ),
                 contentDescription = "Widoczność hasła",
-                modifier = Modifier.clickable { showPassword = !showPassword }
+                modifier = Modifier.clickable { showPassword = !showPassword },
             )
-
-
         },
         modifier = Modifier
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp),
     )
 }
-
-
-

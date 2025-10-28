@@ -56,8 +56,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddUserMedicationScreen(navController: NavController) {
-
-    //Form data variables
+    // Form data variables
     var dose by remember { mutableStateOf("") }
     var frequency by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
@@ -66,17 +65,15 @@ fun AddUserMedicationScreen(navController: NavController) {
     var openStartDateDialog by remember { mutableStateOf(false) }
     var openEndDateDialog by remember { mutableStateOf(false) }
 
-
     val doseFocusRequester = remember { FocusRequester() }
     val frequencyFocusRequester = remember { FocusRequester() }
     val noteFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-
     val snackState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    val viewModel : AddUserMedicationViewModel = hiltViewModel()
+    val viewModel: AddUserMedicationViewModel = hiltViewModel()
 
     val medication = viewModel.medications.collectAsState()
     var selectedMedication by remember { mutableStateOf<MedicationResult?>(null) }
@@ -93,11 +90,12 @@ fun AddUserMedicationScreen(navController: NavController) {
     Column(
         Modifier.padding(18.dp).verticalScroll(scrollState),
     ) {
-        OutlinedCard() {
+        OutlinedCard {
             Column(Modifier.padding(16.dp)) {
-
-                MedicationDropdownExample(medications = medication.value,
-                    onMedicationSelected = { selectedMedication = it })
+                MedicationDropdownExample(
+                    medications = medication.value,
+                    onMedicationSelected = { selectedMedication = it },
+                )
 
                 TextRowEdit(
                     label = "Dawka",
@@ -107,7 +105,7 @@ fun AddUserMedicationScreen(navController: NavController) {
                     false,
                     focusRequester = doseFocusRequester,
                     imeAction = ImeAction.Done,
-                    onKeyboardAction = KeyboardActions(onDone = { frequencyFocusRequester.requestFocus() })
+                    onKeyboardAction = KeyboardActions(onDone = { frequencyFocusRequester.requestFocus() }),
 
                 )
 
@@ -119,7 +117,7 @@ fun AddUserMedicationScreen(navController: NavController) {
                     false,
                     focusRequester = frequencyFocusRequester,
                     imeAction = ImeAction.Done,
-                    onKeyboardAction = KeyboardActions(onDone = { noteFocusRequester.requestFocus() })
+                    onKeyboardAction = KeyboardActions(onDone = { noteFocusRequester.requestFocus() }),
                 )
 
                 TextRowEdit(
@@ -130,7 +128,7 @@ fun AddUserMedicationScreen(navController: NavController) {
                     false,
                     focusRequester = noteFocusRequester,
                     imeAction = ImeAction.Done,
-                    onKeyboardAction = KeyboardActions(onDone = { keyboardController?.hide() })
+                    onKeyboardAction = KeyboardActions(onDone = { keyboardController?.hide() }),
                 )
 
                 Row {
@@ -139,17 +137,19 @@ fun AddUserMedicationScreen(navController: NavController) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp,
-                        modifier = Modifier.align(CenterVertically)
+                        modifier = Modifier.align(CenterVertically),
                     )
                     Checkbox(
-                        checked = startDate != null, onCheckedChange = { state ->
+                        checked = startDate != null,
+                        onCheckedChange = { state ->
                             if (state) {
                                 openStartDateDialog = true
                             } else {
                                 startDate = null
                                 Log.d("AddUserMedication", "startDate set to null")
                             }
-                        }, modifier = Modifier.align(CenterVertically)
+                        },
+                        modifier = Modifier.align(CenterVertically),
                     )
                 }
 
@@ -159,12 +159,13 @@ fun AddUserMedicationScreen(navController: NavController) {
                         value = formatDateTimeWithoutTime(it),
                         onValueChange = {},
                         fontSize = 18,
-                        false
+                        false,
                     )
                 }
 
                 if (openStartDateDialog) {
-                    DatePickerDialog(onDismissRequest = { openStartDateDialog = false },
+                    DatePickerDialog(
+                        onDismissRequest = { openStartDateDialog = false },
                         confirmButton = {
                             TextButton(
                                 onClick = {
@@ -173,7 +174,8 @@ fun AddUserMedicationScreen(navController: NavController) {
                                         Log.d("AddUserMedication", "startDate set to: $startDate")
                                     }
                                     openStartDateDialog = false
-                                }, enabled = startDatePickerState.selectedDateMillis != null
+                                },
+                                enabled = startDatePickerState.selectedDateMillis != null,
                             ) {
                                 Text("OK")
                             }
@@ -182,7 +184,8 @@ fun AddUserMedicationScreen(navController: NavController) {
                             TextButton(onClick = { openStartDateDialog = false }) {
                                 Text("Anuluj")
                             }
-                        }) {
+                        },
+                    ) {
                         DatePicker(state = startDatePickerState, modifier = Modifier.padding(16.dp))
                     }
                 }
@@ -193,17 +196,19 @@ fun AddUserMedicationScreen(navController: NavController) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp,
-                        modifier = Modifier.align(CenterVertically)
+                        modifier = Modifier.align(CenterVertically),
                     )
                     Checkbox(
-                        checked = endDate != null, onCheckedChange = { state ->
+                        checked = endDate != null,
+                        onCheckedChange = { state ->
                             if (state) {
                                 openEndDateDialog = true
                             } else {
                                 endDate = null
                                 Log.d("AddUserMedication", "endDate set to null")
                             }
-                        }, modifier = Modifier.align(CenterVertically)
+                        },
+                        modifier = Modifier.align(CenterVertically),
                     )
                 }
 
@@ -213,12 +218,13 @@ fun AddUserMedicationScreen(navController: NavController) {
                         value = formatDateTimeWithoutTime(it),
                         onValueChange = {},
                         fontSize = 18,
-                        false
+                        false,
                     )
                 }
 
                 if (openEndDateDialog) {
-                    DatePickerDialog(onDismissRequest = { openEndDateDialog = false },
+                    DatePickerDialog(
+                        onDismissRequest = { openEndDateDialog = false },
                         confirmButton = {
                             TextButton(
                                 onClick = {
@@ -226,7 +232,9 @@ fun AddUserMedicationScreen(navController: NavController) {
                                         val selectedDate = Date(it)
                                         if (startDate != null && selectedDate.before(startDate)) {
                                             coroutineScope.launch {
-                                                snackState.showSnackbar("Data końca nie może być wcześniejsza niż data początku!")
+                                                snackState.showSnackbar(
+                                                    "Data końca nie może być wcześniejsza niż data początku!",
+                                                )
                                             }
                                         } else {
                                             endDate = selectedDate
@@ -234,7 +242,8 @@ fun AddUserMedicationScreen(navController: NavController) {
                                         }
                                     }
                                     openEndDateDialog = false
-                                }, enabled = endDatePickerState.selectedDateMillis != null
+                                },
+                                enabled = endDatePickerState.selectedDateMillis != null,
                             ) {
                                 Text("OK")
                             }
@@ -243,49 +252,53 @@ fun AddUserMedicationScreen(navController: NavController) {
                             TextButton(onClick = { openEndDateDialog = false }) {
                                 Text("Anuluj")
                             }
-                        }) {
+                        },
+                    ) {
                         DatePicker(state = endDatePickerState, modifier = Modifier.padding(16.dp))
                     }
                 }
 
-                ExtendedFloatingActionButton(onClick = {
-                    coroutineScope.launch {
-                        if (selectedMedication != null) {
-                            if (startDate != null && endDate != null && endDate!!.before(startDate)) {
-                                snackState.showSnackbar("Data końca nie może być wcześniejsza niż data początku!")
-                                return@launch
-                            }
-                            Log.d(
-                                "AddUserMedication",
-                                "Submitting with startDate: $startDate, endDate: $endDate"
-                            )
-                            if (viewModel.addUserMedication(
-                                    CreateUserMedicationForm(
-                                        id = UUID.randomUUID(),
-                                        userId = UUID.fromString(
-                                            viewModel.USER_ID
-                                        ),
-                                        medicationId = selectedMedication!!.id,
-                                        dosage = dose,
-                                        frequency = frequency,
-                                        startDate = startDate,
-                                        endDate = endDate,
-                                        notes = note
-                                    )
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            if (selectedMedication != null) {
+                                if (startDate != null && endDate != null && endDate!!.before(startDate)) {
+                                    snackState.showSnackbar("Data końca nie może być wcześniejsza niż data początku!")
+                                    return@launch
+                                }
+                                Log.d(
+                                    "AddUserMedication",
+                                    "Submitting with startDate: $startDate, endDate: $endDate",
                                 )
-                            ) {
-                                navController.navigate("user_medication_screen")
-                                snackState.showSnackbar("Dodano lek.")
+                                if (viewModel.addUserMedication(
+                                        CreateUserMedicationForm(
+                                            id = UUID.randomUUID(),
+                                            userId = UUID.fromString(
+                                                viewModel.userId,
+                                            ),
+                                            medicationId = selectedMedication!!.id,
+                                            dosage = dose,
+                                            frequency = frequency,
+                                            startDate = startDate,
+                                            endDate = endDate,
+                                            notes = note,
+                                        ),
+                                    )
+                                ) {
+                                    navController.navigate("user_medication_screen")
+                                    snackState.showSnackbar("Dodano lek.")
+                                } else {
+                                    snackState.showSnackbar("Nie udało się dodać leku.")
+                                }
                             } else {
-                                snackState.showSnackbar("Nie udało się dodać leku.")
+                                snackState.showSnackbar("Wybierz lek z listy!")
                             }
-                        } else {
-                            snackState.showSnackbar("Wybierz lek z listy!")
                         }
-                    }
-                },modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()) {
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                ) {
                     Text(text = "Dodaj lek")
                 }
             }
@@ -295,10 +308,7 @@ fun AddUserMedicationScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicationDropdownExample(
-    medications: List<MedicationResult>, onMedicationSelected: (MedicationResult) -> Unit
-) {
-
+fun MedicationDropdownExample(medications: List<MedicationResult>, onMedicationSelected: (MedicationResult) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     var filteredMedications by remember { mutableStateOf(medications) }
@@ -319,7 +329,7 @@ fun MedicationDropdownExample(
         text = "Nazwa leku",
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.primary,
-        fontSize = 18.sp
+        fontSize = 18.sp,
     )
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
@@ -332,7 +342,7 @@ fun MedicationDropdownExample(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            singleLine = true
+            singleLine = true,
         )
 
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -340,18 +350,19 @@ fun MedicationDropdownExample(
                 DropdownMenuItem(text = { Text("Brak wyników") }, onClick = { expanded = false })
             } else {
                 filteredMedications.forEach { medication ->
-                    DropdownMenuItem(text = { Text("${medication.name} (${medication.strength})") },
+                    DropdownMenuItem(
+                        text = { Text("${medication.name} (${medication.strength})") },
                         onClick = {
                             searchText = medication.name
                             expanded = false
                             onMedicationSelected(medication)
-                        })
+                        },
+                    )
                 }
             }
         }
     }
 }
-
 
 @Preview
 @Composable

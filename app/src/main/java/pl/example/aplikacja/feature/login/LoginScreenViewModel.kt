@@ -5,11 +5,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.UserCredentials
@@ -19,35 +19,33 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
     private val authenticationApi: AuthenticationApiInterface,
-    apiProvider: ApiProvider,
+    @ApplicationContext context: Context,
 ) : ViewModel() {
 
     private val _healthy = MutableStateFlow<Boolean?>(false)
     val healthy: MutableStateFlow<Boolean?> = _healthy
 
     init {
-        isApiAvilible(apiProvider.innerContext)
+        isApiAvilible(context)
     }
-    suspend fun login(login: String, password: String, context: Context): String? {
-        return try {
-            val userCredentials = UserCredentials(login, password)
-            val token = authenticationApi.login(userCredentials)
-            if (token != null) {
-                saveToken(context, token)
-                Log.d("LoginScreen", "Login successful, token: $token")
-                token
-            } else {
-                Log.e("LoginScreen", "Login failed: invalid credentials")
-                null
-            }
-        } catch (e: Exception) {
-            if (!isNetworkAvailable(context)) {
-                Log.e("LoginScreen", "Login failed: No internet connection")
-            } else {
-                Log.e("LoginScreen", "Login failed: ${e.message}")
-            }
+    suspend fun login(login: String, password: String, context: Context): String? = try {
+        val userCredentials = UserCredentials(login, password)
+        val token = authenticationApi.login(userCredentials)
+        if (token != null) {
+            saveToken(context, token)
+            Log.d("LoginScreen", "Login successful, token: $token")
+            token
+        } else {
+            Log.e("LoginScreen", "Login failed: invalid credentials")
             null
         }
+    } catch (e: Exception) {
+        if (!isNetworkAvailable(context)) {
+            Log.e("LoginScreen", "Login failed: No internet connection")
+        } else {
+            Log.e("LoginScreen", "Login failed: ${e.message}")
+        }
+        null
     }
 
     var lastCheckedTime = 0L

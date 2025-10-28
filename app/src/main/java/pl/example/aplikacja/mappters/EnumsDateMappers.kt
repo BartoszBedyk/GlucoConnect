@@ -27,105 +27,83 @@ fun formatDateTimeWithoutTime(date: Date?): String {
     return dateFormat.format(date)
 }
 
-fun removeQuotes(id: String): String {
-    return id.replace("\"", "")
+fun removeQuotes(id: String): String = id.replace("\"", "")
+
+fun formatUnit(unit: GlucoseUnitType): String = when (unit) {
+    GlucoseUnitType.MMOL_PER_L -> "mmol/l"
+    GlucoseUnitType.MG_PER_DL -> "mg/dL"
 }
 
-fun formatUnit(unit: GlucoseUnitType): String {
-    return when (unit) {
-        GlucoseUnitType.MMOL_PER_L -> "mmol/l"
-        GlucoseUnitType.MG_PER_DL -> "mg/dL"
-    }
+fun formatUserType(unit: UserType): String = when (unit) {
+    UserType.ADMIN -> "Administrator"
+    UserType.DOCTOR -> "Lekarz"
+    UserType.OBSERVER -> "Obserwator"
+    UserType.PATIENT -> "Pacjent"
 }
 
-fun formatUserType(unit: UserType): String {
-    return when (unit) {
-        UserType.ADMIN -> "Administrator"
-        UserType.DOCTOR -> "Lekarz"
-        UserType.OBSERVER -> "Obserwator"
-        UserType.PATIENT -> "Pacjent"
-    }
+fun formatDiabetesType(type: DiabetesTypeDB): String = when (type) {
+    DiabetesTypeDB.TYPE_1 -> "Typ 1"
+    DiabetesTypeDB.TYPE_2 -> "Typ 2"
+    DiabetesTypeDB.NONE -> "Brak"
+    DiabetesTypeDB.LADA -> "LADA"
+    DiabetesTypeDB.GESTATIONAL -> "Ciążowa"
+    DiabetesTypeDB.MODY -> "MODY"
 }
 
-fun formatDiabetesType(type: DiabetesTypeDB): String {
-    return when (type) {
-        DiabetesTypeDB.TYPE_1 -> "Typ 1"
-        DiabetesTypeDB.TYPE_2 -> "Typ 2"
-        DiabetesTypeDB.NONE -> "Brak"
-        DiabetesTypeDB.LADA -> "LADA"
-        DiabetesTypeDB.GESTATIONAL -> "Ciążowa"
-        DiabetesTypeDB.MODY -> "MODY"
-    }
+fun DiabetesType.toDiabetesTypeDB(): DiabetesTypeDB = when (this) {
+    DiabetesType.TYPE_1 -> DiabetesTypeDB.TYPE_1
+    DiabetesType.TYPE_2 -> DiabetesTypeDB.TYPE_2
+    DiabetesType.NONE -> DiabetesTypeDB.NONE
+    DiabetesType.LADA -> DiabetesTypeDB.LADA
+    DiabetesType.GESTATIONAL -> DiabetesTypeDB.GESTATIONAL
+    DiabetesType.MODY -> DiabetesTypeDB.MODY
 }
 
-fun DiabetesType.toDiabetesTypeDB(): DiabetesTypeDB {
-    return when (this) {
-        DiabetesType.TYPE_1 -> DiabetesTypeDB.TYPE_1
-        DiabetesType.TYPE_2 -> DiabetesTypeDB.TYPE_2
-        DiabetesType.NONE -> DiabetesTypeDB.NONE
-        DiabetesType.LADA -> DiabetesTypeDB.LADA
-        DiabetesType.GESTATIONAL -> DiabetesTypeDB.GESTATIONAL
-        DiabetesType.MODY -> DiabetesTypeDB.MODY
-    }
+fun String?.toDiabetesType(): DiabetesType = when (this) {
+    "TYPE_1" -> DiabetesType.TYPE_1
+    "TYPE_2" -> DiabetesType.TYPE_2
+    "NONE" -> DiabetesType.NONE
+    "LADA" -> DiabetesType.LADA
+    "GESTATIONAL" -> DiabetesType.GESTATIONAL
+    "MODY" -> DiabetesType.MODY
+    else -> DiabetesType.NONE
 }
 
-fun String?.toDiabetesType(): DiabetesType {
-    return when (this) {
-        "TYPE_1" -> DiabetesType.TYPE_1
-        "TYPE_2" -> DiabetesType.TYPE_2
-        "NONE" -> DiabetesType.NONE
-        "LADA" -> DiabetesType.LADA
-        "GESTATIONAL" -> DiabetesType.GESTATIONAL
-        "MODY" -> DiabetesType.MODY
-        else -> DiabetesType.NONE
-    }
+fun formatDiabetesType(type: DiabetesType): String = when (type) {
+    DiabetesType.TYPE_1 -> "Typ 1"
+    DiabetesType.TYPE_2 -> "Typ 2"
+    DiabetesType.NONE -> "Brak"
+    DiabetesType.LADA -> "LADA"
+    DiabetesType.GESTATIONAL -> "Ciążowa"
+    DiabetesType.MODY -> "MODY"
 }
 
-fun formatDiabetesType(type: DiabetesType): String {
-    return when (type) {
-        DiabetesType.TYPE_1 -> "Typ 1"
-        DiabetesType.TYPE_2 -> "Typ 2"
-        DiabetesType.NONE -> "Brak"
-        DiabetesType.LADA -> "LADA"
-        DiabetesType.GESTATIONAL -> "Ciążowa"
-        DiabetesType.MODY -> "MODY"
-    }
+fun UserType.toRestrictedUserTypeOrNull(): RestrictedUserType? = when (this) {
+    UserType.PATIENT -> RestrictedUserType.PATIENT
+    UserType.OBSERVER -> RestrictedUserType.OBSERVER
+    else -> null
 }
 
-fun UserType.toRestrictedUserTypeOrNull(): RestrictedUserType? {
-    return when (this) {
-        UserType.PATIENT -> RestrictedUserType.PATIENT
-        UserType.OBSERVER -> RestrictedUserType.OBSERVER
-        else -> null
-    }
+fun formatUserType(unit: RestrictedUserType): String = when (unit) {
+    RestrictedUserType.PATIENT -> "Pacjent"
+    RestrictedUserType.OBSERVER -> "Obserwator"
+    RestrictedUserType.BRAK -> "Wybierz typ"
+}
+fun stringUnitParser(string: String?): GlucoseUnitType = when (string) {
+    "mg/dL" -> GlucoseUnitType.MG_PER_DL
+    "mmol/l" -> GlucoseUnitType.MMOL_PER_L
+    "MG_PER_DL" -> GlucoseUnitType.MG_PER_DL
+    "MMOL_PER_L" -> GlucoseUnitType.MMOL_PER_L
+    else -> GlucoseUnitType.MG_PER_DL
 }
 
-fun formatUserType(unit: RestrictedUserType): String {
-    return when (unit) {
-        RestrictedUserType.PATIENT -> "Pacjent"
-        RestrictedUserType.OBSERVER -> "Obserwator"
-        RestrictedUserType.BRAK -> "Wybierz typ"
-    }
-}
-fun stringUnitParser(string: String?): GlucoseUnitType {
-    return when (string) {
-        "mg/dL" -> GlucoseUnitType.MG_PER_DL
-        "mmol/l" -> GlucoseUnitType.MMOL_PER_L
-        "MG_PER_DL" -> GlucoseUnitType.MG_PER_DL
-        "MMOL_PER_L" -> GlucoseUnitType.MMOL_PER_L
-        else -> GlucoseUnitType.MG_PER_DL
-    }
-}
+fun toUserType(userType: String): UserType = when (userType) {
+    "ADMIN" -> UserType.ADMIN
+    "PATIENT" -> UserType.PATIENT
+    "DOCTOR" -> UserType.DOCTOR
+    "OBSERVER" -> UserType.OBSERVER
 
-fun toUserType(userType: String): UserType {
-    return when (userType) {
-        "ADMIN" -> UserType.ADMIN
-        "PATIENT" -> UserType.PATIENT
-        "DOCTOR" -> UserType.DOCTOR
-        "OBSERVER" -> UserType.OBSERVER
-
-        else -> {
-            UserType.PATIENT
-        }
+    else -> {
+        UserType.PATIENT
     }
 }

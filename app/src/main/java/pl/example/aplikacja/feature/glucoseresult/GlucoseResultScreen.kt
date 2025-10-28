@@ -25,32 +25,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
 import pl.example.aplikacja.mappters.formatUnit
-import pl.example.aplikacja.mappters.removeQuotes
-import pl.example.aplikacja.feature.glucoseresult.GlucoseDetailsScreenViewModel
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.getToken
 
 @Composable
 fun GlucoseResultScreen(id: String, navController: NavController) {
     val context = LocalContext.current
-    val decoded: DecodedJWT = JWT.decode(getToken(context))
-    val viewModel = remember {
-        GlucoseDetailsScreenViewModel(
-            context,
-            id,
-            removeQuotes(decoded.getClaim("userId").toString())
-        )
-    }
+    val viewModel:
+        GlucoseDetailsScreenViewModel = hiltViewModel()
 
-    //fetch data from server about glucose for actual user
+    // fetch data from server about glucose for actual user
     val researchResult by viewModel.glucoseResult.collectAsState()
     val diabetesType by viewModel.diabetesType.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -60,14 +50,14 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
     if (isLoading) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             Column {
                 CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                 Text(
                     text = "Nawiązywanie połączenia...",
                     modifier = Modifier.padding(16.dp),
-                    color = Color.Gray
+                    color = Color.Gray,
                 )
             }
         }
@@ -75,38 +65,38 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(16.dp),
             ) {
                 Text(
                     text = "Dane pomiaru glukozy",
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                //TextRow(label = "ID pomiaru", value = researchResult?.id.toString())
+                // TextRow(label = "ID pomiaru", value = researchResult?.id.toString())
                 TextRow(
                     label = "Stężenie glukozy",
                     value = "${researchResult?.glucoseConcentration} ${
                         researchResult?.unit?.let {
                             formatUnit(
-                                it
+                                it,
                             )
                         }
-                    }"
+                    }",
                 )
                 TextRow(
                     label = "Czas Pomiaru",
                     value = researchResult?.timestamp?.let { formatDateTimeSpecificLocale(it) }
-                        ?: "Brak danych"
+                        ?: "Brak danych",
                 )
                 TextRow(
                     label = "Ostatnia edycja",
                     value = researchResult?.lastUpdatedOn?.let { formatDateTimeSpecificLocale(it) }
-                        ?: "Nie edytowano"
+                        ?: "Nie edytowano",
                 )
 //                TextRow(
 //                    label = "Skasowano",
@@ -130,7 +120,7 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                                 Toast.makeText(
                                     context,
                                     "Nie udało się usunąć pomiaru!",
-                                    Toast.LENGTH_LONG
+                                    Toast.LENGTH_LONG,
                                 ).show()
                                 navController.popBackStack()
                             }
@@ -138,10 +128,10 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                     },
                     modifier = Modifier
                         .padding(top = 16.dp)
-                        .align(Alignment.End)
+                        .align(Alignment.End),
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    //Text(text = "Usuń")
+                    // Text(text = "Usuń")
                 }
 
                 if (researchResult != null) {
@@ -149,15 +139,15 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                         Text(
                             text = "Analiza pomiaru",
                             style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = 8.dp),
                         )
                         Text(
                             evaluateGlucoseResult(
                                 researchResult!!.unit,
                                 researchResult!!.glucoseConcentration,
                                 researchResult!!.afterMedication,
-                                researchResult!!.emptyStomach
-                            )
+                                researchResult!!.emptyStomach,
+                            ),
                         )
 
                         HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
@@ -165,7 +155,7 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                         Text(
                             text = "Analiza pomiaru z uwzględnieniem cukrzycy",
                             style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = 8.dp),
                         )
                         Text(
                             evaluateGlucoseWithDiabetesType(
@@ -173,17 +163,12 @@ fun GlucoseResultScreen(id: String, navController: NavController) {
                                 researchResult!!.glucoseConcentration,
                                 researchResult!!.afterMedication,
                                 researchResult!!.emptyStomach,
-                                diabetesType
-                            )
+                                diabetesType,
+                            ),
                         )
-
-
-
                     }
                 }
             }
-
-
         }
     }
 }
@@ -193,7 +178,7 @@ fun evaluateGlucoseResult(
     unit: GlucoseUnitType,
     glucoseConcentration: Double,
     afterMedication: Boolean,
-    emptyStomach: Boolean
+    emptyStomach: Boolean,
 ): String {
     val concentrationMgDl = when (unit) {
         GlucoseUnitType.MG_PER_DL -> glucoseConcentration
@@ -202,41 +187,49 @@ fun evaluateGlucoseResult(
 
     val baseMessage = if (emptyStomach) {
         when {
-            concentrationMgDl < 70 -> "Hipoglikemia (glukoza na czczo poniżej normy — pilna interwencja może być konieczna)"
-            concentrationMgDl in 70.0..99.0 -> "Prawidłowy poziom glukozy na czczo"
-            concentrationMgDl in 100.0..125.0 -> "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
-            concentrationMgDl >= 126 -> "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
-            else -> "Nieoczekiwana wartość — sprawdź dane wejściowe"
+            concentrationMgDl < 70 ->
+                "Hipoglikemia (glukoza na czczo poniżej normy — pilna interwencja może być konieczna)"
+            concentrationMgDl in 70.0..99.0 ->
+                "Prawidłowy poziom glukozy na czczo"
+            concentrationMgDl in 100.0..125.0 ->
+                "Stan przedcukrzycowy (nieprawidłowa glikemia na czczo)"
+            concentrationMgDl >= 126 ->
+                "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
+            else ->
+                "Nieoczekiwana wartość — sprawdź dane wejściowe"
         }
     } else {
         when {
-            concentrationMgDl < 70 -> "Hipoglikemia (glukoza po posiłku poniżej normy — stan potencjalnie niebezpieczny)"
-            concentrationMgDl in 70.0..139.0 -> "Prawidłowy poziom glukozy po posiłku"
-            concentrationMgDl in 140.0..199.0 -> "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
-            concentrationMgDl >= 200 -> "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
-            else -> "Nieoczekiwana wartość — sprawdź dane wejściowe"
+            concentrationMgDl < 70 ->
+                "Hipoglikemia (glukoza po posiłku poniżej normy — stan potencjalnie niebezpieczny)"
+            concentrationMgDl in 70.0..139.0 ->
+                "Prawidłowy poziom glukozy po posiłku"
+            concentrationMgDl in 140.0..199.0 ->
+                "Stan przedcukrzycowy (nieprawidłowa glikemia poposiłkowa)"
+            concentrationMgDl >= 200 ->
+                "Wynik wskazuje na cukrzycę — wymagana diagnostyka i potwierdzenie"
+            else ->
+                "Nieoczekiwana wartość — sprawdź dane wejściowe"
         }
     }
 
     val medsInfo = if (afterMedication) {
         "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę — interpretuj ostrożnie."
-    } else ""
+    } else {
+        ""
+    }
 
     return listOf(baseMessage, medsInfo)
         .filter { it.isNotBlank() }
         .joinToString(" ")
 }
 
-
-
-
-
 fun evaluateGlucoseWithDiabetesType(
     unit: GlucoseUnitType,
     glucoseConcentration: Double,
     afterMedication: Boolean,
     emptyStomach: Boolean,
-    diabetesType: DiabetesType
+    diabetesType: DiabetesType,
 ): String {
     val concentrationMgDl = when (unit) {
         GlucoseUnitType.MG_PER_DL -> glucoseConcentration
@@ -263,14 +256,21 @@ fun evaluateGlucoseWithDiabetesType(
 
     val medsInfo = if (afterMedication) {
         "Uwaga: pomiar wykonany po zażyciu leków obniżających glukozę — interpretuj ostrożnie."
-    } else ""
+    } else {
+        ""
+    }
 
     val diabetesInfo = when (diabetesType) {
-        DiabetesType.TYPE_1 -> "Cukrzyca typu 1 — wymaga regularnego monitorowania i insuliny."
-        DiabetesType.TYPE_2 -> "Cukrzyca typu 2 — zaleca się kontrolę diety, aktywność fizyczną i regularne badania."
-        DiabetesType.LADA -> "Cukrzyca LADA — forma autoimmunologiczna, zwykle rozwija się wolniej niż typ 1."
-        DiabetesType.MODY -> "Cukrzyca MODY — rzadka forma, często dziedziczna. Potrzebna opieka specjalistyczna."
-        DiabetesType.GESTATIONAL -> "Cukrzyca ciążowa — rygorystyczna kontrola glikemii jest kluczowa dla zdrowia matki i dziecka."
+        DiabetesType.TYPE_1 ->
+            "Cukrzyca typu 1 — wymaga regularnego monitorowania i insuliny."
+        DiabetesType.TYPE_2 ->
+            "Cukrzyca typu 2 — zaleca się kontrolę diety, aktywność fizyczną i regularne badania."
+        DiabetesType.LADA ->
+            "Cukrzyca LADA — forma autoimmunologiczna, zwykle rozwija się wolniej niż typ 1."
+        DiabetesType.MODY ->
+            "Cukrzyca MODY — rzadka forma, często dziedziczna. Potrzebna opieka specjalistyczna."
+        DiabetesType.GESTATIONAL ->
+            "Cukrzyca ciążowa — rygorystyczna kontrola glikemii jest kluczowa dla zdrowia matki i dziecka."
         DiabetesType.NONE -> ""
     }
 
@@ -279,30 +279,22 @@ fun evaluateGlucoseWithDiabetesType(
         .joinToString(" ")
 }
 
-
-
-
 @Composable
 fun TextRow(label: String, value: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = 4.dp),
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
-
-
-
-
-

@@ -1,20 +1,23 @@
 package pl.example.aplikacja.feature.mainobserver
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.networkmodule.apiData.ObserverResult
 import pl.example.networkmodule.apiData.UserResult
-import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.apiMethods.ObserverApiInterface
+import pl.example.networkmodule.apiMethods.UserApiInterface
+import javax.inject.Inject
 
-class ObserverMainScreenViewModel(context: Context, private val OBSERVER_ID: String) : ViewModel() {
-    private val apiProvider = ApiProvider(context)
-
-    private val observerApi = apiProvider.observerApi
-    private val userApi = apiProvider.userApi
+@HiltViewModel
+class ObserverMainScreenViewModel @Inject constructor(
+    private val observerApi: ObserverApiInterface,
+    private val userApi: UserApiInterface,
+    private val OBSERVER_ID: String,
+) : ViewModel() {
 
     private val _observedAccepted = MutableStateFlow<List<ObserverResult>>(emptyList())
     val observedAccepted: StateFlow<List<ObserverResult>> = _observedAccepted

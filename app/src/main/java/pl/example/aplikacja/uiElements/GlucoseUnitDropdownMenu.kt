@@ -1,4 +1,4 @@
-package pl.example.aplikacja.UiElements
+package pl.example.aplikacja.uiElements
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -25,13 +25,8 @@ import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.apiData.enumTypes.RestrictedUserType
 
-
 @Composable
-fun GlucoseUnitDropdownMenu(
-    selectedUnit: GlucoseUnitType,
-    onUnitSelected: (GlucoseUnitType) -> Unit,
-    label: String
-) {
+fun GlucoseUnitDropdownMenu(selectedUnit: GlucoseUnitType, onUnitSelected: (GlucoseUnitType) -> Unit, label: String) {
     var expanded by remember { mutableStateOf(false) }
     var paddingValue = 8.dp
 
@@ -47,29 +42,29 @@ fun GlucoseUnitDropdownMenu(
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Rozwiń",
-                    Modifier.clickable { expanded = true }
+                    Modifier.clickable { expanded = true },
                 )
             },
             modifier = Modifier
-                .clickable { expanded = true }
+                .clickable { expanded = true },
         )
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             GlucoseUnitType.entries.forEach { unit ->
                 DropdownMenuItem(
                     text = {
                         Text(
                             text = formatUnit(unit),
-                            fontSize = 16.sp
+                            fontSize = 16.sp,
                         )
                     },
                     onClick = {
                         onUnitSelected(unit)
                         expanded = false
-                    }
+                    },
                 )
             }
         }
@@ -80,7 +75,7 @@ fun GlucoseUnitDropdownMenu(
 fun UserTypeDropdownMenu(
     selectedUnit: RestrictedUserType,
     onUnitSelected: (RestrictedUserType) -> Unit,
-    label: String
+    label: String,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var paddingValue = 8.dp
@@ -97,16 +92,16 @@ fun UserTypeDropdownMenu(
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Rozwiń",
-                    Modifier.clickable { expanded = true }
+                    Modifier.clickable { expanded = true },
                 )
             },
             modifier = Modifier
-                .clickable { expanded = true }
+                .clickable { expanded = true },
         )
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             RestrictedUserType.entries.forEach { type ->
                 DropdownMenuItem(
@@ -114,7 +109,7 @@ fun UserTypeDropdownMenu(
                     onClick = {
                         onUnitSelected(type)
                         expanded = false
-                    }
+                    },
                 )
             }
         }
@@ -125,7 +120,7 @@ fun UserTypeDropdownMenu(
 fun DiabetesTypeDropdownMenu(
     selectedDiabetesType: DiabetesType,
     onTypeSelected: (DiabetesType) -> Unit,
-    label: String
+    label: String,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var paddingValue = 8.dp
@@ -142,16 +137,16 @@ fun DiabetesTypeDropdownMenu(
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Rozwiń",
-                    Modifier.clickable { expanded = true }
+                    Modifier.clickable { expanded = true },
                 )
             },
             modifier = Modifier
-                .clickable { expanded = true }
+                .clickable { expanded = true },
         )
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             DiabetesType.entries.forEach { type ->
                 DropdownMenuItem(
@@ -159,7 +154,7 @@ fun DiabetesTypeDropdownMenu(
                     onClick = {
                         onTypeSelected(type)
                         expanded = false
-                    }
+                    },
                 )
             }
         }

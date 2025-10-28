@@ -1,4 +1,4 @@
-package pl.example.aplikacja.UiElements
+package pl.example.aplikacja.uiElements
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -28,26 +28,25 @@ import pl.example.aplikacja.feature.addglucose.AddGlucoseResultScreen
 import pl.example.aplikacja.feature.addheartbeat.AddHeartbeatResultScreen
 import pl.example.aplikacja.feature.addmedication.AddUserMedicationScreen
 import pl.example.aplikacja.feature.admindirect.AdminUserDirectScreen
-import pl.example.aplikacja.feature.mainadmin.AdministrationMainScreen
-import pl.example.aplikacja.feature.resultsdownload.AllResultsDownload
 import pl.example.aplikacja.feature.allresults.AllResultsScreen
 import pl.example.aplikacja.feature.bluetooth.BluetoothPermission
-import pl.example.aplikacja.feature.edituser.EditUserDataScreen
 import pl.example.aplikacja.feature.bluetooth.GlucometerAdminScreen
+import pl.example.aplikacja.feature.edituser.EditUserDataScreen
 import pl.example.aplikacja.feature.glucoseresult.GlucoseResultScreen
 import pl.example.aplikacja.feature.heartbeatresult.HeartbeatResultScreen
 import pl.example.aplikacja.feature.login.LicenceScreen
 import pl.example.aplikacja.feature.login.LoginScreen
-import pl.example.aplikacja.feature.mainuser.MainScreen
-import pl.example.aplikacja.feature.medicationhistory.MedicationHistoryScreen
-import pl.example.aplikacja.feature.medication.MedicationResultScreen
+import pl.example.aplikacja.feature.mainadmin.AdministrationMainScreen
 import pl.example.aplikacja.feature.mainobserver.ObserverMainScreen
-import pl.example.aplikacja.feature.registertwo.RegisterStepTwoScreen
+import pl.example.aplikacja.feature.mainuser.MainScreen
+import pl.example.aplikacja.feature.medication.MedicationResultScreen
+import pl.example.aplikacja.feature.medicationhistory.MedicationHistoryScreen
 import pl.example.aplikacja.feature.registerone.RegistrationScreen
-import pl.example.aplikacja.feature.usermedication.UserMedicationScreen
+import pl.example.aplikacja.feature.registertwo.RegisterStepTwoScreen
+import pl.example.aplikacja.feature.resultsdownload.AllResultsDownload
 import pl.example.aplikacja.feature.user.UserProfileScreen
+import pl.example.aplikacja.feature.usermedication.UserMedicationScreen
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -73,13 +72,15 @@ fun BottomNavigationBar(navBarViewModel: BottomNavBarViewModel, navController: N
                         Icon(
                             imageVector = if (index == navBarViewModel.selectedItemIndex.value) {
                                 item.selectedIcon
-                            } else item.unselectedIcon,
+                            } else {
+                                item.unselectedIcon
+                            },
                             contentDescription = item.title,
-                                    tint = if (index == navBarViewModel.selectedItemIndex.value) {
+                            tint = if (index == navBarViewModel.selectedItemIndex.value) {
                                 MaterialTheme.colorScheme.primary
                             } else {
                                 MaterialTheme.colorScheme.onBackground
-                            }
+                            },
                         )
                     }
                 },
@@ -90,8 +91,8 @@ fun BottomNavigationBar(navBarViewModel: BottomNavBarViewModel, navController: N
                     disabledIconColor = MaterialTheme.colorScheme.outlineVariant,
                     disabledTextColor = MaterialTheme.colorScheme.outlineVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.outlineVariant,
-                    unselectedIconColor = MaterialTheme.colorScheme.outlineVariant
-                )
+                    unselectedIconColor = MaterialTheme.colorScheme.outlineVariant,
+                ),
             )
         }
     }
@@ -102,9 +103,8 @@ data class BottomNavigationItem(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val hasNews: Boolean,
-    val badgeCount: Int? = null
+    val badgeCount: Int? = null,
 )
-
 
 @Composable
 fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
@@ -127,23 +127,20 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
         "register_step_two_screen/{userId}",
         "download_results",
         "licence_screen",
-        "observer_main"
+        "observer_main",
     ).contains(currentDestination)
-
-
-
 
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
                 BottomNavigationBar(navBarViewModel, navController)
             }
-        }
+        },
     ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = "login_screen",
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
         ) {
             composable("main_screen") {
                 MainScreen(navController, null)
@@ -151,15 +148,14 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("user_profile_screen") {
                 UserProfileScreen(navController)
             }
-            composable("bluetooth_permission_screen/{destination}")
-            { backStackEntry ->
+            composable("bluetooth_permission_screen/{destination}") { backStackEntry ->
                 val destination = backStackEntry.arguments?.getString("destination") ?: ""
                 BluetoothPermission(
                     bluetoothViewModel,
                     navBarViewModel,
                     onDeviceConnected = {},
                     navController,
-                    destination = destination
+                    destination = destination,
                 )
             }
             composable("login_screen") {
@@ -234,7 +230,8 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("admin_user_direct/{userId}") { backStackEntry ->
                 AdminUserDirectScreen(
                     backStackEntry.arguments?.getString("userId") ?: "",
-                    navController)
+                    navController,
+                )
             }
             composable("observer_main_screen") {
                 ObserverMainScreen(navController)
@@ -249,9 +246,6 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
             composable("medication_history_screen") {
                 MedicationHistoryScreen(navController)
             }
-
-
-
         }
     }
 }
@@ -260,10 +254,3 @@ fun AppScaffold(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: Blue
 fun MainApp(navBarViewModel: BottomNavBarViewModel, bluetoothViewModel: BluetoothViewModel) {
     AppScaffold(navBarViewModel, bluetoothViewModel)
 }
-
-
-
-
-
-
-

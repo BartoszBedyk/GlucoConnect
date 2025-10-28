@@ -51,10 +51,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.UiElements.GlucoseUnitDropdownMenu
-import pl.example.aplikacja.UiElements.SwitchWithFoodIcon
-import pl.example.aplikacja.UiElements.SwitchWithMedicationIcon
 import pl.example.aplikacja.mappters.formatDateTimeWithoutLocale
+import pl.example.aplikacja.uiElements.GlucoseUnitDropdownMenu
+import pl.example.aplikacja.uiElements.SwitchWithFoodIcon
+import pl.example.aplikacja.uiElements.SwitchWithMedicationIcon
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
 import pl.example.networkmodule.requestData.ResearchResultCreate
 import java.util.Calendar
@@ -64,8 +64,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? = false) {
-
-    //Create Glucose Result data variables
+    // Create Glucose Result data variables
     val glucoseConcentrationState = remember { mutableStateOf("") }
     var unitState by remember { mutableStateOf<GlucoseUnitType?>(null) }
     var timestampDate by remember { mutableStateOf<Date?>(null) }
@@ -78,12 +77,11 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
     val noteFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    //Dialog management variables
+    // Dialog management variables
     var takeDateCheckbox by remember { mutableStateOf(false) }
     var openDialogDate by remember { mutableStateOf(false) }
     var openDateTimePicker by remember { mutableStateOf(false) }
     var openClockTimePicker by remember { mutableStateOf(false) }
-
 
     val snackState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -100,8 +98,6 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
 
     val prefUnit by viewModel.prefUnit.collectAsState()
 
-
-
     LaunchedEffect(prefUnit) {
         if (unitState == null) {
             unitState = prefUnit
@@ -115,7 +111,9 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                     hours = timestampTime!!.first
                     minutes = timestampTime!!.second
                 }
-            } else null
+            } else {
+                null
+            }
         }
     }
     val scrollState = rememberScrollState()
@@ -129,7 +127,7 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
             .padding(18.dp)
             .verticalScroll(scrollState),
     ) {
-        OutlinedCard() {
+        OutlinedCard {
             Column(Modifier.padding(16.dp)) {
                 TextRowEdit(
                     label = "Poziom glukozy",
@@ -141,19 +139,21 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                     imeAction = ImeAction.Done,
                     onKeyboardAction = KeyboardActions(onDone = {
                         keyboardController?.hide()
-                    })
+                    }),
                 )
 
                 Text(
                     text = "Jednostka stężenia glukozy",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
                 )
 
                 unitState?.let { unit ->
                     GlucoseUnitDropdownMenu(
-                        selectedUnit = unit, onUnitSelected = { unitState = it }, label = ""
+                        selectedUnit = unit,
+                        onUnitSelected = { unitState = it },
+                        label = "",
                     )
                 }
 
@@ -162,17 +162,16 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                         text = "Po posiłku:",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
                     )
                     SwitchWithFoodIcon(foodChecked) { foodChecked = it }
-
                 }
                 Row(verticalAlignment = CenterVertically) {
                     Text(
                         text = "Po lekach:",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
                     )
                     SwitchWithMedicationIcon(medicationChecked) { medicationChecked = it }
                 }
@@ -187,16 +186,15 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                     imeAction = ImeAction.Done,
                     onKeyboardAction = KeyboardActions(onDone = {
                         keyboardController?.hide()
-                    })
+                    }),
                 )
-
 
                 Row(verticalAlignment = CenterVertically) {
                     Text(
                         text = "Data pomiaru",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
                     )
                     Checkbox(checked = takeDateCheckbox, onCheckedChange = { state ->
                         if (state) {
@@ -213,7 +211,7 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                         value = timestampFull?.let { formatDateTimeWithoutLocale(it) } ?: "",
                         onValueChange = {},
                         fontSize = 18,
-                        true
+                        true,
                     )
 
                     if (openDialogDate) {
@@ -233,7 +231,8 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                                     openDialogDate = false
                                     openDateTimePicker = false
                                     openClockTimePicker = true
-                                }, enabled = confirmEnabled.value
+                                },
+                                enabled = confirmEnabled.value,
                             ) {
                                 Text("OK")
                             }
@@ -250,7 +249,7 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                                 state = datePickerState,
                                 modifier = Modifier
                                     .padding(16.dp)
-                                    .verticalScroll(rememberScrollState())
+                                    .verticalScroll(rememberScrollState()),
                             )
                         }
                     }
@@ -280,8 +279,8 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                             Text(text = "Użyj glukometru")
                         }
 
-                        //Adds result without bluetooth and navigate to corrct screen
-                        //HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary)
+                        // Adds result without bluetooth and navigate to corrct screen
+                        // HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary)
 
                         ExtendedFloatingActionButton(
                             onClick = {
@@ -289,7 +288,7 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                                     if (viewModel.addGlucoseResult(
                                             ResearchResultCreate(
                                                 userId = UUID.fromString(
-                                                    viewModel.USER_ID
+                                                    viewModel.userId,
                                                 ),
                                                 glucoseConcentration = glucoseConcentrationState.value.toDoubleOrNull()
                                                     ?: 0.0,
@@ -297,8 +296,8 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                                                 timestamp = timestampFull ?: Date(),
                                                 afterMedication = medicationChecked,
                                                 emptyStomach = foodChecked,
-                                                notes = note
-                                            )
+                                                notes = note,
+                                            ),
                                         )
                                     ) {
                                         if (fromMain == true) {
@@ -310,16 +309,15 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
                                         snackState.showSnackbar("Nie udało się dodać pomiaru")
                                     }
                                 }
-                            }, modifier = Modifier
+                            },
+                            modifier = Modifier
                                 .padding(16.dp, 4.dp)
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
                         ) {
                             Text(text = "Dodaj pomiar")
                         }
                     }
                 }
-
-
             }
         }
     }
@@ -327,19 +325,14 @@ fun AddGlucoseResultScreen(navController: NavHostController, fromMain: Boolean? 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTimePicker(
-    timePickerState: TimePickerState,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
+fun CustomTimePicker(timePickerState: TimePickerState, onDismiss: () -> Unit, onConfirm: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Card(Modifier.padding(16.dp)) {
             TimePicker(
                 state = timePickerState,
                 modifier = Modifier
                     .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
             )
             TextButton(onClick = onConfirm) {
                 Text("OK")
@@ -351,7 +344,6 @@ fun CustomTimePicker(
     }
 }
 
-
 @Preview
 @Composable
 fun AddGlucoseResultScreenPreview() {
@@ -359,24 +351,18 @@ fun AddGlucoseResultScreenPreview() {
 }
 
 @Composable
-fun TextRowEdit(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    fontSize: Int,
-    isNumeric: Boolean
-) {
+fun TextRowEdit(label: String, value: String, onValueChange: (String) -> Unit, fontSize: Int, isNumeric: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp),
     ) {
         Text(
             modifier = Modifier.padding(4.dp),
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = (fontSize).sp
+            fontSize = (fontSize).sp,
         )
         OutlinedTextField(
             value = value,
@@ -384,9 +370,13 @@ fun TextRowEdit(
             placeholder = { Text(text = value) },
             maxLines = 1,
             singleLine = true,
-            keyboardOptions = if (isNumeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions(
-                keyboardType = KeyboardType.Text
-            )
+            keyboardOptions = if (isNumeric) {
+                KeyboardOptions(keyboardType = KeyboardType.Number)
+            } else {
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                )
+            },
         )
     }
 }
@@ -400,19 +390,19 @@ fun TextRowEdit(
     isNumeric: Boolean,
     focusRequester: FocusRequester? = null,
     imeAction: ImeAction = ImeAction.Default,
-    onKeyboardAction: KeyboardActions = KeyboardActions.Default
+    onKeyboardAction: KeyboardActions = KeyboardActions.Default,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 8.dp),
     ) {
         Text(
             modifier = Modifier.padding(4.dp),
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = (fontSize).sp
+            fontSize = (fontSize).sp,
         )
         OutlinedTextField(
             value = value,
@@ -421,14 +411,15 @@ fun TextRowEdit(
             maxLines = 1,
             singleLine = true,
             modifier = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier,
-            keyboardOptions = if (isNumeric) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = imeAction
-            ),
-            keyboardActions = onKeyboardAction
+            keyboardOptions = if (isNumeric) {
+                KeyboardOptions(keyboardType = KeyboardType.Number)
+            } else {
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = imeAction,
+                )
+            },
+            keyboardActions = onKeyboardAction,
         )
     }
 }
-
-
-

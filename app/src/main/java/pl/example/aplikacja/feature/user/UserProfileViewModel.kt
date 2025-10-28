@@ -4,18 +4,20 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.auth0.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.JwtHelper
 import pl.example.aplikacja.feature.login.isNetworkAvailable
-import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.ReportPattern
 import pl.example.networkmodule.apiMethods.ApiProvider
-import pl.example.networkmodule.getToken
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
+import pl.example.networkmodule.apiMethods.ObserverApiInterface
+import pl.example.networkmodule.apiMethods.ReportApiInterface
+import pl.example.networkmodule.apiMethods.UserApiInterface
 import pl.example.networkmodule.requestData.CreateObserver
 import pl.example.networkmodule.requestData.GenerateGlucoseReport
 import java.util.Date
@@ -23,22 +25,26 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class UserProfileViewModel @Inject constructor (@ApplicationContext private val context: Context) : ViewModel() {
+class UserProfileViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val observerApi: ObserverApiInterface,
+    private val userApi: UserApiInterface,
+    private val authenticationApi: AuthenticationApiInterface,
+    private val reportApi: ReportApiInterface,
+    jwtHelper: JwtHelper,
+) : ViewModel() {
 
-    val USER_ID: String = removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
+    val userId: String = jwtHelper.getUserId()
     private val apiProvider = ApiProvider(context)
-
-    private val userApi = apiProvider.userApi
-    private val observerApi = apiProvider.observerApi
 
     private val _userData = MutableStateFlow<UserResult?>(null)
     val userData: MutableStateFlow<UserResult?> = _userData
 
-    private val _obsered = MutableStateFlow<UserResult?>(null)
-    val observed: MutableStateFlow<UserResult?> = _obsered
+    private val _observed = MutableStateFlow<UserResult?>(null)
+    val observed: StateFlow<UserResult?> = _observed
 
-    private val _obseredUser = MutableStateFlow<UserResult?>(null)
-    val observedUser: MutableStateFlow<UserResult?> = _obseredUser
+    private val _observedUser = MutableStateFlow<UserResult?>(null)
+    val observedUser: MutableStateFlow<UserResult?> = _observedUser
 
     private val _observatorsAccepted = MutableStateFlow<List<UserResult>?>(emptyList())
     val observatorsAccepted: MutableStateFlow<List<UserResult>?> = _observatorsAccepted
@@ -46,18 +52,11 @@ class UserProfileViewModel @Inject constructor (@ApplicationContext private val 
     private val _observatorsUnAccepted = MutableStateFlow<List<UserResult>?>(emptyList())
     val observatorsUnAccepted: MutableStateFlow<List<UserResult>?> = _observatorsUnAccepted
 
-    private val authenticationApi = apiProvider.authenticationApi
-
-    private val reportApi = apiProvider.reportApi
-
     private val _fileName = MutableStateFlow<String?>(null)
     val fileName: MutableStateFlow<String?> = _fileName
 
-
-
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
-
 
     init {
         isApiAvilible(apiProvider.innerContext)
@@ -68,55 +67,51 @@ class UserProfileViewModel @Inject constructor (@ApplicationContext private val 
                     fetchUserData()
                     fetchUnaccepted()
                     fetchAccepted()
-                }else
-                {
+                } else {
                     fetchUserData()
-                    //fetchUnaccepted()
-                    //fetchAccepted()
+                    // fetchUnaccepted()
+                    // fetchAccepted()
                 }
             }
         }
-
     }
 
     fun generateReport(startDate: Date, endDate: Date) {
         viewModelScope.launch {
-            try{
+            try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 val reportData = GenerateGlucoseReport(
-                    UUID.fromString(USER_ID),
+                    UUID.fromString(userId),
                     startDate,
                     endDate,
-                    ReportPattern.STANDARD_GLUCOSE
+                    ReportPattern.STANDARD_GLUCOSE,
                 )
                 _fileName.value = reportApi.getReportById(reportData)?.name
-
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 println(e.message)
             }
-
         }
     }
 
     private fun fetchUserData() {
         viewModelScope.launch {
-            try{
+            try {
                 if (!healthy.value) throw IllegalStateException("API not available")
                 Log.i("UserProfileViewModel", "fetchUserData")
-                _userData.value = userApi.getUserById(id = USER_ID)
-            }catch (e: Exception){
+                _userData.value = userApi.getUserById(id = userId)
+            } catch (e: Exception) {
                 println(e.message)
             }
         }
     }
 
-    private fun fetchUnaccepted(){
+    private fun fetchUnaccepted() {
         viewModelScope.launch {
-            try{
+            try {
                 Log.i("UserProfileViewModel", "maybe healthy")
                 if (!healthy.value) throw IllegalStateException("API not available")
                 Log.i("UserProfileViewModel", "fetchUnaccepted")
-                val unAccepted  = observerApi.getObservatorByObservedIdUnAccepted(USER_ID)
+                val unAccepted = observerApi.getObservatorByObservedIdUnAccepted(userId)
                 if (unAccepted != null) {
                     if (unAccepted.isNotEmpty()) {
                         Log.e("UnAccepted", unAccepted.toString())
@@ -126,7 +121,7 @@ class UserProfileViewModel @Inject constructor (@ApplicationContext private val 
                         _observatorsUnAccepted.value = users
                     }
                 }
-                val accepted = observerApi.getObservatorByObservedIdAccepted(USER_ID)
+                val accepted = observerApi.getObservatorByObservedIdAccepted(userId)
                 if (accepted != null) {
                     if (accepted.isNotEmpty()) {
                         Log.e("Accepted", unAccepted.toString())
@@ -136,18 +131,18 @@ class UserProfileViewModel @Inject constructor (@ApplicationContext private val 
                         _observatorsAccepted.value = users
                     }
                 }
-            }catch(e : Exception){
+            } catch (e: Exception) {
                 println(e.message)
             }
         }
     }
 
-    private fun fetchAccepted(){
+    private fun fetchAccepted() {
         viewModelScope.launch {
-            try{
+            try {
                 Log.i("UserProfileViewModel", "maybe healthy")
                 if (!healthy.value) throw IllegalStateException("API not available")
-            }catch(e : Exception){
+            } catch (e: Exception) {
                 println(e.message)
             }
         }
@@ -156,26 +151,25 @@ class UserProfileViewModel @Inject constructor (@ApplicationContext private val 
     fun observe(partOne: String, partTwo: String) {
         Log.e("Dialog", partOne + partTwo)
         viewModelScope.launch {
-            try{
+            try {
                 val result = userApi.observe(partOne, partTwo)
                 Log.e("Dialog", "UUID:" + result.toString())
-                _obsered.value = result
-            }catch (e: Exception){
+                _observed.value = result
+            } catch (e: Exception) {
                 println(e.message)
             }
         }
     }
 
-    fun observeUser(observerId: String, observedId: String){
+    fun observeUser(observerId: String, observedId: String) {
         viewModelScope.launch {
-            try{
+            try {
                 val result = observerApi.observe(CreateObserver(observerId, observedId))
-                _obseredUser.value = userApi.getUserById(observedId)
-            }catch (e: Exception){
+                _observedUser.value = userApi.getUserById(observedId)
+            } catch (e: Exception) {
                 println(e.message)
             }
         }
-
     }
 
     fun accept(observerId: String, observedId: String) {
@@ -220,5 +214,4 @@ class UserProfileViewModel @Inject constructor (@ApplicationContext private val 
             }
         }
     }
-
 }

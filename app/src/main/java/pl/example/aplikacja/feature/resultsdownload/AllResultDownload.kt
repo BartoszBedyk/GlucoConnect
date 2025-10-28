@@ -1,6 +1,5 @@
 package pl.example.aplikacja.feature.resultsdownload
 
-
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
@@ -25,7 +24,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import pl.example.aplikacja.feature.resultsdownload.DownloadViewModel
 import pl.example.networkmodule.apiData.ResearchResult
 import java.io.File
 
@@ -42,22 +40,23 @@ fun AllResultsDownload(navController: NavController) {
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isLoading) {
             CircularProgressIndicator()
         } else {
             Button(
                 onClick = { downloadDataAsJson(context, allResults) },
-                modifier = Modifier.padding(8.dp).fillMaxWidth()
+                modifier = Modifier.padding(8.dp).fillMaxWidth(),
             ) {
                 Text("Pobierz dane z serwera")
             }
 
             Text(
-                text = "Pobierając dane zgadzasz się na warunki umowy o wykorzystaniu danych aplikacji GlucoMaxxConnect",
+                text = "Pobierając dane zgadzasz się na warunki umowy" +
+                    " o wykorzystaniu danych aplikacji GlucoMaxxConnect",
                 modifier = Modifier.padding(vertical = 8.dp)
-                    .clickable { navController.navigate("licence_screen/nielicencyjna") }
+                    .clickable { navController.navigate("licence_screen/nielicencyjna") },
             )
         }
     }
@@ -77,6 +76,3 @@ fun openFile(context: Context, filePath: String) {
     intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
     context.startActivity(Intent.createChooser(intent, "Otwórz plik JSON"))
 }
-
-
-

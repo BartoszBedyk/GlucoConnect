@@ -47,12 +47,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.feature.addglucose.AddGlucoseResultViewModel
 import pl.example.aplikacja.feature.addglucose.TextRowEdit
-import pl.example.aplikacja.UiElements.SwitchWithFoodIcon
-import pl.example.aplikacja.UiElements.SwitchWithMedicationIcon
 import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
 import pl.example.aplikacja.mappters.parseMeasurement
-import pl.example.aplikacja.feature.addglucose.AddGlucoseResultViewModel
+import pl.example.aplikacja.uiElements.SwitchWithFoodIcon
+import pl.example.aplikacja.uiElements.SwitchWithMedicationIcon
 import pl.example.bluetoothmodule.presentation.BluetoothUiState
 import pl.example.bluetoothmodule.presentation.BluetoothViewModel
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
@@ -70,7 +70,7 @@ fun DeviceScreen(
     bluetoothViewModel: BluetoothViewModel,
     title: String,
     navController: NavHostController,
-    destination: String?
+    destination: String?,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val measurementResult = remember { mutableStateOf("") }
@@ -89,15 +89,15 @@ fun DeviceScreen(
     var medicationChecked by remember { mutableStateOf(false) }
     var note by remember { mutableStateOf("") }
 
-
-
     LaunchedEffect(Unit) {
         onStartScan()
     }
 
     Column {
-        if (context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
-                Manifest.permission.BLUETOOTH_SCAN
+        if (context.checkSelfPermission(
+                Manifest.permission.BLUETOOTH_CONNECT,
+            ) != PackageManager.PERMISSION_GRANTED || context.checkSelfPermission(
+                Manifest.permission.BLUETOOTH_SCAN,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             Column {
@@ -106,19 +106,18 @@ fun DeviceScreen(
                     onClick = { openAppSettings(context) },
                     modifier = Modifier
                         .padding(16.dp)
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally),
                 ) {
                     Text(text = "Nadaj uprawnienia")
                 }
             }
         } else {
-
             Column {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 )
 
                 BluetoothDeviceList(
@@ -127,12 +126,12 @@ fun DeviceScreen(
                     onClick = onDeviceClick,
                     Modifier
                         .fillMaxWidth()
-                        .weight(1f)
+                        .weight(1f),
                 )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceAround,
                 ) {
 //                    Button(onClick = onStartScan) {
 //                        Text(text = "Start scan")
@@ -142,8 +141,6 @@ fun DeviceScreen(
 //                    }
                 }
                 if (destination == "addResult") {
-
-
                     Box {
                         LaunchedEffect(Unit) {
                             bluetoothViewModel.startScan()
@@ -167,11 +164,8 @@ fun DeviceScreen(
 //                        ) {
 //                            Text(text = "Pobierz pomiar")
 //                        }
-
-
                     }
                     if (measurmentData.isNotBlank()) {
-
                         Card(
                             modifier = Modifier
                                 .padding(16.dp)
@@ -179,12 +173,12 @@ fun DeviceScreen(
                             shape = RoundedCornerShape(8.dp),
                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         ) {
                             Column(Modifier.padding(16.dp)) {
                                 parseMeasurement(measurmentData)?.date?.let {
                                     formatDateTimeSpecificLocale(
-                                        it
+                                        it,
                                     )
                                 }?.let {
                                     Row(verticalAlignment = CenterVertically) {
@@ -192,33 +186,30 @@ fun DeviceScreen(
                                             text = "Data pomiaru: ",
                                             style = MaterialTheme.typography.labelMedium,
                                             color = MaterialTheme.colorScheme.primary,
-                                            fontSize = 18.sp
+                                            fontSize = 18.sp,
                                         )
                                         Text(
                                             text = it,
                                             fontSize = 18.sp,
                                             color = MaterialTheme.colorScheme.onSurface,
-                                            style = MaterialTheme.typography.labelMedium
+                                            style = MaterialTheme.typography.labelMedium,
                                         )
-
                                     }
                                 }
-
 
                                 Row(verticalAlignment = CenterVertically) {
                                     Text(
                                         text = "Poziom glukozy: ",
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
-                                        fontSize = 18.sp
+                                        fontSize = 18.sp,
                                     )
                                     Text(
                                         text = parseMeasurement(measurmentData)?.result.toString(),
                                         fontSize = 18.sp,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.labelMedium
+                                        style = MaterialTheme.typography.labelMedium,
                                     )
-
                                 }
 
                                 Row(verticalAlignment = CenterVertically) {
@@ -226,17 +217,16 @@ fun DeviceScreen(
                                         text = "Po posiłku:",
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
-                                        fontSize = 18.sp
+                                        fontSize = 18.sp,
                                     )
                                     SwitchWithFoodIcon(foodChecked) { foodChecked = it }
-
                                 }
                                 Row(verticalAlignment = CenterVertically) {
                                     Text(
                                         text = "Po lekach:",
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
-                                        fontSize = 18.sp
+                                        fontSize = 18.sp,
                                     )
                                     SwitchWithMedicationIcon(medicationChecked) {
                                         medicationChecked = it
@@ -248,9 +238,8 @@ fun DeviceScreen(
                                     value = note,
                                     onValueChange = { note = it },
                                     fontSize = 18,
-                                    false
+                                    false,
                                 )
-
 
                                 TextButton(onClick = {
                                     coroutineScope.launch {
@@ -259,15 +248,15 @@ fun DeviceScreen(
                                             if (viewModel.addGlucoseResult(
                                                     ResearchResultCreate(
                                                         userId = UUID.fromString(
-                                                            viewModel.USER_ID
+                                                            viewModel.userId,
                                                         ),
                                                         glucoseConcentration = parsedData.result,
                                                         unit = parsedData.unit,
                                                         timestamp = parsedData.date,
                                                         afterMedication = medicationChecked,
                                                         emptyStomach = foodChecked,
-                                                        notes = note
-                                                    )
+                                                        notes = note,
+                                                    ),
                                                 )
                                             ) {
                                                 navController.navigate("main_screen")
@@ -280,17 +269,11 @@ fun DeviceScreen(
                                     Text(text = "Dodaj pomiar")
                                 }
                             }
-
-
                         }
-
-
                     }
                 } else if (destination == "glucometer") {
                     GlucometerAdminScreen(bluetoothViewModel, navController)
                 }
-
-
             }
         }
     }
@@ -300,8 +283,8 @@ fun openAppSettings(context: Context) {
     context.startActivity(
         Intent(
             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.fromParts("package", context.packageName, null)
-        )
+            Uri.fromParts("package", context.packageName, null),
+        ),
     )
 }
 
@@ -311,10 +294,8 @@ fun BluetoothDeviceList(
     pairedDevices: List<BluetoothDevice>,
     scannedDevices: List<BluetoothDevice>,
     onClick: (BluetoothDevice) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
-
     val sortedPairedDevicesList = mutableListOf<BluetoothDevice>()
     val gluco = pairedDevices.find { it.name == "Glucomaxx Connect" }
     if (gluco != null) {
@@ -326,7 +307,6 @@ fun BluetoothDeviceList(
             sortedPairedDevicesList.add(it)
         }
     }
-
 
     val sortedScannedDevicesList = mutableListOf<BluetoothDevice>()
     val glucometer = scannedDevices.find { it.name == "Glucomaxx Connect" }
@@ -340,22 +320,23 @@ fun BluetoothDeviceList(
         }
     }
 
-
     LazyColumn(modifier = modifier) {
         item {
             Text(
                 text = "Sparowane urządzenia",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             )
         }
         items(sortedPairedDevicesList.take(5)) { device ->
-            Text(text = device.name ?: "(Brak nazwy)",
+            Text(
+                text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(device) }
-                    .padding(16.dp))
+                    .padding(16.dp),
+            )
         }
     }
 
@@ -365,15 +346,17 @@ fun BluetoothDeviceList(
                 text = "Wykryte urządzenia",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             )
         }
         items(sortedScannedDevicesList) { device ->
-            Text(text = device.name ?: "(Brak nazwy)",
+            Text(
+                text = device.name ?: "(Brak nazwy)",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(device) }
-                    .padding(16.dp))
+                    .padding(16.dp),
+            )
         }
     }
 }
@@ -382,7 +365,7 @@ fun BluetoothDeviceList(
     name = "Standard",
     group = "First",
     device = "spec:width=1080px,height=2400px",
-    showSystemUi = true
+    showSystemUi = true,
 )
 @Composable
 fun TopBluetoothPanel(isLoading: Boolean = true, title: String = "Łączenie z urządzeniem") {
@@ -393,7 +376,7 @@ fun TopBluetoothPanel(isLoading: Boolean = true, title: String = "Łączenie z u
             .padding(16.dp)
             .background(MaterialTheme.colorScheme.primary),
         horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = CenterVertically
+        verticalAlignment = CenterVertically,
     ) {
         Text(
             text = title,
@@ -401,11 +384,11 @@ fun TopBluetoothPanel(isLoading: Boolean = true, title: String = "Łączenie z u
                 .padding(16.dp)
                 .align(CenterVertically),
             color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
         CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(32.dp)
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.size(32.dp),
         )
-
     }
 }

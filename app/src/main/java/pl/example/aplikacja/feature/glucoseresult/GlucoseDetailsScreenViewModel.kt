@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,20 +16,21 @@ import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
+import pl.example.networkmodule.apiMethods.ResultApiInterface
+import pl.example.networkmodule.apiMethods.UserApiInterface
 import java.math.RoundingMode
 
 class GlucoseDetailsScreenViewModel(
-    context: Context,
-    private val RESULT_ID: String,
-    private val USER_ID: String,
+    private val glucoseResultRepository: GlucoseResultRepository,
+    private val userRepository: PrefUnitRepository,
+    private val resultApi: ResultApiInterface,
+    private val userApi: UserApiInterface,
+    private val resultId: String,
+    private val userId: String,
+    private val authenticationApi: AuthenticationApiInterface,
+    @ApplicationContext context: Context,
 ) : ViewModel() {
-    private val apiProvider = ApiProvider(context)
-    private val glucoseResultRepository = GlucoseResultRepository(context)
-    private val userRepository = PrefUnitRepository(context)
-
-    private val resultApi = apiProvider.resultApi
-    private val userApi = apiProvider.userApi
 
     private val _glucoseResult = MutableStateFlow<ResearchResult?>(null)
     val glucoseResult: MutableStateFlow<ResearchResult?> = _glucoseResult
@@ -42,13 +44,11 @@ class GlucoseDetailsScreenViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val authenticationApi = apiProvider.authenticationApi
-
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
 
     init {
-        isApiAvilible(apiProvider.innerContext)
+        isApiAvilible(context = context)
         fetchGlucoseResult()
         fechDiabetesType()
     }
@@ -57,9 +57,9 @@ class GlucoseDetailsScreenViewModel(
         viewModelScope.launch {
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
-                _diabetesType.value = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
+                _diabetesType.value = userApi.getUserById(userId)?.diabetesType ?: DiabetesType.NONE
             } catch (e: Exception) {
-                _diabetesType.value = userRepository.getUserDiabetesType(USER_ID).toDiabetesType()
+                _diabetesType.value = userRepository.getUserDiabetesType(userId).toDiabetesType()
                 Log.e("GlucoseDetails", "Error fetching diabetes type: ${e.message}")
             }
         }
@@ -71,11 +71,11 @@ class GlucoseDetailsScreenViewModel(
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
 
-                val result = resultApi.getResearchResultsById(RESULT_ID)
-                _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MG_PER_DL
+                val result = resultApi.getResearchResultsById(resultId)
+                _prefUnit.value = userApi.getUserUnitById(userId) ?: GlucoseUnitType.MG_PER_DL
                 _glucoseResult.value = result?.let { convertUnit(it) }
             } catch (e: Exception) {
-                val result = glucoseResultRepository.getResearchResultById(RESULT_ID)
+                val result = glucoseResultRepository.getResearchResultById(resultId)
                 _prefUnit.value = GlucoseUnitType.MG_PER_DL
                 if (result != null) {
                     _glucoseResult.value = result.toResearchResult()
@@ -86,32 +86,28 @@ class GlucoseDetailsScreenViewModel(
         }
     }
 
-    private fun convertUnit(result: ResearchResult): ResearchResult {
-        return if (result.unit != prefUnit.value) {
-            val convertedConcentration = when (result.unit) {
-                GlucoseUnitType.MG_PER_DL -> result.glucoseConcentration / 18.0182
-                GlucoseUnitType.MMOL_PER_L -> result.glucoseConcentration * 18.0182
-            }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
-            result.copy(
-                glucoseConcentration = convertedConcentration,
-                unit = prefUnit.value,
-            )
-        } else {
-            result
-        }
+    private fun convertUnit(result: ResearchResult): ResearchResult = if (result.unit != prefUnit.value) {
+        val convertedConcentration = when (result.unit) {
+            GlucoseUnitType.MG_PER_DL -> result.glucoseConcentration / 18.0182
+            GlucoseUnitType.MMOL_PER_L -> result.glucoseConcentration * 18.0182
+        }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
+        result.copy(
+            glucoseConcentration = convertedConcentration,
+            unit = prefUnit.value,
+        )
+    } else {
+        result
     }
 
-    suspend fun deleteGlucoseResult(): Boolean {
-        return try {
-            resultApi.deleteResearchResult(RESULT_ID)
-            Log.d("GlucoseDetails", "Glucose result deleted successfully")
-            glucoseResultRepository.deleteResearchResult(RESULT_ID)
-            Log.d("GlucoseDetails", "Glucose result deleted from database")
-            true
-        } catch (e: Exception) {
-            Log.e("GlucoseDetails", "Error deleting glucose result: ${e.message}")
-            false
-        }
+    suspend fun deleteGlucoseResult(): Boolean = try {
+        resultApi.deleteResearchResult(resultId)
+        Log.d("GlucoseDetails", "Glucose result deleted successfully")
+        glucoseResultRepository.deleteResearchResult(resultId)
+        Log.d("GlucoseDetails", "Glucose result deleted from database")
+        true
+    } catch (e: Exception) {
+        Log.e("GlucoseDetails", "Error deleting glucose result: ${e.message}")
+        false
     }
 
     var lastCheckedTime = 0L

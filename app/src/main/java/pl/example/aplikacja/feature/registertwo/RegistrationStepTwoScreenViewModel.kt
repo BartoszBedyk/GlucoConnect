@@ -8,9 +8,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class RegistrationStepTwoScreenViewModel @Inject constructor(
-    private val userApi: UserApiInterface,
-) : ViewModel() {
+class RegistrationStepTwoScreenViewModel @Inject constructor(private val userApi: UserApiInterface) : ViewModel() {
 
     suspend fun registerStepTwo(
         id: String,

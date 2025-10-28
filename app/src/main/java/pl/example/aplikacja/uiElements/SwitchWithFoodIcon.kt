@@ -1,4 +1,4 @@
-package pl.example.aplikacja.UiElements
+package pl.example.aplikacja.uiElements
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -20,15 +20,14 @@ import androidx.compose.ui.unit.dp
 import pl.example.aplikacja.R
 
 @Composable
-fun SwitchWithFoodIcon(checked: Boolean, onCheckedChange: (Boolean) -> Unit){
-
+fun SwitchWithFoodIcon(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         thumbContent = if (checked) {
             {
                 Icon(
-                    painter = painterResource(id =  R.drawable.baseline_fastfood_24),
+                    painter = painterResource(id = R.drawable.baseline_fastfood_24),
                     contentDescription = null,
                     modifier = Modifier.size(SwitchDefaults.IconSize),
                 )
@@ -36,7 +35,7 @@ fun SwitchWithFoodIcon(checked: Boolean, onCheckedChange: (Boolean) -> Unit){
         } else {
             {
                 Icon(
-                    painter = painterResource(id =  R.drawable.baseline_no_food_24),
+                    painter = painterResource(id = R.drawable.baseline_no_food_24),
                     contentDescription = null,
                     modifier = Modifier.size(SwitchDefaults.IconSize),
                 )
@@ -50,15 +49,14 @@ fun SwitchWithFoodIcon(checked: Boolean, onCheckedChange: (Boolean) -> Unit){
             checkedIconColor = MaterialTheme.colorScheme.onPrimary,
             uncheckedIconColor = MaterialTheme.colorScheme.onPrimary,
             checkedBorderColor = MaterialTheme.colorScheme.primary,
-            uncheckedBorderColor = MaterialTheme.colorScheme.primary
+            uncheckedBorderColor = MaterialTheme.colorScheme.primary,
         ),
-        modifier = Modifier.scale(1.25f).size(80.dp)
+        modifier = Modifier.scale(1.25f).size(80.dp),
     )
-
 }
 
 @Composable
-fun SwitchWithMedicationIcon(checked : Boolean, onCheckedChange : (Boolean) -> Unit){
+fun SwitchWithMedicationIcon(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -73,7 +71,7 @@ fun SwitchWithMedicationIcon(checked : Boolean, onCheckedChange : (Boolean) -> U
         } else {
             {
                 Icon(
-                    painter = painterResource(id =  R.drawable.pills_foreground),
+                    painter = painterResource(id = R.drawable.pills_foreground),
                     contentDescription = null,
                     modifier = Modifier.size(SwitchDefaults.IconSize),
                 )
@@ -87,25 +85,20 @@ fun SwitchWithMedicationIcon(checked : Boolean, onCheckedChange : (Boolean) -> U
             checkedIconColor = MaterialTheme.colorScheme.onPrimary,
             uncheckedIconColor = MaterialTheme.colorScheme.onPrimary,
             checkedBorderColor = MaterialTheme.colorScheme.primary,
-            uncheckedBorderColor = MaterialTheme.colorScheme.primary
+            uncheckedBorderColor = MaterialTheme.colorScheme.primary,
         ),
-        modifier = Modifier.scale(1.25f).size(80.dp)
+        modifier = Modifier.scale(1.25f).size(80.dp),
     )
-
 }
 
 @Preview
 @Composable
-fun SwitchWithIconPreview(){
+fun SwitchWithIconPreview() {
     var foodChecked by remember { mutableStateOf(false) }
     var medicationChecked by remember { mutableStateOf(false) }
 
-
-    Column(modifier = Modifier.size(200.dp).padding(16.dp)){
-
-
+    Column(modifier = Modifier.size(200.dp).padding(16.dp)) {
         SwitchWithFoodIcon(foodChecked) { foodChecked = it }
         SwitchWithMedicationIcon(medicationChecked) { medicationChecked = it }
     }
-
 }

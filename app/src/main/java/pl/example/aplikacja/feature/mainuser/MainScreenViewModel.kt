@@ -41,12 +41,11 @@ class MainScreenViewModel @Inject constructor(
     private val heartbeatRepository: HeartbeatRepository,
     private val prefUnitRepository: PrefUnitRepository,
     jwtHelper: JwtHelper,
-    apiProvider: ApiProvider
+    apiProvider: ApiProvider,
 
 ) : ViewModel() {
 
-    val USER_ID: String = jwtHelper.getUserId()
-
+    val userId: String = jwtHelper.getUserId()
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState
@@ -70,11 +69,8 @@ class MainScreenViewModel @Inject constructor(
                     fetchItemsAsync()
                 }
             }
-
         }
-
     }
-
 
     private fun fetchItemsAsync() {
         viewModelScope.launch {
@@ -82,19 +78,19 @@ class MainScreenViewModel @Inject constructor(
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
 
-                Log.d("ViewModel", "UserId: $USER_ID")
-                val results = resultApi.getThreeResultsById(USER_ID) ?: emptyList()
-                val unit = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
-                val diabetesType = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
-                val heartbeat = heartApi.getThreeHeartbeatResults(USER_ID) ?: emptyList()
+                Log.d("ViewModel", "UserId: $userId")
+                val results = resultApi.getThreeResultsById(userId) ?: emptyList()
+                val unit = userApi.getUserUnitById(userId) ?: GlucoseUnitType.MMOL_PER_L
+                val diabetesType = userApi.getUserById(userId)?.diabetesType ?: DiabetesType.NONE
+                val heartbeat = heartApi.getThreeHeartbeatResults(userId) ?: emptyList()
 
                 prefUnitRepository.insert(
                     PrefUnitDB(
-                        userId = USER_ID,
+                        userId = userId,
                         glucoseUnit = unit.toString(),
                         isSynced = true,
-                        diabetesType = diabetesType.toDiabetesTypeDB()
-                    )
+                        diabetesType = diabetesType.toDiabetesTypeDB(),
+                    ),
                 )
                 researchRepository.insertAllResults(results)
 
@@ -102,24 +98,24 @@ class MainScreenViewModel @Inject constructor(
                     glucoseItems = convertUnits(results, unit),
                     heartbeatItems = heartbeat,
                     prefUnit = unit,
-                    userDiabetesType = diabetesType
+                    userDiabetesType = diabetesType,
                 )
             } catch (e: Exception) {
                 withContext(Dispatchers.IO) {
-                    val localResults = researchRepository.getLatestThreeResearchResult(USER_ID)
+                    val localResults = researchRepository.getLatestThreeResearchResult(userId)
                     val localDiabetesType =
-                        prefUnitRepository.getUserDiabetesType(USER_ID).toDiabetesType()
-                    val localUnit = stringUnitParser(prefUnitRepository.getUnitByUserId(USER_ID))
-                    val localHeartbeats = heartbeatRepository.getThreeHeartbeatById(USER_ID)
+                        prefUnitRepository.getUserDiabetesType(userId).toDiabetesType()
+                    val localUnit = stringUnitParser(prefUnitRepository.getUnitByUserId(userId))
+                    val localHeartbeats = heartbeatRepository.getThreeHeartbeatById(userId)
 
                     _uiState.value = _uiState.value.copy(
                         glucoseItems = convertUnits(
                             localResults.map { it.toResearchResult() },
-                            localUnit
+                            localUnit,
                         ),
                         heartbeatItems = localHeartbeats.toHeartbeatResultList(),
                         prefUnit = localUnit,
-                        userDiabetesType = localDiabetesType
+                        userDiabetesType = localDiabetesType,
                     )
                 }
             } finally {
@@ -128,19 +124,18 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun getUserDiabetesType() {
         try {
             if (!healthy.value) throw IllegalStateException("API not available")
 
             viewModelScope.launch {
-                val diabetesType = userApi.getUserById(USER_ID)?.diabetesType ?: DiabetesType.NONE
+                val diabetesType = userApi.getUserById(userId)?.diabetesType ?: DiabetesType.NONE
                 _uiState.value = _uiState.value.copy(userDiabetesType = diabetesType)
             }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
                 val localType = try {
-                    prefUnitRepository.getUserDiabetesType(USER_ID).toDiabetesType()
+                    prefUnitRepository.getUserDiabetesType(userId).toDiabetesType()
                 } catch (e: Exception) {
                     DiabetesType.NONE
                 }
@@ -149,20 +144,18 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-
     private fun getUserHb1AcValue() {
         viewModelScope.launch {
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
-                val value = resultApi.getHb1AcResultById(USER_ID) ?: 0.0f
+                val value = resultApi.getHb1AcResultById(userId) ?: 0.0f
                 _uiState.value = _uiState.value.copy(userHb1AcValue = value)
             } catch (e: Exception) {
-                val localValue = researchRepository.getUserGbA1cById(USER_ID)
+                val localValue = researchRepository.getUserGbA1cById(userId)
                 _uiState.value = _uiState.value.copy(userHb1AcValue = localValue)
             }
         }
     }
-
 
     private var lastCheckedTime = 0L
 
@@ -190,6 +183,4 @@ class MainScreenViewModel @Inject constructor(
             }
         }
     }
-
-
 }

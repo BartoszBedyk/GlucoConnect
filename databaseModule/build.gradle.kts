@@ -58,4 +58,5 @@ dependencies {
 
     kapt(libs.androidx.room.compiler)
    // ksp(libs.androidx.room.compiler)
+    testImplementation(kotlin("test"))
 }

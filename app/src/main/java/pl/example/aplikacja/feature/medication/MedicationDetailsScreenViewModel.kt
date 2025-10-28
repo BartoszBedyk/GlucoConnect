@@ -4,37 +4,34 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.auth0.jwt.JWT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import pl.example.aplikacja.mappters.removeQuotes
+import pl.example.aplikacja.JwtHelper
 import pl.example.aplikacja.mappters.toMedicationResult
 import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.databasemodule.database.repository.MedicationRepository
 import pl.example.databasemodule.database.repository.UserMedicationRepository
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiData.UserMedicationResult
-import pl.example.networkmodule.apiMethods.ApiProvider
-import pl.example.networkmodule.getToken
+import pl.example.networkmodule.apiMethods.MedicationApiInterface
+import pl.example.networkmodule.apiMethods.UserMedicationApiInterface
 import javax.inject.Inject
 
 @HiltViewModel
 class MedicationDetailsScreenViewModel
-    @Inject constructor(
-        @ApplicationContext context: Context,
+@Inject constructor(
+    @ApplicationContext context: Context,
+    private val medicationApi: MedicationApiInterface,
+    private val userMedicationAPi: UserMedicationApiInterface,
+    private val userMedicationRepository: UserMedicationRepository,
+    private val medicationRepository: MedicationRepository,
+    jwtHelper: JwtHelper,
 ) : ViewModel() {
 
-    private val apiProvider = ApiProvider(context)
-    val USER_ID: String = removeQuotes(JWT.decode(getToken(context)).getClaim("userId").toString())
-
-    private val medicationApi = apiProvider.medicationApi
-    private val userMedicationAPi = apiProvider.userMedicationApi
-
-    private val userMedicationRepository = UserMedicationRepository(context)
-    private val medicationRepository = MedicationRepository(context)
+    val userId: String = jwtHelper.getUserId()
 
     private val _userMedication = MutableStateFlow<UserMedicationResult?>(null)
     val userMedication: StateFlow<UserMedicationResult?> = _userMedication
@@ -42,16 +39,12 @@ class MedicationDetailsScreenViewModel
     private val _medication = MutableStateFlow<MedicationResult?>(null)
     val medication: StateFlow<MedicationResult?> = _medication
 
-    private val _MEDICATION_ID = MutableStateFlow<String?>(null)
-    val MEDICATION_ID: StateFlow<String?> = _MEDICATION_ID
+    private val _medicationId2 = MutableStateFlow<String?>(null)
+    val medicationId2: StateFlow<String?> = _medicationId2
 
     fun setMedicationId(id: String) {
-        _MEDICATION_ID.value = id
+        _medicationId2.value = id
     }
-
-
-
-
 
     fun fetchUserMediacation(umId: String, medicationId: String) {
         viewModelScope.launch {
@@ -59,10 +52,10 @@ class MedicationDetailsScreenViewModel
                 Log.d("UM API", "Fetching user medication")
                 _medication.value = medicationApi.readMedication(medicationId)
                 _userMedication.value = userMedicationAPi.getUserMedication(
-               userMedicationId = umId
+                    userMedicationId = umId,
                 )
             } catch (
-                e: Exception
+                e: Exception,
             ) {
                 Log.d("UM API", "Fetching user db")
                 _medication.value = medicationRepository.getMedicationById(medicationId).toMedicationResult()
@@ -71,17 +64,18 @@ class MedicationDetailsScreenViewModel
                     _userMedication.value =
                         parseUserMedicationDBtoUserMedicationResult(
                             userMedicationRepository.getMedicationById(
-                                USER_ID,
-                                MEDICATION_ID.value!!
-                            )
+                                userId,
+                                medicationId2.value!!,
+                            ),
                         )
                 } else {
                     _userMedication.value =
                         parseUserMedicationDBtoUserMedicationResult(
                             userMedicationRepository.getMedicationById(
-                                USER_ID,
-                                MEDICATION_ID.value!!
-                            ), _medication.value
+                                userId,
+                                medicationId2.value!!,
+                            ),
+                            _medication.value,
                         )
                 }
             }
@@ -90,24 +84,23 @@ class MedicationDetailsScreenViewModel
 
     suspend fun deleteUserMedicationById(umId: String, medicationId: String): Boolean {
         try {
-                val success =
-                    userMedicationAPi.deleteUserMedication(umId)
-                if (success) {
-                    userMedicationRepository.deleteMedication(MEDICATION_ID.value!!)
-                    Log.d("UM API", "User medication deleted successfully")
-                    return true
-                } else
-                    return false
+            val success =
+                userMedicationAPi.deleteUserMedication(umId)
+            if (success) {
+                userMedicationRepository.deleteMedication(medicationId2.value!!)
+                Log.d("UM API", "User medication deleted successfully")
+                return true
+            } else {
+                return false
+            }
         } catch (e: Exception) {
             Log.e(
                 "MedicationDetailsScreenViewModel",
-                "Error deleting user medication: ${e.message}"
+                "Error deleting user medication: ${e.message}",
             )
             return false
         }
     }
-
-
 
     private fun parseUserMedicationDBtoUserMedicationResult(userMedication: UserMedicationDB?): UserMedicationResult? {
         if (userMedication != null) {
@@ -124,7 +117,7 @@ class MedicationDetailsScreenViewModel
                 manufacturer = null,
                 form = null,
                 strength = "",
-                description = ""
+                description = "",
             )
         }
         return null
@@ -132,7 +125,7 @@ class MedicationDetailsScreenViewModel
 
     private fun parseUserMedicationDBtoUserMedicationResult(
         userMedication: UserMedicationDB?,
-        medication: MedicationResult?
+        medication: MedicationResult?,
     ): UserMedicationResult? {
         if (userMedication != null) {
             if (medication != null) {
@@ -149,14 +142,10 @@ class MedicationDetailsScreenViewModel
                     manufacturer = medication.manufacturer,
                     form = medication.form,
                     strength = medication.strength,
-                    description = medication.description
+                    description = medication.description,
                 )
             }
         }
         return null
     }
-
-
-
-
 }

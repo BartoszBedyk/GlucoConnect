@@ -4,9 +4,12 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pl.example.aplikacja.JwtHelper
 import pl.example.aplikacja.feature.login.isNetworkAvailable
 import pl.example.aplikacja.mappters.convertUnits
 import pl.example.aplikacja.mappters.stringUnitParser
@@ -19,23 +22,26 @@ import pl.example.databasemodule.database.repository.PrefUnitRepository
 import pl.example.networkmodule.apiData.HeartbeatResult
 import pl.example.networkmodule.apiData.ResearchResult
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
+import pl.example.networkmodule.apiMethods.HeartbeatApiInterface
+import pl.example.networkmodule.apiMethods.ResultApiInterface
+import pl.example.networkmodule.apiMethods.UserApiInterface
+import javax.inject.Inject
 
-class AllResultsScreenViewModel(context: Context, private val USER_ID: String) : ViewModel() {
+@HiltViewModel
+class AllResultsScreenViewModel @Inject constructor(
+    private val resultApi: ResultApiInterface,
+    private val userApi: UserApiInterface,
+    private val heartbeatApi: HeartbeatApiInterface,
+    private val researchRepository: GlucoseResultRepository,
+    private val prefUnitRepository: PrefUnitRepository,
+    private val heartbeatsRepository: HeartbeatRepository,
+    private val authenticationApi: AuthenticationApiInterface,
+    @ApplicationContext private val context: Context,
+    jwtHelper: JwtHelper,
+) : ViewModel() {
 
-    private val apiProvider = ApiProvider(context)
-
-    private val researchRepository = GlucoseResultRepository(context)
-    private val prefUnitRepository = PrefUnitRepository(context)
-    private val heartbeatsRepository = HeartbeatRepository(context)
-
-    private val resultApi = apiProvider.resultApi
-    private val userApi = apiProvider.userApi
-    private val heartbeatApi = apiProvider.heartbeatApi
-
-
-    private val authenticationApi = apiProvider.authenticationApi
-
+    private val userId: String = jwtHelper.getUserId()
 
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
@@ -43,12 +49,11 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-
     private val _glucoseResults = MutableStateFlow<List<ResearchResult>>(emptyList())
     val glucoseResults: StateFlow<List<ResearchResult>> = _glucoseResults
 
     private val _glucoseResultData = MutableStateFlow<List<ResearchResult>>(emptyList())
-    val glucoseResultsData: StateFlow<List<ResearchResult>> = _glucoseResultData
+    val glucoseResultData: StateFlow<List<ResearchResult>> = _glucoseResultData
 
     private val _heartbeatResult = MutableStateFlow<List<HeartbeatResult>>(emptyList())
     val heartbeatResult: StateFlow<List<HeartbeatResult>> = _heartbeatResult
@@ -57,7 +62,7 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
     val prefUnit: StateFlow<GlucoseUnitType> = _prefUnit
 
     init {
-        isApiAvilible(apiProvider.innerContext)
+        isApiAvilible(context)
 
         viewModelScope.launch {
             healthy.collect { isHealthy ->
@@ -69,7 +74,6 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 }
             }
         }
-
     }
 
     private fun fetchItemsAsync() {
@@ -78,24 +82,23 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
 
-                val results = resultApi.getResultsByUserId(USER_ID) ?: emptyList()
-                _prefUnit.value = userApi.getUserUnitById(USER_ID) ?: GlucoseUnitType.MMOL_PER_L
+                val results = resultApi.getResultsByUserId(userId) ?: emptyList()
+                _prefUnit.value = userApi.getUserUnitById(userId) ?: GlucoseUnitType.MMOL_PER_L
                 _glucoseResults.value = convertUnits(results, prefUnit.value)
-                _heartbeatResult.value = heartbeatApi.readHeartbeatForUser(USER_ID) ?: emptyList()
+                _heartbeatResult.value = heartbeatApi.readHeartbeatForUser(userId) ?: emptyList()
                 researchRepository.insertAllResults(results)
             } catch (e: Exception) {
-                _prefUnit.value = stringUnitParser(prefUnitRepository.getUnitByUserId(USER_ID))
+                _prefUnit.value = stringUnitParser(prefUnitRepository.getUnitByUserId(userId))
                 _glucoseResults.value =
-                    researchRepository.getAllGlucoseResultsByUserId(USER_ID).toResearchResultList()
+                    researchRepository.getAllGlucoseResultsByUserId(userId).toResearchResultList()
 
                 _glucoseResults.value = convertUnits(_glucoseResults.value, prefUnit.value)
-                _heartbeatResult.value = heartbeatsRepository.getHeartbeatResultsForUser(USER_ID).toHeartbeatResultList()
+                _heartbeatResult.value = heartbeatsRepository.getHeartbeatResultsForUser(userId).toHeartbeatResultList()
             } finally {
                 _isLoading.value = false
             }
         }
     }
-
 
     private fun syncDatabases() {
         viewModelScope.launch {
@@ -103,7 +106,7 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                 if (!healthy.value) throw IllegalStateException("API not available")
 
                 val unsyncedResults = researchRepository.getUnsyncedResearchResults()
-                Log.i("SYNC", "List of unsynced + ${unsyncedResults.size.toString()}")
+                Log.i("SYNC", "List of unsynced + ${unsyncedResults.size}")
                 if (unsyncedResults.isNotEmpty()) {
                     unsyncedResults.forEach { result ->
                         try {
@@ -111,7 +114,6 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
                             researchRepository.markAsSynced(result.id.toString())
                         } catch (e: Exception) {
                             Log.e("SYNC", "Failed to sync result: $result", e)
-
                         }
                     }
                 }
@@ -143,6 +145,4 @@ class AllResultsScreenViewModel(context: Context, private val USER_ID: String) :
             }
         }
     }
-
-
 }

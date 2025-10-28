@@ -8,20 +8,18 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-fun convertUnits(items: List<ResearchResult>, targetUnit: GlucoseUnitType): List<ResearchResult> {
-    return items.map { item ->
-        if (item.unit != targetUnit) {
-            val convertedConcentration = when (item.unit) {
-                GlucoseUnitType.MG_PER_DL -> item.glucoseConcentration / 18.0182
-                GlucoseUnitType.MMOL_PER_L -> item.glucoseConcentration * 18.0182
-            }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
-            item.copy(
-                glucoseConcentration = convertedConcentration,
-                unit = targetUnit,
-            )
-        } else {
-            item
-        }
+fun convertUnits(items: List<ResearchResult>, targetUnit: GlucoseUnitType): List<ResearchResult> = items.map { item ->
+    if (item.unit != targetUnit) {
+        val convertedConcentration = when (item.unit) {
+            GlucoseUnitType.MG_PER_DL -> item.glucoseConcentration / 18.0182
+            GlucoseUnitType.MMOL_PER_L -> item.glucoseConcentration * 18.0182
+        }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
+        item.copy(
+            glucoseConcentration = convertedConcentration,
+            unit = targetUnit,
+        )
+    } else {
+        item
     }
 }
 
@@ -46,8 +44,4 @@ fun parseMeasurement(input: String): Measurement? {
     }
 }
 
-data class Measurement(
-    val date: Date,
-    val result: Double,
-    val unit: String,
-)
+data class Measurement(val date: Date, val result: Double, val unit: String)

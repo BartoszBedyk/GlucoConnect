@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -11,16 +12,16 @@ import pl.example.aplikacja.feature.login.isNetworkAvailable
 import pl.example.aplikacja.mappters.toHeartbeatResult
 import pl.example.databasemodule.database.repository.HeartbeatRepository
 import pl.example.networkmodule.apiData.HeartbeatResult
-import pl.example.networkmodule.apiMethods.ApiProvider
+import pl.example.networkmodule.apiMethods.AuthenticationApiInterface
+import pl.example.networkmodule.apiMethods.HeartbeatApiInterface
 
 class HeartbeatDetailsScreenViewModel(
-    context: Context,
-    private val RESULT_ID: String,
+    private val heartbeatResultRepository: HeartbeatRepository,
+    private val heartbeatApi: HeartbeatApiInterface,
+    private val authenticationApi: AuthenticationApiInterface,
+    @ApplicationContext context: Context,
+    private val resultId: String,
 ) : ViewModel() {
-    private val apiProvider = ApiProvider(context)
-    private val heartbeatResultRepository = HeartbeatRepository(context)
-
-    private val heartbeatAPi = apiProvider.heartbeatApi
 
     private val _heartbeatResult = MutableStateFlow<HeartbeatResult?>(null)
     val heartbeatResult: StateFlow<HeartbeatResult?> = _heartbeatResult
@@ -28,13 +29,11 @@ class HeartbeatDetailsScreenViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val authenticationApi = apiProvider.authenticationApi
-
     private val _healthy = MutableStateFlow<Boolean>(false)
     val healthy: StateFlow<Boolean> = _healthy
 
     init {
-        isApiAvilible(apiProvider.innerContext)
+        isApiAvilible(context)
         viewModelScope.launch {
             healthy.collect { isHealthy ->
                 if (isHealthy) {
@@ -52,11 +51,11 @@ class HeartbeatDetailsScreenViewModel(
             try {
                 if (!healthy.value) throw IllegalStateException("API not available")
 
-                val result = heartbeatAPi.getHeartBeat(RESULT_ID)
+                val result = heartbeatApi.getHeartBeat(resultId)
                 _heartbeatResult.value = result
             } catch (e: Exception) {
                 Log.e("GlucoseDetails", "podejmie pobranie z bazy")
-                val result = heartbeatResultRepository.getHeartbeatResultById(RESULT_ID)
+                val result = heartbeatResultRepository.getHeartbeatResultById(resultId)
                 Log.e("GlucoseDetails", "podejmie pobranie z bazy ${result?.systolicPressure}")
                 _heartbeatResult.value = result?.toHeartbeatResult()
             } finally {
@@ -69,8 +68,8 @@ class HeartbeatDetailsScreenViewModel(
         var deleted: Boolean = false
         viewModelScope.launch {
             try {
-                heartbeatAPi.deleteHeartbeat(RESULT_ID)
-                heartbeatResultRepository.deleteHeartbeatResult(RESULT_ID)
+                heartbeatApi.deleteHeartbeat(resultId)
+                heartbeatResultRepository.deleteHeartbeatResult(resultId)
                 deleted = true
             } catch (e: Exception) {
                 Log.e("GlucoseDetails", "Error deleting glucose result: ${e.message}")

@@ -33,22 +33,19 @@ import pl.example.aplikacja.mappters.formatDateTimeWithoutTime
 import pl.example.networkmodule.apiData.UserMedicationResult
 
 @Composable
-fun MedicationResultScreen(umId: String,
-                           medicationId: String,
-                           navController: NavController) {
+fun MedicationResultScreen(umId: String, medicationId: String, navController: NavController) {
     val context = LocalContext.current
 
-    val viewModel : MedicationDetailsScreenViewModel = hiltViewModel()
+    val viewModel: MedicationDetailsScreenViewModel = hiltViewModel()
     val viewModelScope = remember { viewModel.viewModelScope }
 
-    //fetch data from server about medications for actual user\
+    // fetch data from server about medications for actual user\
     LaunchedEffect(Unit) {
         viewModel.setMedicationId(medicationId)
         viewModel.fetchUserMediacation(
             umId = umId,
-            medicationId = medicationId
+            medicationId = medicationId,
         )
-
     }
 
     val userMedication by viewModel.userMedication.collectAsState()
@@ -57,53 +54,50 @@ fun MedicationResultScreen(umId: String,
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-    )  {
-            userMedication?.let {
-                MedicationItem(it)
-            }
-            Column(Modifier.padding(16.dp)) {
-                HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
-                TextRow(label = "Nazwa leku:", value = medication?.name ?: "")
-                TextRow(label = "Opis:", value = medication?.description ?: "")
-                TextRow(label = "Producent:", value = medication?.manufacturer ?: "")
-                TextRow(label = "Forma:", value = medication?.form ?: "")
-                TextRow(label = "Siła:", value = medication?.strength ?: "")
-            }
-            FloatingActionButton( onClick = {
+            .padding(16.dp),
+    ) {
+        userMedication?.let {
+            MedicationItem(it)
+        }
+        Column(Modifier.padding(16.dp)) {
+            HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
+            TextRow(label = "Nazwa leku:", value = medication?.name ?: "")
+            TextRow(label = "Opis:", value = medication?.description ?: "")
+            TextRow(label = "Producent:", value = medication?.manufacturer ?: "")
+            TextRow(label = "Forma:", value = medication?.form ?: "")
+            TextRow(label = "Siła:", value = medication?.strength ?: "")
+        }
+        FloatingActionButton(
+            onClick = {
                 viewModelScope.launch {
-                    if(viewModel.deleteUserMedicationById(umId, medicationId)){
+                    if (viewModel.deleteUserMedicationById(umId, medicationId)) {
                         Log.d("GlucoseDetails", "Glucose result deleted successfully")
                         Toast.makeText(context, "Usunięto lek!", Toast.LENGTH_LONG).show()
                         navController.popBackStack()
-                    }
-                    else{
+                    } else {
                         Toast.makeText(context, "Nie udało się usunąć leku!", Toast.LENGTH_LONG).show()
                         navController.popBackStack()
                     }
-                }},
-                modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.End)
-            ){
-                Icon(Icons.Default.Delete, contentDescription = "Delete")
-            }
+                }
+            },
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.End),
+        ) {
+            Icon(Icons.Default.Delete, contentDescription = "Delete")
         }
     }
-
-
-
+}
 
 @Composable
 fun MedicationItem(medication: UserMedicationResult) {
     Row(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
     ) {
-
         Column {
             Text(
                 text = "Nazwa leku: ${medication.medicationName}",
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
             Text(text = "Dawka: ${medication.dosage}")
             Text(text = "Częstotliwość: ${medication.frequency}")
@@ -113,11 +107,10 @@ fun MedicationItem(medication: UserMedicationResult) {
             }
         }
     }
-
 }
 
 @Preview
 @Composable
 fun MedicationResultScreenPreview() {
-    //MedicationResultScreen("1")
+    // MedicationResultScreen("1")
 }
