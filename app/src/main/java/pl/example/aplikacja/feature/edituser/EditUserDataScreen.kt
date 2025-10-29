@@ -41,7 +41,6 @@ import pl.example.aplikacja.uiElements.DiabetesTypeDropdownMenu
 import pl.example.aplikacja.uiElements.GlucoseUnitDropdownMenu
 import pl.example.networkmodule.apiData.enumTypes.DiabetesType
 import pl.example.networkmodule.apiData.enumTypes.GlucoseUnitType
-import pl.example.networkmodule.apiMethods.ApiProvider
 import pl.example.networkmodule.getToken
 import pl.example.networkmodule.requestData.UpdateUserNullForm
 import java.util.UUID
@@ -49,7 +48,6 @@ import java.util.UUID
 @Composable
 fun EditUserDataScreen(navController: NavController) {
     val context = LocalContext.current
-    val apiProvider = remember { ApiProvider(context) }
     val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
     val viewModel: EditUserViewModel = hiltViewModel()
 

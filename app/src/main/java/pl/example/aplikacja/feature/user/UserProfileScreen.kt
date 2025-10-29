@@ -49,8 +49,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.MainActivity
 import pl.example.aplikacja.feature.edituser.TextRowEdit
@@ -61,7 +59,6 @@ import pl.example.aplikacja.notificationManager.InnerNotificationManager
 import pl.example.networkmodule.apiData.UserResult
 import pl.example.networkmodule.apiData.enumTypes.UserType
 import pl.example.networkmodule.clearToken
-import pl.example.networkmodule.getToken
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Date
@@ -70,7 +67,6 @@ import java.util.Date
 @Composable
 fun UserProfileScreen(navController: NavController) {
     val context = LocalContext.current
-    val decoded: DecodedJWT = remember { JWT.decode(getToken(context)) }
 
     val viewModel: UserProfileViewModel = hiltViewModel()
 
@@ -95,8 +91,6 @@ fun UserProfileScreen(navController: NavController) {
         val accepted = viewModel.observatorsAccepted.collectAsState()
         val unAccepted = viewModel.observatorsUnAccepted.collectAsState()
 
-        Log.e("UNaccepted", unAccepted.value?.size.toString())
-        Log.e("Accepted", accepted.value?.size.toString())
         val fontSize = 20
         val coroutineScope = rememberCoroutineScope()
         val prefUnit = userData.value?.prefUnit?.let { formatUnit(it) }
@@ -125,9 +119,6 @@ fun UserProfileScreen(navController: NavController) {
         Column(
             Modifier.padding(top = 64.dp, start = 16.dp, end = 16.dp),
         ) {
-//            TextRow(
-//                label = "ID użytkownika", value = userData.value?.id.toString(), fontSize = fontSize
-//            )
             TextRow(
                 label = "Adres email",
                 value = userData.value?.email.toString(),
@@ -263,7 +254,6 @@ fun UserProfileScreen(navController: NavController) {
                                 value = observed.value?.firstName.toString() + " " +
                                     observed.value?.lastName.toString(),
                             )
-                            // TextRow(label = "Email", value = observed.value?.email.toString())
                         }
                     }
                 }

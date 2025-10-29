@@ -71,7 +71,7 @@ class UserMedicationScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 Log.i("UserMedicationScreenViewModel", "fetchMedicationResults")
                 _medicationResults.value = userMedicationsApi.readTodayUserMedication(userId)!!
             } catch (e: Exception) {
@@ -85,7 +85,7 @@ class UserMedicationScreenViewModel @Inject constructor(
     private fun fetchDataBase() {
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 _medication.value = medicationApi.getUnsynced(userId)!!
                 _userMedication.value = userMedicationsApi.readTodayUserMedication(userId)!!
                 userMedicationRepository.insertAll(userMedication.value.toUserMedicationDBList())

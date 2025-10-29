@@ -49,7 +49,7 @@ class HeartbeatDetailsScreenViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
 
                 val result = heartbeatApi.getHeartBeat(resultId)
                 _heartbeatResult.value = result

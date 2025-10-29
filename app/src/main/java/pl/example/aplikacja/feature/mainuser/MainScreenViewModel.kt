@@ -76,7 +76,7 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
 
                 Log.d("ViewModel", "UserId: $userId")
                 val results = resultApi.getThreeResultsById(userId) ?: emptyList()
@@ -126,7 +126,7 @@ class MainScreenViewModel @Inject constructor(
 
     private suspend fun getUserDiabetesType() {
         try {
-            if (!healthy.value) throw IllegalStateException("API not available")
+            check(healthy.value) { "API not available" }
 
             viewModelScope.launch {
                 val diabetesType = userApi.getUserById(userId)?.diabetesType ?: DiabetesType.NONE
@@ -147,7 +147,7 @@ class MainScreenViewModel @Inject constructor(
     private fun getUserHb1AcValue() {
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 val value = resultApi.getHb1AcResultById(userId) ?: 0.0f
                 _uiState.value = _uiState.value.copy(userHb1AcValue = value)
             } catch (e: Exception) {

@@ -180,9 +180,11 @@ fun evaluateGlucoseResult(
     afterMedication: Boolean,
     emptyStomach: Boolean,
 ): String {
+    val glucoseParseValue = 18.0182
+
     val concentrationMgDl = when (unit) {
         GlucoseUnitType.MG_PER_DL -> glucoseConcentration
-        GlucoseUnitType.MMOL_PER_L -> glucoseConcentration * 18.0182
+        GlucoseUnitType.MMOL_PER_L -> glucoseConcentration * glucoseParseValue
     }
 
     val baseMessage = if (emptyStomach) {
@@ -231,9 +233,11 @@ fun evaluateGlucoseWithDiabetesType(
     emptyStomach: Boolean,
     diabetesType: DiabetesType,
 ): String {
+    val glucoseParseValue = 18.0182
+
     val concentrationMgDl = when (unit) {
         GlucoseUnitType.MG_PER_DL -> glucoseConcentration
-        GlucoseUnitType.MMOL_PER_L -> glucoseConcentration * 18.0182
+        GlucoseUnitType.MMOL_PER_L -> glucoseConcentration * glucoseParseValue
     }
 
     val baseMessage = if (emptyStomach) {

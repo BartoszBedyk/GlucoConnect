@@ -79,7 +79,7 @@ class UserProfileViewModel @Inject constructor(
     fun generateReport(startDate: Date, endDate: Date) {
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 val reportData = GenerateGlucoseReport(
                     UUID.fromString(userId),
                     startDate,
@@ -96,7 +96,7 @@ class UserProfileViewModel @Inject constructor(
     private fun fetchUserData() {
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 Log.i("UserProfileViewModel", "fetchUserData")
                 _userData.value = userApi.getUserById(id = userId)
             } catch (e: Exception) {
@@ -109,7 +109,7 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 Log.i("UserProfileViewModel", "maybe healthy")
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 Log.i("UserProfileViewModel", "fetchUnaccepted")
                 val unAccepted = observerApi.getObservatorByObservedIdUnAccepted(userId)
                 if (unAccepted != null) {
@@ -141,7 +141,7 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 Log.i("UserProfileViewModel", "maybe healthy")
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
             } catch (e: Exception) {
                 println(e.message)
             }

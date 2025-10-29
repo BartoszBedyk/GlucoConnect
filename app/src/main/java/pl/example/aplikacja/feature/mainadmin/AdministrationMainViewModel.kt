@@ -43,7 +43,7 @@ class AdministrationMainViewModel @Inject constructor(
     private fun fetchUsers() {
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 _users.value = userApi.getAllUsers() ?: emptyList()
             } catch (
                 e: Exception,

@@ -56,7 +56,7 @@ class GlucoseDetailsScreenViewModel(
     private fun fechDiabetesType() {
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
                 _diabetesType.value = userApi.getUserById(userId)?.diabetesType ?: DiabetesType.NONE
             } catch (e: Exception) {
                 _diabetesType.value = userRepository.getUserDiabetesType(userId).toDiabetesType()
@@ -69,7 +69,7 @@ class GlucoseDetailsScreenViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
 
                 val result = resultApi.getResearchResultsById(resultId)
                 _prefUnit.value = userApi.getUserUnitById(userId) ?: GlucoseUnitType.MG_PER_DL

@@ -80,7 +80,7 @@ class AllResultsScreenViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
 
                 val results = resultApi.getResultsByUserId(userId) ?: emptyList()
                 _prefUnit.value = userApi.getUserUnitById(userId) ?: GlucoseUnitType.MMOL_PER_L
@@ -103,7 +103,7 @@ class AllResultsScreenViewModel @Inject constructor(
     private fun syncDatabases() {
         viewModelScope.launch {
             try {
-                if (!healthy.value) throw IllegalStateException("API not available")
+                check(healthy.value) { "API not available" }
 
                 val unsyncedResults = researchRepository.getUnsyncedResearchResults()
                 Log.i("SYNC", "List of unsynced + ${unsyncedResults.size}")
