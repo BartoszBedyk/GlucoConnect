@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.example.aplikacja.JwtHelper
 import pl.example.aplikacja.feature.login.isNetworkAvailable
-import pl.example.aplikacja.mappters.removeQuotes
 import pl.example.aplikacja.mappters.toMedicationDBList
 import pl.example.aplikacja.mappters.toMedicationList
 import pl.example.aplikacja.mappters.toUserMedicationDBList
@@ -98,45 +97,6 @@ class UserMedicationScreenViewModel @Inject constructor(
                     medicationRepository.getAllMedications().toMedicationList()
             }
         }
-    }
-
-    suspend fun deleteUserMedicationById(): Boolean {
-        try {
-            if (getUserMedicationIDByID() != null) {
-                Log.d("UM API", "User medication ID: ${getUserMedicationIDByID()}")
-                val success =
-                    userMedicationsApi.deleteUserMedication(removeQuotes(getUserMedicationIDByID()!!))
-                if (success) {
-                    userMedicationRepository.deleteMedication(getUserMedicationIDByID()!!)
-                    Log.d("UM API", "User medication deleted successfully")
-                    return true
-                } else {
-                    return false
-                }
-            } else {
-                return false
-            }
-        } catch (e: Exception) {
-            Log.e(
-                "MedicationDetailsScreenViewModel",
-                "Error deleting user medication: ${e.message}",
-            )
-            return false
-        }
-    }
-
-    private suspend fun getUserMedicationIDByID(): String? {
-        try {
-//            val id = userMedicationsApi.getUserMedicationId(user_id, MEDICATION_ID)
-//            Log.e("UM API", "ID: $id")
-//            return id
-        } catch (e: Exception) {
-            Log.e(
-                "MedicationDetailsScreenViewModel",
-                "Error fetching user medication ID: ${e.message}",
-            )
-        }
-        return null
     }
 
     private var lastCheckedTime = 0L

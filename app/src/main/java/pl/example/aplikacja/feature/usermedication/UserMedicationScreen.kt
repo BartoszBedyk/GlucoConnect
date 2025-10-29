@@ -42,7 +42,6 @@ import pl.example.networkmodule.apiData.UserMedicationResult
 fun UserMedicationScreen(navController: NavController?) {
     val viewModel: UserMedicationScreenViewModel = hiltViewModel()
 
-    // download medications for specyfic time
     val medications = viewModel.medicationResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 

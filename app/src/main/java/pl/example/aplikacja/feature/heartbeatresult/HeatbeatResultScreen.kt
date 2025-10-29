@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
@@ -32,10 +33,8 @@ import pl.example.aplikacja.mappters.formatDateTimeSpecificLocale
 @Composable
 fun HeartbeatResultScreen(id: String, navController: NavController) {
     val context = LocalContext.current
-    val viewModel =
-        remember { HeartbeatDetailsScreenViewModel(context, id) }
+    val viewModel: HeartbeatDetailsScreenViewModel = hiltViewModel()
 
-    // fetch data from server about heartbeats for actual user
     val heartbeatResult by viewModel.heartbeatResult.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -71,7 +70,6 @@ fun HeartbeatResultScreen(id: String, navController: NavController) {
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
 
-                    // TextRow(label = "ID pomiaru", value = heartbeatResult?.id.toString())
                     TextRow(
                         label = "Czas Pomiaru",
                         value = heartbeatResult?.timestamp?.let {
@@ -128,8 +126,6 @@ fun HeartbeatResultScreen(id: String, navController: NavController) {
         }
     }
 }
-
-// Funtion for evaluation of medical data (blood pressure)
 
 fun evaluateBloodPressure(systolicPressure: Int, diastolicPressure: Int, pulse: Int): String {
     val bloodPressureMessage = when {

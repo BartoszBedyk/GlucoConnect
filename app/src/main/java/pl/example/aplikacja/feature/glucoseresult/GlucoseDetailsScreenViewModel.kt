@@ -87,9 +87,10 @@ class GlucoseDetailsScreenViewModel(
     }
 
     private fun convertUnit(result: ResearchResult): ResearchResult = if (result.unit != prefUnit.value) {
+        val glucoseConstant = 18.0182
         val convertedConcentration = when (result.unit) {
-            GlucoseUnitType.MG_PER_DL -> result.glucoseConcentration / 18.0182
-            GlucoseUnitType.MMOL_PER_L -> result.glucoseConcentration * 18.0182
+            GlucoseUnitType.MG_PER_DL -> result.glucoseConcentration / glucoseConstant
+            GlucoseUnitType.MMOL_PER_L -> result.glucoseConcentration * glucoseConstant
         }.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
         result.copy(
             glucoseConcentration = convertedConcentration,
