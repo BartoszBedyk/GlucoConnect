@@ -4,6 +4,8 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
     alias(libs.plugins.compose.compiler)
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("com.diffplug.spotless") version "8.0.0"
 }
 
 android {
@@ -28,7 +30,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -51,10 +53,31 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
 }
 
+detekt {
+    config = files("$rootDir/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+}
 
+spotless {
+    kotlin {
+        target("**/*.kt")
+        ktlint("1.7.1").editorConfigOverride(
+            mapOf(
+                "indent_size" to "4",
+                "insert_final_newline" to "true",
+                "max_line_length" to "120",
+                "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
+            ),
+        )
+    }
+
+    kotlinGradle {
+        target("**/*.gradle.kts")
+        ktlint()
+    }
+}
 
 dependencies {
 
@@ -90,9 +113,7 @@ dependencies {
     implementation(libs.dotenv.kotlin)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.graphics.shapes)
-    //implementation (libs.androidx.credentials)
-
-
+    // implementation (libs.androidx.credentials)
 
     implementation(libs.hilt.android.v2511)
     kapt(libs.hilt.android.compiler.v2511)

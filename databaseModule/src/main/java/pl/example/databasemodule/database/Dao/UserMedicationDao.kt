@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import pl.example.databasemodule.database.data.MedicationDB
 import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.networkmodule.apiData.UserMedicationResult
 
@@ -30,6 +29,7 @@ interface UserMedicationDao {
 
     @Query("""
     SELECT 
+    um.id AS id,
         um.user_id AS userId, 
         um.medication_id AS medicationId, 
         um.dosage, 
@@ -52,6 +52,7 @@ AND (um.end_date IS NULL OR um.end_date >= :now)
 
     @Query("""
 SELECT 
+um.id AS id,
   um.user_id AS userId, 
         um.medication_id AS medicationId, 
         um.dosage, 

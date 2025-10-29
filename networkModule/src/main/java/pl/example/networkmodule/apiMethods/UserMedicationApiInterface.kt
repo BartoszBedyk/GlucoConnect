@@ -10,6 +10,7 @@ interface UserMedicationApiInterface {
     suspend fun deleteUserMedicationForUser(userId: String): Boolean
     suspend fun readTodayUserMedication(id: String): List<UserMedicationResult>?
     suspend fun getUserMedication(userId: String, medicationId: String): UserMedicationResult?
+    suspend fun getUserMedication(userMedicationId: String): UserMedicationResult?
     suspend fun readUserMedicationByID(umId: String): List<UserMedicationResult>?
     suspend fun markAsSynced(userId: String): Boolean
     suspend fun getUserMedicationId(id: String, medicationId: String): String?

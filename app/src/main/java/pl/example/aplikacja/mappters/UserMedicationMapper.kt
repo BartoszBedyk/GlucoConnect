@@ -5,41 +5,37 @@ import pl.example.databasemodule.database.data.UserMedicationDB
 import pl.example.networkmodule.apiData.MedicationResult
 import pl.example.networkmodule.apiData.UserMedicationResult
 import pl.example.networkmodule.requestData.CreateUserMedicationForm
+import java.util.UUID
 
-fun UserMedicationResult.toUserMedicationDB(): UserMedicationDB {
-    return this.let { form ->
-        UserMedicationDB(
-            medicationId = form.medicationId,
-            userId = form.userId,
-            dosage = form.dosage,
-            frequency = form.frequency,
-            startDate = form.startDate,
-            endDate = form.endDate,
-            notes = form.notes,
-            isSynced = true
-        )
-    }
+fun UserMedicationResult.toUserMedicationDB(): UserMedicationDB = this.let { form ->
+    UserMedicationDB(
+        id = form.id,
+        medicationId = form.medicationId,
+        userId = form.userId,
+        dosage = form.dosage,
+        frequency = form.frequency,
+        startDate = form.startDate,
+        endDate = form.endDate,
+        notes = form.notes,
+        isSynced = true,
+    )
 }
 
-fun CreateUserMedicationForm.toUserMedicationDB(): UserMedicationDB {
-    return this.let { form ->
-        UserMedicationDB(
-            medicationId = form.medicationId,
-            userId = form.userId,
-            dosage = form.dosage,
-            frequency = form.frequency,
-            startDate = form.startDate,
-            endDate = form.endDate,
-            notes = form.notes,
-            isSynced = false
-        )
-    }
+fun CreateUserMedicationForm.toUserMedicationDB(): UserMedicationDB = this.let { form ->
+    UserMedicationDB(
+        id = UUID.randomUUID(),
+        medicationId = form.medicationId,
+        userId = form.userId,
+        dosage = form.dosage,
+        frequency = form.frequency,
+        startDate = form.startDate,
+        endDate = form.endDate,
+        notes = form.notes,
+        isSynced = false,
+    )
 }
 
-
-fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> {
-    return this.map { it.toUserMedicationDB() }
-}
+fun List<UserMedicationResult>.toUserMedicationDBList(): List<UserMedicationDB> = this.map { it.toUserMedicationDB() }
 
 fun MedicationDB?.toMedicationResult(): MedicationResult? {
     if (this == null) return null
@@ -49,17 +45,18 @@ fun MedicationDB?.toMedicationResult(): MedicationResult? {
         manufacturer = this.manufacturer,
         form = this.form,
         strength = this.strength,
-        description = this.description
+        description = this.description,
     )
 }
 
 fun parseUserMedicationDBtoUserMedicationResult(
     userMedication: UserMedicationDB?,
-    medication: MedicationResult?
+    medication: MedicationResult?,
 ): UserMedicationResult? {
     if (userMedication != null) {
         if (medication != null) {
             return UserMedicationResult(
+                id = userMedication.id,
                 medicationId = userMedication.medicationId,
                 userId = userMedication.userId,
                 dosage = userMedication.dosage,
@@ -71,7 +68,7 @@ fun parseUserMedicationDBtoUserMedicationResult(
                 manufacturer = medication.manufacturer,
                 form = medication.form,
                 strength = medication.strength,
-                description = medication.description
+                description = medication.description,
             )
         }
     }
@@ -81,6 +78,7 @@ fun parseUserMedicationDBtoUserMedicationResult(
 fun UserMedicationDB?.toUserMedicationResult(): UserMedicationResult? {
     if (this == null) return null
     return UserMedicationResult(
+        id = this.id,
         medicationId = this.medicationId,
         userId = this.userId,
         dosage = this.dosage,
@@ -92,6 +90,6 @@ fun UserMedicationDB?.toUserMedicationResult(): UserMedicationResult? {
         manufacturer = "",
         form = "",
         strength = "",
-        description = ""
+        description = "",
     )
 }

@@ -1,17 +1,20 @@
 package pl.example.databasemodule.database
 
 import android.content.Context
+import android.database.sqlite.SQLiteException
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.room.Room
-import pl.example.databasemodule.database.migration.MIGRATION_1_2
-import pl.example.databasemodule.database.migration.MIGRATION_2_3
-import pl.example.databasemodule.database.migration.MIGRATION_3_4
-import pl.example.databasemodule.database.migration.MIGRATION_4_5
-import pl.example.databasemodule.database.migration.MIGRATION_5_6
-import pl.example.databasemodule.database.migration.MIGRATION_6_7
+import net.sqlcipher.database.SQLiteDatabase
+import net.sqlcipher.database.SupportFactory
+import pl.example.databasemodule.database.security.EncryptedKeyProvider
 
+@RequiresApi(Build.VERSION_CODES.M)
 object ResearchResultManager {
     @Volatile
     private var db: GlucoConnectMobileBase? = null
+
 
     fun getDatabase(context: Context): GlucoConnectMobileBase {
 
@@ -20,15 +23,33 @@ object ResearchResultManager {
         }
     }
 
+
     private fun buildDatabase(context: Context): GlucoConnectMobileBase {
-        return Room.databaseBuilder(
-            context.applicationContext,
-            GlucoConnectMobileBase::class.java,
-            "GlucoConnect_mobileBase"
-        )
-            .fallbackToDestructiveMigration()
-            //.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
-            .fallbackToDestructiveMigration()
-            .build()
+        SQLiteDatabase.loadLibs(context)
+        val dbFile = context.getDatabasePath("GlucoConnect_mobileBase")
+        val passphrase = EncryptedKeyProvider.getOrCreateDatabasePassphrase(context)
+        val factory = SupportFactory(passphrase)
+
+        return try {
+            Room.databaseBuilder(
+                context.applicationContext,
+                GlucoConnectMobileBase::class.java,
+                "GlucoConnect_mobileBase"
+            )
+                .openHelperFactory(factory)
+                .fallbackToDestructiveMigration(true)
+                .build()
+        } catch (e: SQLiteException) {
+            Log.e("ResearchResultManager", "Error opening database: ${e.message}")
+            dbFile.delete()
+            Room.databaseBuilder(
+                context.applicationContext,
+                GlucoConnectMobileBase::class.java,
+                "GlucoConnect_mobileBase"
+            )
+                .openHelperFactory(factory)
+                .fallbackToDestructiveMigration()
+                .build()
+        }
     }
 }

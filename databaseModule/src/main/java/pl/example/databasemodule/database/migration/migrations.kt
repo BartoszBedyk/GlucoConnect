@@ -68,6 +68,7 @@ val MIGRATION_4_5 = object : androidx.room.migration.Migration(4, 5) {
         db.execSQL(
             """
             CREATE TABLE IF NOT EXISTS user_medication_new (
+                id CHAR(36) PRIMARY KEY,
                 medication_id TEXT NOT NULL,
                 user_id TEXT NOT NULL,
                 dosage TEXT NOT NULL,
@@ -76,7 +77,7 @@ val MIGRATION_4_5 = object : androidx.room.migration.Migration(4, 5) {
                 end_date INTEGER,
                 notes TEXT,
                 is_synced INTEGER NOT NULL,
-                PRIMARY KEY (user_id, medication_id)
+                
             )
         """.trimIndent()
         )
@@ -134,7 +135,7 @@ val MIGRATION_6_7 = object : androidx.room.migration.Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(
             """
-            CREATE TABLE IF NOT EXISTS glucose_results_new (
+            CREATE TABLE IF NOT EXISTS user_medication_new (
             id CHAR(36) PRIMARY KEY,
             glucose_concentration DOUBLE PRECISION NOT NULL,
             unit VARCHAR(30) NOT NULL,

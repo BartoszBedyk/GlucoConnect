@@ -1,0 +1,71 @@
+name: Android CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  build-test-spotless:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Scan latest commit for secrets
+        run: |
+          curl -sSL https://github.com/zricethezav/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar xz
+          ./gitleaks detect \
+            --config .gitleaks.toml \
+            --redact \
+            --exit-code=2 \
+            --report-format=sarif \
+            --report-path=results.sarif \
+            HEAD^..HEAD
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Add ktor certificate
+        run: |
+          mkdir -p app/src/main/res/raw
+          echo "$KTOR_CERT" > app/src/main/res/raw/ktor.crt
+        env:
+          KTOR_CERT: ${{ secrets.KTOR_CERT }}
+
+      - name: Prepare Ktor certificate
+        run: |
+          mkdir -p networkModule/src/main/res/raw
+          echo "${KTOR_CERT}" > networkModule/src/main/res/raw/ktor.crt
+        env:
+          KTOR_CERT: ${{ secrets.KTOR_CERT }}
+
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle
+
+      - name: Build with Gradle
+        run: ./gradlew build --stacktrace
+
+      - name: Run tests
+        run: ./gradlew test --stacktrace
+
+      - name: Spotless check
+        run: ./gradlew spotlessCheck --stacktrace

@@ -17,14 +17,10 @@ import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import pl.example.aplikacja.UiElements.BottomNavigationItem
+import pl.example.aplikacja.uiElements.BottomNavigationItem
 import pl.example.networkmodule.apiData.enumTypes.UserType
 
-
-class BottomNavBarViewModel(
-    private var userType: UserType
-) : ViewModel() {
-
+class BottomNavBarViewModel(private var userType: UserType) : ViewModel() {
 
     val items = mutableStateListOf<BottomNavigationItem>()
     val selectedItemIndex = mutableStateOf(0)
@@ -42,7 +38,6 @@ class BottomNavBarViewModel(
         }
     }
 
-
     private fun loadItemsForUser() {
         val newItems = when (userType) {
             UserType.ADMIN -> getAdminItems()
@@ -57,17 +52,17 @@ class BottomNavBarViewModel(
     private fun getAdminItems(): List<BottomNavigationItem> = listOf(
         BottomNavigationItem("admin_main_screen", Icons.Default.Home, Icons.Outlined.Home, false),
         BottomNavigationItem(
-            title ="download_results",
+            title = "download_results",
             selectedIcon = Icons.Default.KeyboardArrowDown,
             unselectedIcon = Icons.Outlined.KeyboardArrowDown,
-            hasNews = false
+            hasNews = false,
         ),
         BottomNavigationItem(
             "user_profile_screen",
             Icons.Default.Person,
             Icons.Outlined.Person,
-            false
-        )
+            false,
+        ),
     )
 
     private fun getObserverItems(): List<BottomNavigationItem> = listOf(
@@ -75,14 +70,14 @@ class BottomNavBarViewModel(
             "observer_main_screen",
             Icons.Default.Home,
             Icons.Outlined.Home,
-            false
+            false,
         ),
         BottomNavigationItem(
             "user_profile_screen",
             Icons.Default.Person,
             Icons.Outlined.Person,
-            false
-        )
+            false,
+        ),
     )
 
     private fun getPatientItems(): List<BottomNavigationItem> = listOf(
@@ -90,26 +85,26 @@ class BottomNavBarViewModel(
             title = "main_screen",
             selectedIcon = Icons.Filled.Home,
             unselectedIcon = Icons.Outlined.Home,
-            hasNews = false
+            hasNews = false,
         ),
         BottomNavigationItem(
             title = "all_results_screen",
             selectedIcon = Icons.Filled.Menu,
             unselectedIcon = Icons.Outlined.Menu,
-            hasNews = false
+            hasNews = false,
         ),
         BottomNavigationItem(
             title = "user_medication_screen",
             selectedIcon = Icons.Filled.ShoppingCart,
             unselectedIcon = Icons.Outlined.ShoppingCart,
-            hasNews = false
+            hasNews = false,
         ),
         BottomNavigationItem(
             title = "user_profile_screen",
             selectedIcon = Icons.Filled.AccountCircle,
             unselectedIcon = Icons.Outlined.AccountCircle,
-            hasNews = false
-        )
+            hasNews = false,
+        ),
 
     )
 
@@ -119,7 +114,7 @@ class BottomNavBarViewModel(
             "user_profile_screen",
             Icons.Default.Person,
             Icons.Outlined.Person,
-            false
-        )
+            false,
+        ),
     )
 }
